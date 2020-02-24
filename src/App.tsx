@@ -12,7 +12,7 @@ const App = () => {
     pitch: 0
   });
   return (
-    <div className="App">
+    <div data-testid="app" className="App">
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
       </header>
