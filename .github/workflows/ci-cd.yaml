@@ -1,5 +1,5 @@
 ---
-name: CI
+name: CI/CD
 
 "on": [push, pull_request]
 
@@ -25,3 +25,11 @@ jobs:
         run: yarn test
         env:
           CI: true
+      - name: Compile an optimized build
+        run: yarn build --frozen-lockfile
+      - name: Publish to GitHub Pages
+        uses: peaceiris/actions-gh-pages@364c31d33bb99327c77b3a5438a83a357a6729ad
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./build
+        if: github.ref == 'refs/heads/master'
