@@ -15,6 +15,7 @@
     "react-scripts": "3.4.0",
     "typescript": "~3.7.2"
   },
+  "homepage": "https://sproutverse.github.io/gatesolve-ui",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
