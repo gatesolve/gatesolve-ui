@@ -1,24 +1,28 @@
-import React from 'react';
+import React, {useState} from 'react';
 import logo from './logo.svg';
+import MapGL from 'react-map-gl';
 import './App.css';
 
-function App() {
+const App = () => {
+  const [viewport, setViewport] = useState({
+    latitude: 60.17,
+    longitude: 24.94,
+    zoom: 14,
+    bearing: 0,
+    pitch: 0
+  });
   return (
-    <div className="App">
+    <div data-testid="app" className="App">
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
       </header>
+      <MapGL
+        {...viewport}
+        width="100vw"
+        height="90vh"
+        mapStyle="https://raw.githubusercontent.com/HSLdevcom/hsl-map-style/master/simple-style.json"
+        onViewportChange={setViewport}
+      />
     </div>
   );
 }
