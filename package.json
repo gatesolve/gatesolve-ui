@@ -22,7 +22,11 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "eslint-check": "eslint --print-config src/App.tsx | eslint-config-prettier-check",
+    "eslint": "eslint --ext .js,.jsx,.ts,.tsx ./",
+    "prettier-check": "prettier --check .prettierrc.js .eslintrc.js package.json tsconfig.json \"{src,public}/**/*{.js,.jsx,.ts,.tsx,.json,.css}\"",
+    "prettier": "prettier --write .prettierrc.js .eslintrc.js package.json tsconfig.json \"{src,public}/**/*{.js,.jsx,.ts,.tsx,.json,.css}\""
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -38,5 +42,20 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^2.19.0",
+    "@typescript-eslint/parser": "^2.21.0",
+    "eslint": "^6.8.0",
+    "eslint-config-airbnb-typescript": "^7.0.0",
+    "eslint-config-prettier": "^6.10.0",
+    "eslint-plugin-eslint-comments": "^3.1.2",
+    "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-jest": "^23.8.0",
+    "eslint-plugin-jsx-a11y": "^6.2.3",
+    "eslint-plugin-prettier": "^3.1.2",
+    "eslint-plugin-react": "^7.15.1",
+    "eslint-plugin-react-hooks": "^1.7.0",
+    "prettier": "^1.19.1"
   }
 }

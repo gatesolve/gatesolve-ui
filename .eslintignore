@@ -1,0 +1,10 @@
+node_modules
+build
+
+# This file defines necessary types but causes issues with ESLint:
+# https://github.com/facebook/create-react-app/issues/6560#issuecomment-524688843
+src/react-app-env.d.ts
+
+# This file was created by Create React App so let's not lint it until we need
+# to touch it.
+src/serviceWorker.ts
