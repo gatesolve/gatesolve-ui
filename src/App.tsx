@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import MapGL, { Source, Layer, ViewportProps } from "react-map-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { Expression } from "mapbox-gl";
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { FeatureCollection } from "geojson";
 import logo from "./logo.svg";
 import "./App.css";
-import { FeatureCollection } from "geojson";
-import { Expression } from "mapbox-gl";
 
 export const routeLineLayer = {
   id: "route-line",
@@ -97,13 +99,19 @@ const App: React.FC = () => {
         width="100vw"
         height="90vh"
         mapStyle="https://raw.githubusercontent.com/HSLdevcom/hsl-map-style/master/simple-style.json"
-        onViewportChange={viewport =>
-          setState(prevState => ({ ...prevState, viewport }))
+        onViewportChange={(viewport): void =>
+          setState((prevState): State => ({ ...prevState, viewport }))
         }
       >
         <Source type="geojson" data={state.route}>
-          <Layer {...routeLineLayer} />
-          <Layer {...routePointLayer} />
+          <Layer
+            // eslint-disable-next-line react/jsx-props-no-spreading
+            {...routeLineLayer}
+          />
+          <Layer
+            // eslint-disable-next-line react/jsx-props-no-spreading
+            {...routePointLayer}
+          />
         </Source>
       </MapGL>
     </div>
