@@ -22,7 +22,11 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "eslint-check": "eslint --print-config src/App.tsx | eslint-config-prettier-check",
+    "eslint": "eslint --ext .js,.jsx,.ts,.tsx ./",
+    "prettier-check": "prettier --check .prettierrc.js .eslintrc.js package.json tsconfig.json \"{src,public}/**/*{.js,.jsx,.ts,.tsx,.json,.css}\"",
+    "prettier": "prettier --write .prettierrc.js .eslintrc.js package.json tsconfig.json \"{src,public}/**/*{.js,.jsx,.ts,.tsx,.json,.css}\""
   },
   "eslintConfig": {
     "extends": "react-app"
