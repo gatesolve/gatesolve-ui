@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import logo from './logo.svg';
 import MapGL from 'react-map-gl';
+import 'mapbox-gl/dist/mapbox-gl.css';
 import './App.css';
 
 const App = () => {
