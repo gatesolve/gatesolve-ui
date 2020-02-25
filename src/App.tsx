@@ -1,7 +1,7 @@
-import React, {useState} from 'react';
-import logo from './logo.svg';
-import MapGL from 'react-map-gl';
-import './App.css';
+import React, { useState } from "react";
+import logo from "./logo.svg";
+import MapGL from "react-map-gl";
+import "./App.css";
 
 const App = () => {
   const [viewport, setViewport] = useState({
@@ -25,6 +25,6 @@ const App = () => {
       />
     </div>
   );
-}
+};
 
 export default App;
