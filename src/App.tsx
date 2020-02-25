@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import logo from "./logo.svg";
 import MapGL from "react-map-gl";
+import logo from "./logo.svg";
 import "./App.css";
 
-const App = () => {
+const App: React.FC = () => {
   const [viewport, setViewport] = useState({
     latitude: 60.17,
     longitude: 24.94,
@@ -17,6 +17,9 @@ const App = () => {
         <img src={logo} className="App-logo" alt="logo" />
       </header>
       <MapGL
+        // This is according to the Get Started materials:
+        // https://uber.github.io/react-map-gl/docs/get-started/get-started/
+        // eslint-disable-next-line react/jsx-props-no-spreading
         {...viewport}
         width="100vw"
         height="90vh"
