@@ -21,6 +21,12 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - name: Install dependencies
         run: yarn --frozen-lockfile
+      - name: Check that ESLint config is consistent with Prettier
+        run: yarn eslint-check
+      - name: Check that code has been prettified
+        run: yarn prettier-check
+      - name: Run ESLint
+        run: yarn eslint
       - name: Run tests
         run: yarn test
         env:
