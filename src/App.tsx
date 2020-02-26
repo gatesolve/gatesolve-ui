@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import MapGL, { Source, Layer, ViewportProps } from "react-map-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { Expression } from "mapbox-gl";
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { FeatureCollection } from "geojson";
+import { FlexibleTransitPlanner } from "plannerjs";
 import logo from "./logo.svg";
 import "./App.css";
 
@@ -42,20 +43,6 @@ const initialState: State = {
       {
         type: "Feature",
         geometry: {
-          type: "LineString",
-          coordinates: [
-            [24.94, 60.17],
-            [24.95, 60.175],
-            [24.95, 60.18]
-          ]
-        },
-        properties: {
-          color: "#000"
-        }
-      },
-      {
-        type: "Feature",
-        geometry: {
           type: "Point",
           coordinates: [24.94, 60.17]
         },
@@ -86,6 +73,73 @@ const initialState: State = {
 
 const App: React.FC = () => {
   const [state, setState] = useState(initialState);
+
+  useEffect(() => {
+    const planner = new FlexibleTransitPlanner();
+    planner
+      .query({
+        from: { latitude: state.origin[0], longitude: state.origin[1] },
+        to: { latitude: state.destination[0], longitude: state.destination[1] },
+        roadNetworkOnly: true
+      })
+      .take(1)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .on("data", async (path: any) => {
+        const completePath = await planner.completePath(path);
+        const coordinates = [] as Array<[number, number]>;
+        completePath.legs[0].getSteps().forEach(step => {
+          coordinates.push([
+            step.startLocation.longitude as number,
+            step.startLocation.latitude as number
+          ]);
+          coordinates.push([
+            step.stopLocation.longitude as number,
+            step.stopLocation.latitude as number
+          ]);
+        });
+        setState(
+          (prevState): State => ({
+            ...prevState,
+            route: {
+              type: "FeatureCollection",
+              features: [
+                {
+                  type: "Feature",
+                  geometry: {
+                    type: "LineString",
+                    coordinates
+                  },
+                  properties: {
+                    color: "#000"
+                  }
+                },
+                {
+                  type: "Feature",
+                  geometry: {
+                    type: "Point",
+                    coordinates: [24.94, 60.17]
+                  },
+                  properties: {
+                    color: "#00f"
+                  }
+                },
+                {
+                  type: "Feature",
+                  geometry: {
+                    type: "Point",
+                    coordinates: [24.95, 60.18]
+                  },
+                  properties: {
+                    color: "#0f0"
+                  }
+                }
+              ]
+            }
+          })
+        );
+      });
+  }, [state.origin, state.destination]);
+
   return (
     <div data-testid="app" className="App">
       <header className="App-header">
