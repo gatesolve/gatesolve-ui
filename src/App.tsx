@@ -117,7 +117,7 @@ const App: React.FC = () => {
                   type: "Feature",
                   geometry: {
                     type: "Point",
-                    coordinates: [24.94, 60.17]
+                    coordinates: [state.origin[1], state.origin[0]]
                   },
                   properties: {
                     color: "#00f"
@@ -127,7 +127,7 @@ const App: React.FC = () => {
                   type: "Feature",
                   geometry: {
                     type: "Point",
-                    coordinates: [24.95, 60.18]
+                    coordinates: [state.destination[1], state.destination[0]]
                   },
                   properties: {
                     color: "#0f0"
@@ -156,6 +156,25 @@ const App: React.FC = () => {
         onViewportChange={(viewport): void =>
           setState((prevState): State => ({ ...prevState, viewport }))
         }
+        onClick={(event): void => {
+          // Filter out events not caused by left mouse button
+          if (event.srcEvent.button !== 0) return;
+          setState(
+            (prevState): State => ({
+              ...prevState,
+              destination: [event.lngLat[1], event.lngLat[0]]
+            })
+          );
+        }}
+        onContextMenu={(event): void => {
+          setState(
+            (prevState): State => ({
+              ...prevState,
+              origin: [event.lngLat[1], event.lngLat[0]]
+            })
+          );
+          event.srcEvent.preventDefault();
+        }}
       >
         <Source type="geojson" data={state.route}>
           <Layer
