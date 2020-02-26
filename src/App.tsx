@@ -2,30 +2,11 @@ import React, { useState, useEffect } from "react";
 import MapGL, { Source, Layer, ViewportProps } from "react-map-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 // eslint-disable-next-line import/no-extraneous-dependencies
-import { Expression } from "mapbox-gl";
-// eslint-disable-next-line import/no-extraneous-dependencies
 import { FeatureCollection } from "geojson";
 import { FlexibleTransitPlanner } from "plannerjs";
+import { routePointLayer, routeLineLayer } from "./map-style";
 import logo from "./logo.svg";
 import "./App.css";
-
-export const routeLineLayer = {
-  id: "route-line",
-  type: "line",
-  paint: {
-    "line-opacity": 0.5,
-    "line-width": 5
-  }
-};
-export const routePointLayer = {
-  id: "route-point",
-  type: "circle",
-  paint: {
-    "circle-radius": 5,
-    "circle-color": ["get", "color"] as Expression
-  },
-  filter: ["==", "Point", ["geometry-type"]]
-};
 
 type State = {
   viewport: Partial<ViewportProps>;
