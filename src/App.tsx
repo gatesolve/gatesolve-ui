@@ -2,30 +2,11 @@ import React, { useState, useEffect } from "react";
 import MapGL, { Source, Layer, ViewportProps } from "react-map-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 // eslint-disable-next-line import/no-extraneous-dependencies
-import { Expression } from "mapbox-gl";
-// eslint-disable-next-line import/no-extraneous-dependencies
 import { FeatureCollection } from "geojson";
-import { FlexibleTransitPlanner } from "plannerjs";
+import { routePointLayer, routeLineLayer } from "./map-style";
+import calculatePlan, { geometryToGeoJSON } from "./planner";
 import logo from "./logo.svg";
 import "./App.css";
-
-export const routeLineLayer = {
-  id: "route-line",
-  type: "line",
-  paint: {
-    "line-opacity": 0.5,
-    "line-width": 5
-  }
-};
-export const routePointLayer = {
-  id: "route-point",
-  type: "circle",
-  paint: {
-    "circle-radius": 5,
-    "circle-color": ["get", "color"] as Expression
-  },
-  filter: ["==", "Point", ["geometry-type"]]
-};
 
 type State = {
   viewport: Partial<ViewportProps>;
@@ -34,34 +15,12 @@ type State = {
   route: FeatureCollection;
 };
 
+const initialOrigin = [60.17, 24.94] as [number, number];
+const initialDestination = [60.18, 24.95] as [number, number];
 const initialState: State = {
-  origin: [60.17, 24.94],
-  destination: [60.18, 24.95],
-  route: {
-    type: "FeatureCollection",
-    features: [
-      {
-        type: "Feature",
-        geometry: {
-          type: "Point",
-          coordinates: [24.94, 60.17]
-        },
-        properties: {
-          color: "#00f"
-        }
-      },
-      {
-        type: "Feature",
-        geometry: {
-          type: "Point",
-          coordinates: [24.95, 60.18]
-        },
-        properties: {
-          color: "#0f0"
-        }
-      }
-    ]
-  },
+  origin: initialOrigin,
+  destination: initialDestination,
+  route: geometryToGeoJSON(initialOrigin, initialDestination, []),
   viewport: {
     latitude: 60.17,
     longitude: 24.94,
@@ -75,69 +34,23 @@ const App: React.FC = () => {
   const [state, setState] = useState(initialState);
 
   useEffect(() => {
-    const planner = new FlexibleTransitPlanner();
-    planner
-      .query({
-        from: { latitude: state.origin[0], longitude: state.origin[1] },
-        to: { latitude: state.destination[0], longitude: state.destination[1] },
-        roadNetworkOnly: true
-      })
-      .take(1)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .on("data", async (path: any) => {
-        const completePath = await planner.completePath(path);
-        const coordinates = [] as Array<[number, number]>;
-        completePath.legs[0].getSteps().forEach(step => {
-          coordinates.push([
-            step.startLocation.longitude as number,
-            step.startLocation.latitude as number
-          ]);
-          coordinates.push([
-            step.stopLocation.longitude as number,
-            step.stopLocation.latitude as number
-          ]);
-        });
-        setState(
-          (prevState): State => ({
+    calculatePlan(state.origin, state.destination, geojson => {
+      setState(
+        (prevState): State => {
+          // don't use the result if the parameters changed meanwhile
+          if (
+            state.origin !== prevState.origin ||
+            state.destination !== prevState.destination
+          ) {
+            return prevState;
+          }
+          return {
             ...prevState,
-            route: {
-              type: "FeatureCollection",
-              features: [
-                {
-                  type: "Feature",
-                  geometry: {
-                    type: "LineString",
-                    coordinates
-                  },
-                  properties: {
-                    color: "#000"
-                  }
-                },
-                {
-                  type: "Feature",
-                  geometry: {
-                    type: "Point",
-                    coordinates: [state.origin[1], state.origin[0]]
-                  },
-                  properties: {
-                    color: "#00f"
-                  }
-                },
-                {
-                  type: "Feature",
-                  geometry: {
-                    type: "Point",
-                    coordinates: [state.destination[1], state.destination[0]]
-                  },
-                  properties: {
-                    color: "#0f0"
-                  }
-                }
-              ]
-            }
-          })
-        );
-      });
+            route: geojson
+          };
+        }
+      );
+    });
   }, [state.origin, state.destination]);
 
   return (
