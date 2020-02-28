@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 importScripts(
-  "/gatesolve-ui/precache-manifest.f3a36140f06eb9bc86a59acc7031a125.js"
+  "/gatesolve-ui/precache-manifest.9490267b387949e44f7b78e7eb5b482c.js"
 );
 
 self.addEventListener('message', (event) => {
