@@ -3,7 +3,9 @@ import MapGL, { Source, Layer, ViewportProps } from "react-map-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { FeatureCollection } from "geojson";
+
 import { routePointLayer, routeLineLayer } from "./map-style";
+import PinMarker from "./components/PinMarker";
 import calculatePlan, { geometryToGeoJSON } from "./planner";
 import logo from "./logo.svg";
 import "./App.css";
@@ -99,6 +101,16 @@ const App: React.FC = () => {
             {...routePointLayer}
           />
         </Source>
+        <PinMarker
+          longitude={state.origin[1]}
+          latitude={state.origin[0]}
+          style={{ fill: "#00f" }}
+        />
+        <PinMarker
+          longitude={state.destination[1]}
+          latitude={state.destination[0]}
+          style={{ fill: "#0f0" }}
+        />
       </MapGL>
     </div>
   );
