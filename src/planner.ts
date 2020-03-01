@@ -112,7 +112,11 @@ export default function calculatePlan(
           .on("data", async (path: any) => {
             const completePath = await planner.completePath(path);
             const geometry = extractGeometry(completePath);
-            const geoJSON = geometryToGeoJSON(origin, destination, geometry);
+            const geoJSON = geometryToGeoJSON(
+              origin,
+              [target.lat, target.lon],
+              geometry
+            );
             callback(geoJSON);
           });
       });
