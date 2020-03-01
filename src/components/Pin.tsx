@@ -5,7 +5,7 @@ export interface PinProps {
   style?: React.CSSProperties;
 }
 
-const Pin: React.SFC<PinProps> = ({
+const Pin: React.FC<PinProps> = ({
   height = "50",
   style = { fill: "#444", stroke: "none" }
 }) => {

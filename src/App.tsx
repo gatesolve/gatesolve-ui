@@ -10,15 +10,15 @@ import calculatePlan, { geometryToGeoJSON } from "./planner";
 import logo from "./logo.svg";
 import "./App.css";
 
-type State = {
+interface State {
   viewport: Partial<ViewportProps>;
   origin: [number, number];
   destination: [number, number];
   route: FeatureCollection;
-};
+}
 
-const initialOrigin = [60.17, 24.94] as [number, number];
-const initialDestination = [60.18, 24.95] as [number, number];
+const initialOrigin: [number, number] = [60.17, 24.94];
+const initialDestination: [number, number] = [60.18, 24.95];
 const initialState: State = {
   origin: initialOrigin,
   destination: initialDestination,
@@ -102,14 +102,15 @@ const App: React.FC = () => {
           />
         </Source>
         <PinMarker
-          longitude={state.origin[1]}
-          latitude={state.origin[0]}
-          style={{ fill: "#00f" }}
+          marker={{ longitude: state.origin[1], latitude: state.origin[0] }}
+          pin={{ style: { fill: "#00f" } }}
         />
         <PinMarker
-          longitude={state.destination[1]}
-          latitude={state.destination[0]}
-          style={{ fill: "#0f0" }}
+          marker={{
+            longitude: state.destination[1],
+            latitude: state.destination[0]
+          }}
+          pin={{ style: { fill: "#0f0" } }}
         />
       </MapGL>
     </div>
