@@ -8,7 +8,7 @@ export interface PinMarkerProps extends PinProps {
   latitude: number;
 }
 
-const PinMarker: React.SFC<PinMarkerProps> = ({
+const PinMarker: React.FC<PinMarkerProps> = ({
   longitude,
   latitude,
   // FIXME: Avoid repetition with Pin
