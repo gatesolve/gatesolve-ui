@@ -61,24 +61,61 @@ export function geometryToGeoJSON(
   };
 }
 
+const buildEntranceQuery = (lat: number, lon: number): string => `
+  [out:json][timeout:25];
+  (
+    relation(around:10, ${lat}, ${lon})[building];
+    way(r);
+    way(around:10, ${lat}, ${lon})[building];
+  )->.b;
+  // gather results
+  (
+    node(w.b)[entrance];
+  );
+  // print results
+  out body;
+  >;
+  out skel qt;
+`;
+
 export default function calculatePlan(
   origin: [number, number],
   destination: [number, number],
   callback: (f: FeatureCollection) => void
 ): void {
-  const planner = new FlexibleTransitPlanner();
-  planner
-    .query({
-      from: { latitude: origin[0], longitude: origin[1] },
-      to: { latitude: destination[0], longitude: destination[1] },
-      roadNetworkOnly: true
+  const url = new URL("https://overpass-api.de/api/interpreter");
+  url.searchParams.append(
+    "data",
+    buildEntranceQuery(destination[0], destination[1])
+  );
+  fetch(url.toString()).then(response =>
+    response.json().then(body => {
+      let targets = body.elements.filter(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (element: any) =>
+          element.type === "node" && element.tags && element.tags.entrance
+      );
+      if (!targets.length) {
+        targets = [{ lat: destination[0], lon: destination[1] }];
+      }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      targets.forEach((target: any) => {
+        const planner = new FlexibleTransitPlanner();
+        planner
+          .query({
+            from: { latitude: origin[0], longitude: origin[1] },
+            to: { latitude: target.lat, longitude: target.lon },
+            roadNetworkOnly: true
+          })
+          .take(1)
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          .on("data", async (path: any) => {
+            const completePath = await planner.completePath(path);
+            const geometry = extractGeometry(completePath);
+            const geoJSON = geometryToGeoJSON(origin, destination, geometry);
+            callback(geoJSON);
+          });
+      });
     })
-    .take(1)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    .on("data", async (path: any) => {
-      const completePath = await planner.completePath(path);
-      const geometry = extractGeometry(completePath);
-      const geoJSON = geometryToGeoJSON(origin, destination, geometry);
-      callback(geoJSON);
-    });
+  );
 }
