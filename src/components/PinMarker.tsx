@@ -1,28 +1,28 @@
 import React from "react";
-import { Marker } from "react-map-gl";
+import { Marker, MarkerProps } from "react-map-gl";
 
 import Pin, { PinProps } from "./Pin";
 
-export interface PinMarkerProps extends PinProps {
-  longitude: number;
-  latitude: number;
+export interface PinMarkerProps {
+  marker: MarkerProps;
+  pin: PinProps;
 }
 
 const PinMarker: React.FC<PinMarkerProps> = ({
-  longitude,
-  latitude,
-  // FIXME: Avoid repetition with Pin
-  height = "50",
-  style = { fill: "#444", stroke: "none" }
+  pin: { height = "50", ...otherPinProps },
+  marker
 }) => {
   return (
     <Marker
-      latitude={latitude}
-      longitude={longitude}
+      // eslint-disable-next-line react/jsx-props-no-spreading
+      {...marker}
       offsetLeft={-height / 2}
       offsetTop={-height}
     >
-      <Pin height={height} style={style} />
+      <Pin
+        // eslint-disable-next-line react/jsx-props-no-spreading
+        {...{ height, ...otherPinProps }}
+      />
     </Marker>
   );
 };

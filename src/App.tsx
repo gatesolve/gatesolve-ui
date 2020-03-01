@@ -102,14 +102,15 @@ const App: React.FC = () => {
           />
         </Source>
         <PinMarker
-          longitude={state.origin[1]}
-          latitude={state.origin[0]}
-          style={{ fill: "#00f" }}
+          marker={{ longitude: state.origin[1], latitude: state.origin[0] }}
+          pin={{ style: { fill: "#00f" } }}
         />
         <PinMarker
-          longitude={state.destination[1]}
-          latitude={state.destination[0]}
-          style={{ fill: "#0f0" }}
+          marker={{
+            longitude: state.destination[1],
+            latitude: state.destination[0]
+          }}
+          pin={{ style: { fill: "#0f0" } }}
         />
       </MapGL>
     </div>
