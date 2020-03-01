@@ -2,6 +2,8 @@ import { FlexibleTransitPlanner } from "plannerjs";
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { FeatureCollection } from "geojson";
 
+import { queryEntrances } from "./overpass";
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function extractGeometry(path: any): Array<[number, number]> {
   const coordinates = [] as Array<[number, number]>;
@@ -61,45 +63,22 @@ export function geometryToGeoJSON(
   };
 }
 
-const buildEntranceQuery = (lat: number, lon: number): string => `
-  [out:json][timeout:25];
-  (
-    relation(around:10, ${lat}, ${lon})[building];
-    way(r);
-    way(around:10, ${lat}, ${lon})[building];
-  )->.b;
-  // gather results
-  (
-    node(w.b)[entrance];
-  );
-  // print results
-  out body;
-  >;
-  out skel qt;
-`;
-
 export default function calculatePlan(
   origin: [number, number],
   destination: [number, number],
   callback: (f: FeatureCollection) => void
 ): void {
-  const url = new URL("https://overpass-api.de/api/interpreter");
-  url.searchParams.append(
-    "data",
-    buildEntranceQuery(destination[0], destination[1])
-  );
-  fetch(url.toString()).then(response =>
-    response.json().then(body => {
-      let targets = body.elements.filter(
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (element: any) =>
-          element.type === "node" && element.tags && element.tags.entrance
-      );
-      if (!targets.length) {
-        targets = [{ lat: destination[0], lon: destination[1] }];
+  queryEntrances(destination)
+    .then(entrances => {
+      if (!entrances.length) {
+        return [
+          { id: -1, type: "node", lat: destination[0], lon: destination[1] }
+        ];
       }
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      targets.forEach((target: any) => {
+      return entrances;
+    })
+    .then(targets => {
+      targets.forEach(target => {
         const planner = new FlexibleTransitPlanner();
         planner
           .query({
@@ -120,6 +99,5 @@ export default function calculatePlan(
             callback(geoJSON);
           });
       });
-    })
-  );
+    });
 }
