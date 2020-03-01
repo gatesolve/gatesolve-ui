@@ -36,6 +36,12 @@ const App: React.FC = () => {
   const [state, setState] = useState(initialState);
 
   useEffect(() => {
+    setState(
+      (prevState): State => ({
+        ...prevState,
+        route: geometryToGeoJSON(state.origin, state.destination, [])
+      })
+    );
     calculatePlan(state.origin, state.destination, geojson => {
       setState(
         (prevState): State => {
@@ -46,6 +52,7 @@ const App: React.FC = () => {
           ) {
             return prevState;
           }
+          geojson.features.push(...prevState.route.features);
           return {
             ...prevState,
             route: geojson

@@ -2,6 +2,8 @@ import { FlexibleTransitPlanner } from "plannerjs";
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { FeatureCollection } from "geojson";
 
+import { queryEntrances } from "./overpass";
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function extractGeometry(path: any): Array<[number, number]> {
   const coordinates = [] as Array<[number, number]>;
@@ -66,19 +68,36 @@ export default function calculatePlan(
   destination: [number, number],
   callback: (f: FeatureCollection) => void
 ): void {
-  const planner = new FlexibleTransitPlanner();
-  planner
-    .query({
-      from: { latitude: origin[0], longitude: origin[1] },
-      to: { latitude: destination[0], longitude: destination[1] },
-      roadNetworkOnly: true
+  queryEntrances(destination)
+    .then(entrances => {
+      if (!entrances.length) {
+        return [
+          { id: -1, type: "node", lat: destination[0], lon: destination[1] }
+        ];
+      }
+      return entrances;
     })
-    .take(1)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    .on("data", async (path: any) => {
-      const completePath = await planner.completePath(path);
-      const geometry = extractGeometry(completePath);
-      const geoJSON = geometryToGeoJSON(origin, destination, geometry);
-      callback(geoJSON);
+    .then(targets => {
+      targets.forEach(target => {
+        const planner = new FlexibleTransitPlanner();
+        planner
+          .query({
+            from: { latitude: origin[0], longitude: origin[1] },
+            to: { latitude: target.lat, longitude: target.lon },
+            roadNetworkOnly: true
+          })
+          .take(1)
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          .on("data", async (path: any) => {
+            const completePath = await planner.completePath(path);
+            const geometry = extractGeometry(completePath);
+            const geoJSON = geometryToGeoJSON(
+              origin,
+              [target.lat, target.lon],
+              geometry
+            );
+            callback(geoJSON);
+          });
+      });
     });
 }
