@@ -17,8 +17,8 @@ interface State {
   route: FeatureCollection;
 }
 
-const initialOrigin = [60.17, 24.94] as [number, number];
-const initialDestination = [60.18, 24.95] as [number, number];
+const initialOrigin: [number, number] = [60.17, 24.94];
+const initialDestination: [number, number] = [60.18, 24.95];
 const initialState: State = {
   origin: initialOrigin,
   destination: initialDestination,
