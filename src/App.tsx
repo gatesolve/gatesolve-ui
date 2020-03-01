@@ -102,11 +102,32 @@ const App: React.FC = () => {
           />
         </Source>
         <PinMarker
-          marker={{ longitude: state.origin[1], latitude: state.origin[0] }}
+          marker={{
+            draggable: true,
+            onDragEnd: (event): void => {
+              setState(
+                (prevState): State => ({
+                  ...prevState,
+                  origin: [event.lngLat[1], event.lngLat[0]]
+                })
+              );
+            },
+            longitude: state.origin[1],
+            latitude: state.origin[0]
+          }}
           pin={{ style: { fill: "#00f" } }}
         />
         <PinMarker
           marker={{
+            draggable: true,
+            onDragEnd: (event): void => {
+              setState(
+                (prevState): State => ({
+                  ...prevState,
+                  destination: [event.lngLat[1], event.lngLat[0]]
+                })
+              );
+            },
             longitude: state.destination[1],
             latitude: state.destination[0]
           }}
