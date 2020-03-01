@@ -10,12 +10,12 @@ import calculatePlan, { geometryToGeoJSON } from "./planner";
 import logo from "./logo.svg";
 import "./App.css";
 
-type State = {
+interface State {
   viewport: Partial<ViewportProps>;
   origin: [number, number];
   destination: [number, number];
   route: FeatureCollection;
-};
+}
 
 const initialOrigin = [60.17, 24.94] as [number, number];
 const initialDestination = [60.18, 24.95] as [number, number];
