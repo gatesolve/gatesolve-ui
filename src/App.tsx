@@ -65,6 +65,7 @@ const App: React.FC = () => {
   return (
     <div data-testid="app" className="App">
       <header className="App-header">
+        <h2>Gatesolve</h2>
         <img src={logo} className="App-logo" alt="logo" />
       </header>
       <MapGL

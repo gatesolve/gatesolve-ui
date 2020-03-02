@@ -3,6 +3,7 @@
 }
 
 .App-logo {
+  display: none;
   height: 10vh;
   pointer-events: none;
 }
@@ -19,6 +20,10 @@
   align-items: center;
   font-size: calc(10px + 2vmin);
   color: white;
+}
+
+.App-header h2 {
+  margin: 0.5em 1em;
 }
 
 .App-link {
