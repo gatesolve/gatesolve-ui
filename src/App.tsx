@@ -121,7 +121,7 @@ const App: React.FC = () => {
             longitude: state.origin[1],
             latitude: state.origin[0]
           }}
-          pin={{ style: { fill: "#00f" } }}
+          pin={{ style: { fill: "#00afff", stroke: "#fff" } }}
         />
         <PinMarker
           marker={{
@@ -137,7 +137,7 @@ const App: React.FC = () => {
             longitude: state.destination[1],
             latitude: state.destination[0]
           }}
-          pin={{ style: { fill: "#0f0" } }}
+          pin={{ style: { fill: "#64be14", stroke: "#fff" } }}
         />
       </MapGL>
     </div>

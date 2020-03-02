@@ -46,7 +46,7 @@ export function geometryToGeoJSON(
           coordinates: [origin[1], origin[0]]
         },
         properties: {
-          color: "#00f"
+          color: "#00afff"
         }
       },
       {
@@ -56,7 +56,7 @@ export function geometryToGeoJSON(
           coordinates: [destination[1], destination[0]]
         },
         properties: {
-          color: "#0f0"
+          color: "#64be14"
         }
       }
     ]
