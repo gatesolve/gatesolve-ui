@@ -8,10 +8,12 @@
   align-items: center;
   font-size: calc(10px + 2vmin);
   color: white;
+  height: 10%;
 }
 
 .App-header h2 {
-  margin: 0.5em 1em;
+  margin: 1.5vh 2vh;
+  font-size: 4vh;
 }
 
 .App-link {
