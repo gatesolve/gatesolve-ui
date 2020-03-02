@@ -7,7 +7,6 @@ import { FeatureCollection } from "geojson";
 import { routePointLayer, routeLineLayer } from "./map-style";
 import PinMarker from "./components/PinMarker";
 import calculatePlan, { geometryToGeoJSON } from "./planner";
-import logo from "./logo.svg";
 import "./App.css";
 
 interface State {
@@ -65,7 +64,7 @@ const App: React.FC = () => {
   return (
     <div data-testid="app" className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
+        <h2>Gatesolve</h2>
       </header>
       <MapGL
         // This is according to the Get Started materials:
