@@ -79,8 +79,6 @@ const App: React.FC = () => {
           setState((prevState): State => ({ ...prevState, viewport }))
         }
         onClick={(event): void => {
-          // Filter out events not caused by left mouse button
-          if (event.srcEvent.button !== 0) return;
           setState(
             (prevState): State => ({
               ...prevState,
