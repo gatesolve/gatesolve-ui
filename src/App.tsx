@@ -71,8 +71,8 @@ const App: React.FC = () => {
         // https://uber.github.io/react-map-gl/docs/get-started/get-started/
         // eslint-disable-next-line react/jsx-props-no-spreading
         {...state.viewport}
-        width="100vw"
-        height="90vh"
+        width="100%"
+        height="90%"
         mapStyle="https://raw.githubusercontent.com/HSLdevcom/hsl-map-style/master/simple-style.json"
         onViewportChange={(viewport): void =>
           setState((prevState): State => ({ ...prevState, viewport }))
@@ -121,7 +121,7 @@ const App: React.FC = () => {
             longitude: state.origin[1],
             latitude: state.origin[0]
           }}
-          pin={{ style: { fill: "#00f" } }}
+          pin={{ style: { fill: "#00afff", stroke: "#fff" } }}
         />
         <PinMarker
           marker={{
@@ -137,7 +137,7 @@ const App: React.FC = () => {
             longitude: state.destination[1],
             latitude: state.destination[0]
           }}
-          pin={{ style: { fill: "#0f0" } }}
+          pin={{ style: { fill: "#64be14", stroke: "#fff" } }}
         />
       </MapGL>
     </div>
