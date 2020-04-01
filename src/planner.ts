@@ -4,11 +4,28 @@ import { FeatureCollection } from "geojson";
 
 import { queryEntrances } from "./overpass";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function extractGeometry(path: any): Array<[number, number]> {
+function extractGeometry(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  path: any
+): [Array<[number, number]>, Array<[number, number]>] {
   const coordinates = [] as Array<[number, number]>;
+  const obstacles = [] as Array<[number, number]>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   path.legs[0].getSteps().forEach((step: any) => {
+    const node = step.stopLocation;
+    if (node.definedTags?.["https://w3id.org/openstreetmap/terms#barrier"]) {
+      // eslint-disable-next-line no-console
+      console.log(
+        step.through,
+        node.definedTags[
+          "https://w3id.org/openstreetmap/terms#barrier"
+        ].replace(/^.*#/, ""),
+        node.id,
+        node.definedTags,
+        node.freeformTags
+      );
+      obstacles.push([node.longitude as number, node.latitude as number]);
+    }
     coordinates.push([
       step.startLocation.longitude as number,
       step.startLocation.latitude as number,
@@ -18,17 +35,28 @@ function extractGeometry(path: any): Array<[number, number]> {
       step.stopLocation.latitude as number,
     ]);
   });
-  return coordinates;
+  return [coordinates, obstacles];
 }
 
 export function geometryToGeoJSON(
   origin: [number, number],
   destination: [number, number],
-  coordinates: Array<[number, number]>
+  coordinates: Array<[number, number]>,
+  obstacles: Array<[number, number]>
 ): FeatureCollection {
   return {
     type: "FeatureCollection",
     features: [
+      {
+        type: "Feature",
+        geometry: {
+          type: "MultiPoint",
+          coordinates: obstacles,
+        },
+        properties: {
+          color: "#dc0451",
+        },
+      },
       {
         type: "Feature",
         geometry: {
@@ -90,11 +118,14 @@ export default function calculatePlan(
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           .on("data", async (path: any) => {
             const completePath = await planner.completePath(path);
-            const geometry = extractGeometry(completePath);
+            // eslint-disable-next-line no-console
+            console.log(completePath);
+            const [geometry, obstacles] = extractGeometry(completePath);
             const geoJSON = geometryToGeoJSON(
               origin,
               [target.lat, target.lon],
-              geometry
+              geometry,
+              obstacles
             );
             callback(geoJSON);
           });
