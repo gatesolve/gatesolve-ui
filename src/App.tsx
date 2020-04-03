@@ -16,16 +16,16 @@ interface State {
   route: FeatureCollection;
 }
 
-const initialOrigin: [number, number] = [60.17, 24.94];
-const initialDestination: [number, number] = [60.18, 24.95];
+const initialOrigin: [number, number] = [60.16295, 24.93071];
+const initialDestination: [number, number] = [60.16259, 24.93155];
 const initialState: State = {
   origin: initialOrigin,
   destination: initialDestination,
   route: geometryToGeoJSON(initialOrigin, initialDestination, [], []),
   viewport: {
-    latitude: 60.17,
-    longitude: 24.94,
-    zoom: 14,
+    latitude: 60.163,
+    longitude: 24.931,
+    zoom: 16,
     bearing: 0,
     pitch: 0,
   },
