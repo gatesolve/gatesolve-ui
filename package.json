@@ -13,7 +13,7 @@
     "@types/node": "^13.11.0",
     "@types/react": "^16.9.0",
     "@types/react-dom": "^16.9.0",
-    "@types/react-map-gl": "^5.2.0",
+    "@types/react-map-gl": "^5.2.2",
     "mapbox-gl": "^1.8.0",
     "plannerjs": "^0.4.0",
     "react": "^16.13.1",
