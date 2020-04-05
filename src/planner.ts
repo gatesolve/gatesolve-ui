@@ -1,4 +1,4 @@
-import { FlexibleTransitPlanner } from "plannerjs";
+import { FlexibleRoadPlanner } from "plannerjs";
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { FeatureCollection } from "geojson";
 
@@ -107,7 +107,7 @@ export default function calculatePlan(
     })
     .then((targets) => {
       targets.forEach((target) => {
-        const planner = new FlexibleTransitPlanner();
+        const planner = new FlexibleRoadPlanner();
         planner
           .query({
             from: { latitude: origin[0], longitude: origin[1] },
@@ -119,7 +119,7 @@ export default function calculatePlan(
           .on("data", async (path: any) => {
             const completePath = await planner.completePath(path);
             // eslint-disable-next-line no-console
-            console.log(completePath);
+            console.log("Plan", completePath, "from", origin, "to", target);
             const [geometry, obstacles] = extractGeometry(completePath);
             const geoJSON = geometryToGeoJSON(
               origin,
