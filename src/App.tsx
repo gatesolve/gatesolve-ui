@@ -27,8 +27,8 @@ const initialState: State = {
     longitude: 24.94,
     zoom: 14,
     bearing: 0,
-    pitch: 0
-  }
+    pitch: 0,
+  },
 };
 
 const App: React.FC = () => {
@@ -38,10 +38,10 @@ const App: React.FC = () => {
     setState(
       (prevState): State => ({
         ...prevState,
-        route: geometryToGeoJSON(state.origin, state.destination, [])
+        route: geometryToGeoJSON(state.origin, state.destination, []),
       })
     );
-    calculatePlan(state.origin, state.destination, geojson => {
+    calculatePlan(state.origin, state.destination, (geojson) => {
       setState(
         (prevState): State => {
           // don't use the result if the parameters changed meanwhile
@@ -54,7 +54,7 @@ const App: React.FC = () => {
           geojson.features.push(...prevState.route.features);
           return {
             ...prevState,
-            route: geojson
+            route: geojson,
           };
         }
       );
@@ -83,7 +83,7 @@ const App: React.FC = () => {
           setState(
             (prevState): State => ({
               ...prevState,
-              destination: [event.lngLat[1], event.lngLat[0]]
+              destination: [event.lngLat[1], event.lngLat[0]],
             })
           );
         }}
@@ -91,7 +91,7 @@ const App: React.FC = () => {
           setState(
             (prevState): State => ({
               ...prevState,
-              origin: [event.lngLat[1], event.lngLat[0]]
+              origin: [event.lngLat[1], event.lngLat[0]],
             })
           );
           event.srcEvent.preventDefault();
@@ -114,12 +114,12 @@ const App: React.FC = () => {
               setState(
                 (prevState): State => ({
                   ...prevState,
-                  origin: [event.lngLat[1], event.lngLat[0]]
+                  origin: [event.lngLat[1], event.lngLat[0]],
                 })
               );
             },
             longitude: state.origin[1],
-            latitude: state.origin[0]
+            latitude: state.origin[0],
           }}
           pin={{ style: { fill: "#00afff", stroke: "#fff" } }}
         />
@@ -130,12 +130,12 @@ const App: React.FC = () => {
               setState(
                 (prevState): State => ({
                   ...prevState,
-                  destination: [event.lngLat[1], event.lngLat[0]]
+                  destination: [event.lngLat[1], event.lngLat[0]],
                 })
               );
             },
             longitude: state.destination[1],
-            latitude: state.destination[0]
+            latitude: state.destination[0],
           }}
           pin={{ style: { fill: "#64be14", stroke: "#fff" } }}
         />

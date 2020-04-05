@@ -10,7 +10,7 @@ export interface PinMarkerProps {
 
 const PinMarker: React.FC<PinMarkerProps> = ({
   pin: { height = "50", ...otherPinProps },
-  marker
+  marker,
 }) => {
   return (
     <Marker

@@ -11,11 +11,11 @@ function extractGeometry(path: any): Array<[number, number]> {
   path.legs[0].getSteps().forEach((step: any) => {
     coordinates.push([
       step.startLocation.longitude as number,
-      step.startLocation.latitude as number
+      step.startLocation.latitude as number,
     ]);
     coordinates.push([
       step.stopLocation.longitude as number,
-      step.stopLocation.latitude as number
+      step.stopLocation.latitude as number,
     ]);
   });
   return coordinates;
@@ -33,33 +33,33 @@ export function geometryToGeoJSON(
         type: "Feature",
         geometry: {
           type: "LineString",
-          coordinates
+          coordinates,
         },
         properties: {
-          color: "#000"
-        }
+          color: "#000",
+        },
       },
       {
         type: "Feature",
         geometry: {
           type: "Point",
-          coordinates: [origin[1], origin[0]]
+          coordinates: [origin[1], origin[0]],
         },
         properties: {
-          color: "#00afff"
-        }
+          color: "#00afff",
+        },
       },
       {
         type: "Feature",
         geometry: {
           type: "Point",
-          coordinates: [destination[1], destination[0]]
+          coordinates: [destination[1], destination[0]],
         },
         properties: {
-          color: "#64be14"
-        }
-      }
-    ]
+          color: "#64be14",
+        },
+      },
+    ],
   };
 }
 
@@ -69,22 +69,22 @@ export default function calculatePlan(
   callback: (f: FeatureCollection) => void
 ): void {
   queryEntrances(destination)
-    .then(entrances => {
+    .then((entrances) => {
       if (!entrances.length) {
         return [
-          { id: -1, type: "node", lat: destination[0], lon: destination[1] }
+          { id: -1, type: "node", lat: destination[0], lon: destination[1] },
         ];
       }
       return entrances;
     })
-    .then(targets => {
-      targets.forEach(target => {
+    .then((targets) => {
+      targets.forEach((target) => {
         const planner = new FlexibleTransitPlanner();
         planner
           .query({
             from: { latitude: origin[0], longitude: origin[1] },
             to: { latitude: target.lat, longitude: target.lon },
-            roadNetworkOnly: true
+            roadNetworkOnly: true,
           })
           .take(1)
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
