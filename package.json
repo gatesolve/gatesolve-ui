@@ -15,7 +15,7 @@
     "@types/react-dom": "^16.9.0",
     "@types/react-map-gl": "^5.2.0",
     "mapbox-gl": "^1.8.0",
-    "plannerjs": "^0.3.0",
+    "plannerjs": "^0.4.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-map-gl": "^5.2.3",

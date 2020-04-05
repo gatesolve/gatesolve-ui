@@ -9571,10 +9571,10 @@ pkg-up@^2.0.0:
   dependencies:
     find-up "^2.1.0"
 
-plannerjs@^0.3.0:
-  version "0.3.0"
-  resolved "https://registry.yarnpkg.com/plannerjs/-/plannerjs-0.3.0.tgz#69ac7a569a86332568852dfa913e037c48c686eb"
-  integrity sha512-RwxyED7/G0lCITa5zGoaZIpyDgWd1FjJNTLS6nj21yf3P1DLg4claBlAsjsKlNvZfAhaoju7omMAZ8Z4HaqPag==
+plannerjs@^0.4.0:
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/plannerjs/-/plannerjs-0.4.0.tgz#eaa7bf459b65194e28abf38942826e24cfba7ae3"
+  integrity sha512-DIJnKCy/yECK2efC6+LH7XBrdy8ClJjNiG8aq3aLi081fv++a/q0O5eQC58i/0zl2VXszCuJXhwtH/TQ7iwD8w==
   dependencies:
     "@turf/turf" "^5.1.6"
     "@types/concaveman" "^1.1.3"
