@@ -3,7 +3,7 @@ module.exports = {
   parser: "@typescript-eslint/parser",
   parserOptions: {
     tsconfigRootDir: __dirname,
-    project: ["./tsconfig.json"]
+    project: ["./tsconfig.json"],
   },
   plugins: [
     "@typescript-eslint",
@@ -12,7 +12,7 @@ module.exports = {
     "import",
     "prettier",
     "react",
-    "react-hooks"
+    "react-hooks",
   ],
   extends: [
     "eslint:recommended",
@@ -28,20 +28,20 @@ module.exports = {
     "plugin:prettier/recommended",
     "prettier",
     "prettier/@typescript-eslint",
-    "prettier/react"
+    "prettier/react",
   ],
   rules: {
     "react/prop-types": "off",
     "react-hooks/rules-of-hooks": "error",
     "react-hooks/exhaustive-deps": "warn",
-    "prettier/prettier": "error"
+    "prettier/prettier": "error",
   },
   settings: {
     "import/resolver": {
       // use <root>/tsconfig.json
       typescript: {
-        alwaysTryTypes: true // always try to resolve types under `<root>@types` directory even it doesn't contain any source code, like `@types/unist`
-      }
-    }
-  }
+        alwaysTryTypes: true, // always try to resolve types under `<root>@types` directory even it doesn't contain any source code, like `@types/unist`
+      },
+    },
+  },
 };

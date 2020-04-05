@@ -6,8 +6,8 @@ export const routeLineLayer = {
   type: "line",
   paint: {
     "line-opacity": 0.5,
-    "line-width": 5
-  }
+    "line-width": 5,
+  },
 };
 
 export const routePointLayer = {
@@ -15,7 +15,7 @@ export const routePointLayer = {
   type: "circle",
   paint: {
     "circle-radius": 5,
-    "circle-color": ["get", "color"] as Expression
+    "circle-color": ["get", "color"] as Expression,
   },
-  filter: ["==", "Point", ["geometry-type"]]
+  filter: ["==", "Point", ["geometry-type"]],
 };

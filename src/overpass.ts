@@ -55,10 +55,10 @@ export const queryEntrances = (
 ): Promise<ElementWithCoordinates[]> => {
   const url = new URL("https://overpass-api.de/api/interpreter");
   url.searchParams.append("data", buildEntranceQuery(latLng[0], latLng[1]));
-  return fetch(url.toString()).then(response =>
+  return fetch(url.toString()).then((response) =>
     response.json().then((body: OverpassResponse) => {
       const targets = body.elements.filter(
-        element =>
+        (element) =>
           element.type === "node" &&
           "lat" in element &&
           element.lat != null &&
