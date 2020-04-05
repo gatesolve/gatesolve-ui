@@ -16,10 +16,10 @@
     "@types/react-map-gl": "^5.2.0",
     "mapbox-gl": "^1.8.0",
     "plannerjs": "^0.3.0",
-    "react": "^16.12.0",
-    "react-dom": "^16.12.0",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
     "react-map-gl": "^5.2.3",
-    "react-scripts": "3.4.0",
+    "react-scripts": "3.4.1",
     "typescript": "~3.7.2"
   },
   "homepage": "https://sproutverse.github.io/gatesolve-ui",
