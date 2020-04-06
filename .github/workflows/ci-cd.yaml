@@ -1,17 +1,19 @@
 ---
 name: CI/CD
 
-"on": [push, pull_request]
+"on":
+  push:
+    branches:
+      - master
+  pull_request:
 
 jobs:
-  build:
-
+  deps-lint-test-build:
+    name: Install dependencies, lint, test and build
     runs-on: ubuntu-18.04
-
     strategy:
       matrix:
         node-version: [12.x]
-
     steps:
       - name: Check the repository out
         uses: actions/checkout@v2
@@ -24,7 +26,7 @@ jobs:
         run: echo "::set-output name=dir::$(yarn cache dir)"
       - name: Set up the cache
         uses: actions/cache@v1
-        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+        id: yarn-cache
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
@@ -44,27 +46,138 @@ jobs:
           CI: true
       - name: Compile an optimized build
         run: yarn build --frozen-lockfile
+      - name: Upload build directory
+        uses: actions/upload-artifact@v1
+        with:
+          name: build
+          path: ./build
+
+  publish-github-pages:
+    name: Publish to GitHub Pages
+    needs: deps-lint-test-build
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-18.04
+    strategy:
+      matrix:
+        node-version: [12.x]
+    steps:
+      - name: Download build directory
+        uses: actions/download-artifact@v1
+        with:
+          name: build
       - name: Publish to GitHub Pages
         uses: peaceiris/actions-gh-pages@364c31d33bb99327c77b3a5438a83a357a6729ad
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./build
-        if: github.ref == 'refs/heads/master'
-      - name: Publish to Netlify draft URL
-        uses: netlify/actions/cli@3e1877e3a4afe02687a10b7fa7f2456bf35d1925
+
+  publish-netlify-draft:
+    name: Publish to Netlify draft URL
+    needs: deps-lint-test-build
+    if: github.ref != 'refs/heads/master'
+    runs-on: ubuntu-18.04
+    strategy:
+      matrix:
+        node-version: [12.x]
+    steps:
+      - name: Download build directory
+        uses: actions/download-artifact@v1
         with:
-          args: deploy --dir=./build
+          name: build
+      - name: Extract pull request number
+        id: pull-number
+        run: echo "::set-output name=pull_number::$(jq --raw-output .pull_request.number "${GITHUB_EVENT_PATH}")"
+      - name: Create GitHub deployment
+        id: deployment
+        uses: chrnorm/deployment-action@0a0479c8ab41cd336ddc266342ca0a1c54727a72
+        with:
+          token: "${{ github.token }}"
+          environment: "pull-request-${{ steps.pull-number.outputs.pull_number }}"
+          description: "Triggered by event ${{ github.event_name }} for branch or tag ${{ github.ref }} and commit ${{ github.sha }}"
+      - name: Publish to Netlify
+        id: publish-netlify
+        # FIXME: Once https://github.com/netlify/actions/pull/24 is merged, use
+        # the official one.
+        uses: Triloworld/actions/cli@3eff4d5cd9bf9f7ba528c1f1bbb94a37c3a3201d
+        with:
+          args: deploy --dir=./build --message=\"Triggered by event ${{ github.event_name }} for branch or tag ${{ github.ref }} and commit ${{ github.sha }}\"
         env:
-          DEBUG: '*'
+          DEBUG: "*"
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-        if: github.ref != 'refs/heads/master'
-      - name: Publish to Netlify production URL
-        uses: netlify/actions/cli@3e1877e3a4afe02687a10b7fa7f2456bf35d1925
+      - name: Update deployment status (success)
+        # FIXME: Once https://github.com/chrnorm/deployment-status/pull/4 is
+        # merged and a new working release is out, use the original one.
+        uses: sproutverse/deployment-status@releases/v1
+        if: success()
         with:
-          args: deploy --prod --dir=./build
+          token: "${{ github.token }}"
+          environment_url: "${{ steps.publish-netlify.outputs.NETLIFY_URL }}"
+          state: "success"
+          deployment_id: ${{ steps.deployment.outputs.deployment_id }}
+          description: "Triggered by event ${{ github.event_name }} for branch or tag ${{ github.ref }} and commit ${{ github.sha }}"
+      - name: Update deployment status (failure)
+        # FIXME: Once https://github.com/chrnorm/deployment-status/pull/4 is
+        # merged and a new working release is out, use the original one.
+        uses: sproutverse/deployment-status@releases/v1
+        if: failure()
+        with:
+          token: "${{ github.token }}"
+          environment_url: "${{ steps.publish-netlify.outputs.NETLIFY_URL }}"
+          state: "failure"
+          deployment_id: ${{ steps.deployment.outputs.deployment_id }}
+          description: "Triggered by event ${{ github.event_name }} for branch or tag ${{ github.ref }} and commit ${{ github.sha }}"
+
+  publish-netlify-production:
+    name: Publish to Netlify production URL
+    needs: deps-lint-test-build
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-18.04
+    strategy:
+      matrix:
+        node-version: [12.x]
+    steps:
+      - name: Download build directory
+        uses: actions/download-artifact@v1
+        with:
+          name: build
+      - name: Create GitHub deployment
+        id: deployment
+        uses: chrnorm/deployment-action@0a0479c8ab41cd336ddc266342ca0a1c54727a72
+        with:
+          token: "${{ github.token }}"
+          environment: production
+          description: "Triggered by event ${{ github.event_name }} for branch or tag ${{ github.ref }} and commit ${{ github.sha }}"
+      - name: Publish to Netlify
+        id: publish-netlify
+        # FIXME: Once https://github.com/netlify/actions/pull/24 is merged, use
+        # the official one.
+        uses: Triloworld/actions/cli@3eff4d5cd9bf9f7ba528c1f1bbb94a37c3a3201d
+        with:
+          args: deploy --dir=./build --prod --message=\"Triggered by event ${{ github.event_name }} for branch or tag ${{ github.ref }} and commit ${{ github.sha }}\"
         env:
-          DEBUG: '*'
+          DEBUG: "*"
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-        if: github.ref == 'refs/heads/master'
+      - name: Update deployment status (success)
+        # FIXME: Once https://github.com/chrnorm/deployment-status/pull/4 is
+        # merged and a new working release is out, use the original one.
+        uses: sproutverse/deployment-status@releases/v1
+        if: success()
+        with:
+          token: "${{ github.token }}"
+          environment_url: "${{ steps.publish-netlify.outputs.NETLIFY_URL }}"
+          state: "success"
+          deployment_id: ${{ steps.deployment.outputs.deployment_id }}
+          description: "Triggered by event ${{ github.event_name }} for branch or tag ${{ github.ref }} and commit ${{ github.sha }}"
+      - name: Update deployment status (failure)
+        # FIXME: Once https://github.com/chrnorm/deployment-status/pull/4 is
+        # merged and a new working release is out, use the original one.
+        uses: sproutverse/deployment-status@releases/v1
+        if: failure()
+        with:
+          token: "${{ github.token }}"
+          environment_url: "${{ steps.publish-netlify.outputs.NETLIFY_URL }}"
+          state: "failure"
+          deployment_id: ${{ steps.deployment.outputs.deployment_id }}
+          description: "Triggered by event ${{ github.event_name }} for branch or tag ${{ github.ref }} and commit ${{ github.sha }}"
