@@ -1,17 +1,19 @@
 ---
 name: CI/CD
 
-"on": [push, pull_request]
+"on":
+  push:
+    branches:
+      - master
+  pull_request:
 
 jobs:
-  build:
-
+  deps-lint-test-build:
+    name: Install dependencies, lint, test and build
     runs-on: ubuntu-18.04
-
     strategy:
       matrix:
         node-version: [12.x]
-
     steps:
       - name: Check the repository out
         uses: actions/checkout@v2
@@ -24,7 +26,7 @@ jobs:
         run: echo "::set-output name=dir::$(yarn cache dir)"
       - name: Set up the cache
         uses: actions/cache@v1
-        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+        id: yarn-cache
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
@@ -44,27 +46,178 @@ jobs:
           CI: true
       - name: Compile an optimized build
         run: yarn build --frozen-lockfile
+      - name: Upload build directory
+        uses: actions/upload-artifact@v1
+        with:
+          name: build
+          path: ./build
+
+  publish-github-pages:
+    name: Publish to GitHub Pages
+    needs: deps-lint-test-build
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-18.04
+    strategy:
+      matrix:
+        node-version: [12.x]
+    steps:
+      - name: Download build directory
+        uses: actions/download-artifact@v1
+        with:
+          name: build
       - name: Publish to GitHub Pages
         uses: peaceiris/actions-gh-pages@364c31d33bb99327c77b3a5438a83a357a6729ad
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./build
-        if: github.ref == 'refs/heads/master'
-      - name: Publish to Netlify draft URL
-        uses: netlify/actions/cli@3e1877e3a4afe02687a10b7fa7f2456bf35d1925
+
+  publish-netlify-draft:
+    name: Publish to Netlify draft URL
+    needs: deps-lint-test-build
+    if: github.ref != 'refs/heads/master'
+    runs-on: ubuntu-18.04
+    strategy:
+      matrix:
+        node-version: [12.x]
+    steps:
+      - name: Download build directory
+        uses: actions/download-artifact@v1
         with:
-          args: deploy --dir=./build
+          name: build
+      - name: Extract pull request number
+        id: pull-number
+        run: echo "::set-output name=pull_number::$(jq --raw-output .pull_request.number "${GITHUB_EVENT_PATH}")"
+      - name: Create GitHub deployment
+        id: deployment
+        uses: actions/github-script@0.9.0
+        with:
+          debug: true
+          result-encoding: string
+          previews: "ant-man-preview"
+          script: |
+            const result = await github.repos.createDeployment({
+              ...context.repo,
+              ref: context.ref,
+              // task: "deploy",
+              // auto_merge: true,
+              required_contexts: [],
+              // payload: "",
+              environment: "pull-request-${{ steps.pull-number.outputs.pull_number }}",
+              description: "Triggered by event ${{ github.event_name }} for ref ${{ github.ref }} and commit ${{ github.sha }}",
+              transient_environment: true,
+              // production_environment: false,
+            });
+            return(result.data.id);
+      - name: Publish to Netlify
+        id: publish-netlify
+        # FIXME: Once https://github.com/netlify/actions/pull/24 is merged, use
+        # the official one.
+        uses: Triloworld/actions/cli@3eff4d5cd9bf9f7ba528c1f1bbb94a37c3a3201d
+        with:
+          args: deploy --dir=./build --message=\"Triggered by event ${{ github.event_name }} for ref ${{ github.ref }} and commit ${{ github.sha }}\"
         env:
-          DEBUG: '*'
+          DEBUG: "*"
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-        if: github.ref != 'refs/heads/master'
-      - name: Publish to Netlify production URL
-        uses: netlify/actions/cli@3e1877e3a4afe02687a10b7fa7f2456bf35d1925
+      - name: Update GitHub deployment status
+        if: always()
+        uses: actions/github-script@0.9.0
         with:
-          args: deploy --prod --dir=./build
+          debug: true
+          previews: "ant-man-preview,flash-preview"
+          script: |
+            github.repos.createDeploymentStatus({
+              ...context.repo,
+              deployment_id: "${{ steps.deployment.outputs.result }}",
+              state: ${{ job.status == 'Success' }} ? "success" : "failure",
+              log_url: "https://github.com/${{ github.repository }}/commit/${{ github.event.pull_request.head.sha }}/checks",
+              description: "Triggered by event ${{ github.event_name }} for ref ${{ github.ref }} and commit ${{ github.sha }}",
+              // environment: "pull-request-${{ steps.pull-number.outputs.pull_number }}",
+              environment_url: "${{ steps.publish-netlify.outputs.NETLIFY_URL }}",
+              // auto_inactive: true,
+            })
+      - name: Post pull request comment with deployment link
+        if: success()
+        uses: actions/github-script@0.9.0
+        with:
+          debug: true
+          script: |
+            github.issues.createComment({
+              ...context.repo,
+              issue_number: "${{ steps.pull-number.outputs.pull_number }}",
+              body: "${{ steps.publish-netlify.outputs.NETLIFY_URL }} has the deployment for the merge commit `${{ github.sha }}` corresponding to the pull request HEAD commit `${{ github.event.pull_request.head.sha }}`.",
+            })
+
+  publish-netlify-production:
+    name: Publish to Netlify production URL
+    needs: deps-lint-test-build
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-18.04
+    strategy:
+      matrix:
+        node-version: [12.x]
+    steps:
+      - name: Download build directory
+        uses: actions/download-artifact@v1
+        with:
+          name: build
+      - name: Create GitHub deployment
+        id: deployment
+        uses: actions/github-script@0.9.0
+        with:
+          debug: true
+          result-encoding: string
+          previews: "ant-man-preview"
+          script: |
+            const result = await github.repos.createDeployment({
+              ...context.repo,
+              ref: context.ref,
+              // task: "deploy",
+              // auto_merge: true,
+              required_contexts: [],
+              // payload: "",
+              environment: "production",
+              description: "Triggered by event ${{ github.event_name }} for ref ${{ github.ref }} and commit ${{ github.sha }}",
+              // transient_environment: false,
+              // production_environment: true,
+            });
+            return(result.data.id);
+      - name: Publish to Netlify
+        id: publish-netlify
+        # FIXME: Once https://github.com/netlify/actions/pull/24 is merged, use
+        # the official one.
+        uses: Triloworld/actions/cli@3eff4d5cd9bf9f7ba528c1f1bbb94a37c3a3201d
+        with:
+          args: deploy --dir=./build --prod --message=\"Triggered by event ${{ github.event_name }} for ref ${{ github.ref }} and commit ${{ github.sha }}\"
         env:
-          DEBUG: '*'
+          DEBUG: "*"
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-        if: github.ref == 'refs/heads/master'
+      - name: Update GitHub deployment status
+        if: always()
+        uses: actions/github-script@0.9.0
+        with:
+          debug: true
+          previews: "ant-man-preview,flash-preview"
+          script: |
+            github.repos.createDeploymentStatus({
+              ...context.repo,
+              deployment_id: "${{ steps.deployment.outputs.result }}",
+              state: ${{ job.status == 'Success' }} ? "success" : "failure",
+              log_url: "https://github.com/${{ github.repository }}/commit/${{ github.event.pull_request.head.sha }}/checks",
+              description: "Triggered by event ${{ github.event_name }} for ref ${{ github.ref }} and commit ${{ github.sha }}",
+              // environment: "production",
+              environment_url: "${{ steps.publish-netlify.outputs.NETLIFY_URL }}",
+              // auto_inactive: true,
+            })
+      - name: Post pull request comment with deployment link
+        if: success()
+        uses: actions/github-script@0.9.0
+        with:
+          debug: true
+          script: |
+            github.issues.createComment({
+              ...context.repo,
+              issue_number: "${{ steps.pull-number.outputs.pull_number }}",
+              body: "${{ steps.publish-netlify.outputs.NETLIFY_URL }} has the deployment for the merge commit `${{ github.sha }}` corresponding to the pull request HEAD commit `${{ github.event.pull_request.head.sha }}`.",
+            })
