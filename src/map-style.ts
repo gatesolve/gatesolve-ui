@@ -5,8 +5,9 @@ export const routeLineLayer = {
   id: "route-line",
   type: "line",
   paint: {
-    "line-opacity": 0.5,
+    "line-opacity": ["coalesce", ["get", "opacity"], 0.5] as Expression,
     "line-width": 5,
+    "line-color": ["get", "color"] as Expression,
   },
 };
 

@@ -7,12 +7,39 @@ import { queryEntrances } from "./overpass";
 function extractGeometry(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   path: any
-): [Array<[number, number]>, Array<[number, number]>] {
+): [
+  Array<[number, number]>,
+  Array<[number, number]>,
+  Array<Array<[number, number]>>
+] {
   const coordinates = [] as Array<[number, number]>;
   const obstacles = [] as Array<[number, number]>;
+  const obstacleWays = new Map();
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   path.legs[0].getSteps().forEach((step: any) => {
     const node = step.stopLocation;
+    if (
+      path.context[step.through]?.definedTags[
+        "https://w3id.org/openstreetmap/terms#highway"
+      ] === "https://w3id.org/openstreetmap/terms#Steps"
+    ) {
+      if (!obstacleWays.has(step.through)) {
+        obstacleWays.set(step.through, []);
+      }
+      obstacleWays
+        .get(step.through)
+        .push(
+          [
+            step.startLocation.longitude as number,
+            step.startLocation.latitude as number,
+          ],
+          [
+            step.stopLocation.longitude as number,
+            step.stopLocation.latitude as number,
+          ]
+        );
+    }
     if (node.definedTags?.["https://w3id.org/openstreetmap/terms#barrier"]) {
       // eslint-disable-next-line no-console
       console.log(
@@ -35,28 +62,19 @@ function extractGeometry(
       step.stopLocation.latitude as number,
     ]);
   });
-  return [coordinates, obstacles];
+  return [coordinates, obstacles, Array.from(obstacleWays.values())];
 }
 
 export function geometryToGeoJSON(
   origin: [number, number],
   destination: [number, number],
   coordinates: Array<[number, number]>,
-  obstacles: Array<[number, number]>
+  obstacles: Array<[number, number]>,
+  obstacleWays: Array<Array<[number, number]>>
 ): FeatureCollection {
   return {
     type: "FeatureCollection",
     features: [
-      {
-        type: "Feature",
-        geometry: {
-          type: "MultiPoint",
-          coordinates: obstacles,
-        },
-        properties: {
-          color: "#dc0451",
-        },
-      },
       {
         type: "Feature",
         geometry: {
@@ -65,6 +83,27 @@ export function geometryToGeoJSON(
         },
         properties: {
           color: "#000",
+        },
+      },
+      {
+        type: "Feature",
+        geometry: {
+          type: "MultiLineString",
+          coordinates: obstacleWays,
+        },
+        properties: {
+          color: "#dc0451",
+          opacity: 1,
+        },
+      },
+      {
+        type: "Feature",
+        geometry: {
+          type: "MultiPoint",
+          coordinates: obstacles,
+        },
+        properties: {
+          color: "#dc0451",
         },
       },
       {
@@ -120,12 +159,15 @@ export default function calculatePlan(
             const completePath = await planner.completePath(path);
             // eslint-disable-next-line no-console
             console.log("Plan", completePath, "from", origin, "to", target);
-            const [geometry, obstacles] = extractGeometry(completePath);
+            const [geometry, obstacles, obstacleWays] = extractGeometry(
+              completePath
+            );
             const geoJSON = geometryToGeoJSON(
               origin,
               [target.lat, target.lon],
               geometry,
-              obstacles
+              obstacles,
+              obstacleWays
             );
             callback(geoJSON);
           });
