@@ -50,3 +50,21 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./build
         if: github.ref == 'refs/heads/master'
+      - name: Publish to Netlify draft URL
+        uses: netlify/actions/cli@3e1877e3a4afe02687a10b7fa7f2456bf35d1925
+        with:
+          args: deploy --dir=./build
+        env:
+          DEBUG: '*'
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+        if: github.ref != 'refs/heads/master'
+      - name: Publish to Netlify production URL
+        uses: netlify/actions/cli@3e1877e3a4afe02687a10b7fa7f2456bf35d1925
+        with:
+          args: deploy --prod --dir=./build
+        env:
+          DEBUG: '*'
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+        if: github.ref == 'refs/heads/master'
