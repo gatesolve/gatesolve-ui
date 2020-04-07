@@ -68,9 +68,9 @@ function extractGeometry(
 export function geometryToGeoJSON(
   origin: [number, number],
   destination: [number, number],
-  coordinates: Array<[number, number]>,
-  obstacles: Array<[number, number]>,
-  obstacleWays: Array<Array<[number, number]>>
+  coordinates?: Array<[number, number]>,
+  obstacles?: Array<[number, number]>,
+  obstacleWays?: Array<Array<[number, number]>>
 ): FeatureCollection {
   return {
     type: "FeatureCollection",
@@ -79,7 +79,7 @@ export function geometryToGeoJSON(
         type: "Feature",
         geometry: {
           type: "LineString",
-          coordinates,
+          coordinates: coordinates || [],
         },
         properties: {
           color: "#000",
@@ -89,7 +89,7 @@ export function geometryToGeoJSON(
         type: "Feature",
         geometry: {
           type: "MultiLineString",
-          coordinates: obstacleWays,
+          coordinates: obstacleWays || [],
         },
         properties: {
           color: "#dc0451",
@@ -100,7 +100,7 @@ export function geometryToGeoJSON(
         type: "Feature",
         geometry: {
           type: "MultiPoint",
-          coordinates: obstacles,
+          coordinates: obstacles || [],
         },
         properties: {
           color: "#dc0451",

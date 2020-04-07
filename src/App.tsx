@@ -21,7 +21,7 @@ const initialDestination: [number, number] = [60.16259, 24.93155];
 const initialState: State = {
   origin: initialOrigin,
   destination: initialDestination,
-  route: geometryToGeoJSON(initialOrigin, initialDestination, [], [], []),
+  route: geometryToGeoJSON(initialOrigin, initialDestination),
   viewport: {
     latitude: 60.163,
     longitude: 24.931,
@@ -38,7 +38,7 @@ const App: React.FC = () => {
     setState(
       (prevState): State => ({
         ...prevState,
-        route: geometryToGeoJSON(state.origin, state.destination, [], [], []),
+        route: geometryToGeoJSON(state.origin, state.destination),
       })
     );
     calculatePlan(state.origin, state.destination, (geojson) => {
