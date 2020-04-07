@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from "react";
-import MapGL, { Source, Layer, ViewportProps } from "react-map-gl";
+import MapGL, { Source, Layer, ViewportProps, MapRequest } from "react-map-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { FeatureCollection } from "geojson";
 
-import { routePointLayer, routeLineLayer } from "./map-style";
+import {
+  routePointLayer,
+  routePointSymbolLayer,
+  routeLineLayer,
+} from "./map-style";
 import PinMarker from "./components/PinMarker";
 import calculatePlan, { geometryToGeoJSON } from "./planner";
 import "./App.css";
@@ -29,6 +33,17 @@ const initialState: State = {
     bearing: 0,
     pitch: 0,
   },
+};
+
+const transformRequest = (originalURL?: string): MapRequest => {
+  if (!originalURL) {
+    throw Error("This cannot happen as URL isn't actually optional.");
+  }
+  const url = originalURL.replace(
+    "https://static.hsldev.com/mapfonts/Klokantech Noto Sans",
+    "https://fonts.openmaptiles.org/Klokantech Noto Sans"
+  );
+  return { url };
 };
 
 const App: React.FC = () => {
@@ -74,6 +89,7 @@ const App: React.FC = () => {
         width="100%"
         height="90%"
         mapStyle="https://raw.githubusercontent.com/HSLdevcom/hsl-map-style/master/simple-style.json"
+        transformRequest={transformRequest}
         onViewportChange={(viewport): void =>
           setState((prevState): State => ({ ...prevState, viewport }))
         }
@@ -105,6 +121,10 @@ const App: React.FC = () => {
           <Layer
             // eslint-disable-next-line react/jsx-props-no-spreading
             {...routePointLayer}
+          />
+          <Layer
+            // eslint-disable-next-line react/jsx-props-no-spreading
+            {...routePointSymbolLayer}
           />
         </Source>
         <PinMarker

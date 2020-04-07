@@ -31,6 +31,7 @@ export interface Tags {
   entrance?: string;
   operator?: string;
   ref?: string;
+  "addr:unit"?: string;
 }
 
 const buildEntranceQuery = (lat: number, lon: number): string => `

@@ -68,6 +68,7 @@ function extractGeometry(
 export function geometryToGeoJSON(
   origin: [number, number],
   destination: [number, number],
+  destinationRef?: string,
   coordinates?: Array<[number, number]>,
   obstacles?: Array<[number, number]>,
   obstacleWays?: Array<Array<[number, number]>>
@@ -104,6 +105,7 @@ export function geometryToGeoJSON(
         },
         properties: {
           color: "#dc0451",
+          ref: "!",
         },
       },
       {
@@ -124,6 +126,7 @@ export function geometryToGeoJSON(
         },
         properties: {
           color: "#64be14",
+          ref: destinationRef,
         },
       },
     ],
@@ -165,6 +168,7 @@ export default function calculatePlan(
             const geoJSON = geometryToGeoJSON(
               origin,
               [target.lat, target.lon],
+              target.tags?.["ref"] || target.tags?.["addr:unit"],
               geometry,
               obstacles,
               obstacleWays
