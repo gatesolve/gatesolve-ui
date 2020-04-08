@@ -126,16 +126,17 @@ jobs:
           debug: true
           previews: "ant-man-preview,flash-preview"
           script: |
-            github.repos.createDeploymentStatus({
+            const result = await github.repos.createDeploymentStatus({
               ...context.repo,
               deployment_id: "${{ steps.deployment.outputs.result }}",
-              state: "${{ job.status }}" === "success" ? "success" : "failure",
+              state: "${{ job.status }}" === "Success" ? "success" : "failure",
               log_url: "https://github.com/${context.repo.owner}/${context.repo.repo}/commit/${context.sha}/checks",
               description: "Triggered by event ${{ github.event_name }} for ref ${{ github.ref }} and commit ${{ github.sha }}",
               // environment: "pull-request-${{ steps.pull-number.outputs.pull_number }}",
               environment_url: "${{ steps.publish-netlify.outputs.NETLIFY_URL }}",
               // auto_inactive: true,
-            })
+            });
+            console.log(result);
 
   publish-netlify-production:
     name: Publish to Netlify production URL
@@ -189,13 +190,14 @@ jobs:
           debug: true
           previews: "ant-man-preview,flash-preview"
           script: |
-            github.repos.createDeploymentStatus({
+            const result = await github.repos.createDeploymentStatus({
               ...context.repo,
               deployment_id: "${{ steps.deployment.outputs.result }}",
-              state: "${{ job.status }}" === "success" ? "success" : "failure",
+              state: "${{ job.status }}" === "Success" ? "success" : "failure",
               log_url: "https://github.com/${context.repo.owner}/${context.repo.repo}/commit/${context.sha}/checks",
               description: "Triggered by event ${{ github.event_name }} for ref ${{ github.ref }} and commit ${{ github.sha }}",
               // environment: "production",
               environment_url: "${{ steps.publish-netlify.outputs.NETLIFY_URL }}",
               // auto_inactive: true,
-            })
+            });
+            console.log(result);
