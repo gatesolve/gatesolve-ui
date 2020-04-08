@@ -89,14 +89,25 @@ jobs:
         run: echo "::set-output name=pull_number::$(jq --raw-output .pull_request.number "${GITHUB_EVENT_PATH}")"
       - name: Create GitHub deployment
         id: deployment
-        uses: bobheadxi/deployments@2139d3ff7910f8b0a8e96616d2ff36c88d38271a
+        uses: actions/github-script@0.9.0
         with:
-          step: start
-          token: "${{ github.token }}"
-          env: "pull-request-${{ steps.pull-number.outputs.pull_number }}"
-          desc: "Triggered by event ${{ github.event_name }} for ref ${{ github.ref }} and commit ${{ github.sha }}"
-          transient: "true"
-          no_override: "false"
+          script: |
+            github.repos.createDeployment({
+              ...context.repo,
+              ref: context.ref,
+              // task: "deploy",
+              // auto_merge: true,
+              required_contexts: [],
+              // payload: "",
+              environment: "pull-request-${{ steps.pull-number.outputs.pull_number }}",
+              description: "Triggered by event ${{ github.event_name }} for ref ${{ github.ref }} and commit ${{ github.sha }}",
+              transient_environment: true,
+              // production_environment: false,
+              mediaType: {
+                previews: ["ant-man-preview"],
+              },
+            })
+          debug: true
       - name: Publish to Netlify
         id: publish-netlify
         # FIXME: Once https://github.com/netlify/actions/pull/24 is merged, use
@@ -109,15 +120,24 @@ jobs:
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
       - name: Update GitHub deployment status
-        uses: bobheadxi/deployments@2139d3ff7910f8b0a8e96616d2ff36c88d38271a
         if: always()
+        uses: actions/github-script@0.9.0
         with:
-          step: finish
-          token: ${{ github.token }}
-          status: ${{ job.status }}
-          deployment_id: ${{ steps.deployment.outputs.deployment_id }}
-          env_url: "${{ steps.publish-netlify.outputs.NETLIFY_URL }}"
-          desc: "Triggered by event ${{ github.event_name }} for ref ${{ github.ref }} and commit ${{ github.sha }}"
+          script: |
+            github.repos.createDeploymentStatus({
+              ...context.repo,
+              deployment_id: "${{ steps.deployment.outputs.data.id }}",
+              state: "${{ job.status }}" === "success" ? "success" : "failure",
+              log_url: "https://github.com/${context.repo.owner}/${context.repo.repo}/commit/${context.sha}/checks",
+              description: "Triggered by event ${{ github.event_name }} for ref ${{ github.ref }} and commit ${{ github.sha }}",
+              environment: "pull-request-${{ steps.pull-number.outputs.pull_number }}",
+              environment_url: "${{ steps.publish-netlify.outputs.NETLIFY_URL }}",
+              // auto_inactive: true,
+              mediaType: {
+                previews: ["ant-man-preview", "flash-preview"],
+              },
+            })
+          debug: true
 
   publish-netlify-production:
     name: Publish to Netlify production URL
@@ -134,14 +154,25 @@ jobs:
           name: build
       - name: Create GitHub deployment
         id: deployment
-        uses: bobheadxi/deployments@2139d3ff7910f8b0a8e96616d2ff36c88d38271a
+        uses: actions/github-script@0.9.0
         with:
-          step: start
-          token: "${{ github.token }}"
-          env: production
-          desc: "Triggered by event ${{ github.event_name }} for ref ${{ github.ref }} and commit ${{ github.sha }}"
-          transient: "false"
-          no_override: "false"
+          script: |
+            github.repos.createDeployment({
+              ...context.repo,
+              ref: context.ref,
+              // task: "deploy",
+              // auto_merge: true,
+              required_contexts: [],
+              // payload: "",
+              environment: "production",
+              description: "Triggered by event ${{ github.event_name }} for ref ${{ github.ref }} and commit ${{ github.sha }}",
+              // transient_environment: false,
+              // production_environment: true,
+              mediaType: {
+                previews: ["ant-man-preview"],
+              },
+            })
+          debug: true
       - name: Publish to Netlify
         id: publish-netlify
         # FIXME: Once https://github.com/netlify/actions/pull/24 is merged, use
@@ -154,12 +185,21 @@ jobs:
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
       - name: Update GitHub deployment status
-        uses: bobheadxi/deployments@2139d3ff7910f8b0a8e96616d2ff36c88d38271a
         if: always()
+        uses: actions/github-script@0.9.0
         with:
-          step: finish
-          token: ${{ github.token }}
-          status: ${{ job.status }}
-          deployment_id: ${{ steps.deployment.outputs.deployment_id }}
-          env_url: "${{ steps.publish-netlify.outputs.NETLIFY_URL }}"
-          desc: "Triggered by event ${{ github.event_name }} for ref ${{ github.ref }} and commit ${{ github.sha }}"
+          script: |
+            github.repos.createDeploymentStatus({
+              ...context.repo,
+              deployment_id: "${{ steps.deployment.outputs.data.id }}",
+              state: "${{ job.status }}" === "success" ? "success" : "failure",
+              log_url: "https://github.com/${context.repo.owner}/${context.repo.repo}/commit/${context.sha}/checks",
+              description: "Triggered by event ${{ github.event_name }} for ref ${{ github.ref }} and commit ${{ github.sha }}",
+              environment: "production",
+              environment_url: "${{ steps.publish-netlify.outputs.NETLIFY_URL }}",
+              // auto_inactive: true,
+              mediaType: {
+                previews: ["ant-man-preview", "flash-preview"],
+              },
+            })
+          debug: true
