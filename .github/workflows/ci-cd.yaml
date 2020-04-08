@@ -92,7 +92,7 @@ jobs:
         uses: actions/github-script@0.9.0
         with:
           script: |
-            github.repos.createDeployment({
+            const result = await github.repos.createDeployment({
               ...context.repo,
               ref: context.ref,
               // task: "deploy",
@@ -106,7 +106,9 @@ jobs:
               mediaType: {
                 previews: ["ant-man-preview"],
               },
-            })
+            });
+            console.log(result);
+            return(result);
           debug: true
       - name: Publish to Netlify
         id: publish-netlify
@@ -157,7 +159,7 @@ jobs:
         uses: actions/github-script@0.9.0
         with:
           script: |
-            github.repos.createDeployment({
+            const result = await github.repos.createDeployment({
               ...context.repo,
               ref: context.ref,
               // task: "deploy",
@@ -171,7 +173,9 @@ jobs:
               mediaType: {
                 previews: ["ant-man-preview"],
               },
-            })
+            });
+            console.log(result);
+            return(result);
           debug: true
       - name: Publish to Netlify
         id: publish-netlify
