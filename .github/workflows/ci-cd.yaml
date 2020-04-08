@@ -137,6 +137,18 @@ jobs:
               // auto_inactive: true,
             });
             console.log(result);
+      - name: Post pull request comment with deployment link
+        if: success()
+        uses: actions/github-script@0.9.0
+        with:
+          debug: true
+          script: |
+            const result = await github.issues.createComment({
+              ...context.repo,
+              issue_number: "${{ steps.pull-number.outputs.pull_number }}",
+              body: "${{ steps.publish-netlify.outputs.NETLIFY_URL }} has the deployment for the event ${{ github.event_name }}, the ref ${{ github.ref }} and the commit ${{ github.sha }}.",
+            });
+            console.log(result);
 
   publish-netlify-production:
     name: Publish to Netlify production URL
@@ -199,5 +211,17 @@ jobs:
               // environment: "production",
               environment_url: "${{ steps.publish-netlify.outputs.NETLIFY_URL }}",
               // auto_inactive: true,
+            });
+            console.log(result);
+      - name: Post pull request comment with deployment link
+        if: success()
+        uses: actions/github-script@0.9.0
+        with:
+          debug: true
+          script: |
+            const result = await github.issues.createComment({
+              ...context.repo,
+              issue_number: "${{ steps.pull-number.outputs.pull_number }}",
+              body: "${{ steps.publish-netlify.outputs.NETLIFY_URL }} has the deployment for the event ${{ github.event_name }}, the ref ${{ github.ref }} and the commit ${{ github.sha }}.",
             });
             console.log(result);
