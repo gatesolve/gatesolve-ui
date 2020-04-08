@@ -210,14 +210,3 @@ jobs:
               environment_url: "${{ steps.publish-netlify.outputs.NETLIFY_URL }}",
               // auto_inactive: true,
             })
-      - name: Post pull request comment with deployment link
-        if: success()
-        uses: actions/github-script@0.9.0
-        with:
-          debug: true
-          script: |
-            github.issues.createComment({
-              ...context.repo,
-              issue_number: "${{ steps.pull-number.outputs.pull_number }}",
-              body: "${{ steps.publish-netlify.outputs.NETLIFY_URL }} has the deployment for the merge commit `${{ github.sha }}` corresponding to the pull request HEAD commit `${{ github.event.pull_request.head.sha }}`.",
-            })
