@@ -146,7 +146,7 @@ jobs:
             const result = await github.issues.createComment({
               ...context.repo,
               issue_number: "${{ steps.pull-number.outputs.pull_number }}",
-              body: "${{ steps.publish-netlify.outputs.NETLIFY_URL }} has the deployment for the event `${{ github.event_name }}`, the ref `${{ github.ref }}` and the commit `${{ github.sha }}` (corresponding to the PR HEAD commit `${{ github.event.pull_request.head.sha }}`).",
+              body: "${{ steps.publish-netlify.outputs.NETLIFY_URL }} has the deployment for the merge commit `${{ github.sha }}` corresponding to the pull request HEAD commit `${{ github.event.pull_request.head.sha }}`.",
             });
             console.log(result);
 
@@ -222,6 +222,6 @@ jobs:
             const result = await github.issues.createComment({
               ...context.repo,
               issue_number: "${{ steps.pull-number.outputs.pull_number }}",
-              body: "${{ steps.publish-netlify.outputs.NETLIFY_URL }} has the deployment for the event `${{ github.event_name }}`, the ref `${{ github.ref }}` and the commit `${{ github.sha }}` (corresponding to the PR HEAD commit `${{ github.event.pull_request.head.sha }}`).",
+              body: "${{ steps.publish-netlify.outputs.NETLIFY_URL }} has the deployment for the merge commit `${{ github.sha }}` corresponding to the pull request HEAD commit `${{ github.event.pull_request.head.sha }}`.",
             });
             console.log(result);
