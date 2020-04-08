@@ -93,14 +93,14 @@ jobs:
         with:
           token: "${{ github.token }}"
           environment: "pull-request-${{ steps.pull-number.outputs.pull_number }}"
-          description: "Triggered by event ${{ github.event_name }} for branch or tag ${{ github.ref }} and commit ${{ github.sha }}"
+          description: "Triggered by event ${{ github.event_name }} for ref ${{ github.ref }} and commit ${{ github.sha }}"
       - name: Publish to Netlify
         id: publish-netlify
         # FIXME: Once https://github.com/netlify/actions/pull/24 is merged, use
         # the official one.
         uses: Triloworld/actions/cli@3eff4d5cd9bf9f7ba528c1f1bbb94a37c3a3201d
         with:
-          args: deploy --dir=./build --message=\"Triggered by event ${{ github.event_name }} for branch or tag ${{ github.ref }} and commit ${{ github.sha }}\"
+          args: deploy --dir=./build --message=\"Triggered by event ${{ github.event_name }} for ref ${{ github.ref }} and commit ${{ github.sha }}\"
         env:
           DEBUG: "*"
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
@@ -115,7 +115,7 @@ jobs:
           environment_url: "${{ steps.publish-netlify.outputs.NETLIFY_URL }}"
           state: "success"
           deployment_id: ${{ steps.deployment.outputs.deployment_id }}
-          description: "Triggered by event ${{ github.event_name }} for branch or tag ${{ github.ref }} and commit ${{ github.sha }}"
+          description: "Triggered by event ${{ github.event_name }} for ref ${{ github.ref }} and commit ${{ github.sha }}"
       - name: Update deployment status (failure)
         # FIXME: Once https://github.com/chrnorm/deployment-status/pull/4 is
         # merged and a new working release is out, use the original one.
@@ -126,7 +126,7 @@ jobs:
           environment_url: "${{ steps.publish-netlify.outputs.NETLIFY_URL }}"
           state: "failure"
           deployment_id: ${{ steps.deployment.outputs.deployment_id }}
-          description: "Triggered by event ${{ github.event_name }} for branch or tag ${{ github.ref }} and commit ${{ github.sha }}"
+          description: "Triggered by event ${{ github.event_name }} for ref ${{ github.ref }} and commit ${{ github.sha }}"
 
   publish-netlify-production:
     name: Publish to Netlify production URL
@@ -147,14 +147,14 @@ jobs:
         with:
           token: "${{ github.token }}"
           environment: production
-          description: "Triggered by event ${{ github.event_name }} for branch or tag ${{ github.ref }} and commit ${{ github.sha }}"
+          description: "Triggered by event ${{ github.event_name }} for ref ${{ github.ref }} and commit ${{ github.sha }}"
       - name: Publish to Netlify
         id: publish-netlify
         # FIXME: Once https://github.com/netlify/actions/pull/24 is merged, use
         # the official one.
         uses: Triloworld/actions/cli@3eff4d5cd9bf9f7ba528c1f1bbb94a37c3a3201d
         with:
-          args: deploy --dir=./build --prod --message=\"Triggered by event ${{ github.event_name }} for branch or tag ${{ github.ref }} and commit ${{ github.sha }}\"
+          args: deploy --dir=./build --prod --message=\"Triggered by event ${{ github.event_name }} for ref ${{ github.ref }} and commit ${{ github.sha }}\"
         env:
           DEBUG: "*"
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
@@ -169,7 +169,7 @@ jobs:
           environment_url: "${{ steps.publish-netlify.outputs.NETLIFY_URL }}"
           state: "success"
           deployment_id: ${{ steps.deployment.outputs.deployment_id }}
-          description: "Triggered by event ${{ github.event_name }} for branch or tag ${{ github.ref }} and commit ${{ github.sha }}"
+          description: "Triggered by event ${{ github.event_name }} for ref ${{ github.ref }} and commit ${{ github.sha }}"
       - name: Update deployment status (failure)
         # FIXME: Once https://github.com/chrnorm/deployment-status/pull/4 is
         # merged and a new working release is out, use the original one.
@@ -180,4 +180,4 @@ jobs:
           environment_url: "${{ steps.publish-netlify.outputs.NETLIFY_URL }}"
           state: "failure"
           deployment_id: ${{ steps.deployment.outputs.deployment_id }}
-          description: "Triggered by event ${{ github.event_name }} for branch or tag ${{ github.ref }} and commit ${{ github.sha }}"
+          description: "Triggered by event ${{ github.event_name }} for ref ${{ github.ref }} and commit ${{ github.sha }}"
