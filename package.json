@@ -20,6 +20,7 @@
     "react-dom": "^16.13.1",
     "react-map-gl": "^5.2.3",
     "react-scripts": "3.4.1",
+    "reflect-metadata": "^0.1.13",
     "typescript": "~3.8.3"
   },
   "homepage": "https://sproutverse.github.io/gatesolve-ui",
