@@ -91,6 +91,7 @@ jobs:
         id: deployment
         uses: actions/github-script@0.9.0
         with:
+          result-encoding: string
           script: |
             const result = await github.repos.createDeployment({
               ...context.repo,
@@ -107,8 +108,7 @@ jobs:
                 previews: ["ant-man-preview"],
               },
             });
-            console.log(result);
-            return(result);
+            return(result.data.id);
           debug: true
       - name: Publish to Netlify
         id: publish-netlify
@@ -128,7 +128,7 @@ jobs:
           script: |
             github.repos.createDeploymentStatus({
               ...context.repo,
-              deployment_id: "${{ steps.deployment.outputs.data.id }}",
+              deployment_id: "${{ steps.deployment.outputs.result }}",
               state: "${{ job.status }}" === "success" ? "success" : "failure",
               log_url: "https://github.com/${context.repo.owner}/${context.repo.repo}/commit/${context.sha}/checks",
               description: "Triggered by event ${{ github.event_name }} for ref ${{ github.ref }} and commit ${{ github.sha }}",
@@ -158,6 +158,7 @@ jobs:
         id: deployment
         uses: actions/github-script@0.9.0
         with:
+          result-encoding: string
           script: |
             const result = await github.repos.createDeployment({
               ...context.repo,
@@ -174,8 +175,7 @@ jobs:
                 previews: ["ant-man-preview"],
               },
             });
-            console.log(result);
-            return(result);
+            return(result.data.id);
           debug: true
       - name: Publish to Netlify
         id: publish-netlify
@@ -195,7 +195,7 @@ jobs:
           script: |
             github.repos.createDeploymentStatus({
               ...context.repo,
-              deployment_id: "${{ steps.deployment.outputs.data.id }}",
+              deployment_id: "${{ steps.deployment.outputs.result }}",
               state: "${{ job.status }}" === "success" ? "success" : "failure",
               log_url: "https://github.com/${context.repo.owner}/${context.repo.repo}/commit/${context.sha}/checks",
               description: "Triggered by event ${{ github.event_name }} for ref ${{ github.ref }} and commit ${{ github.sha }}",
