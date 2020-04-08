@@ -30,8 +30,8 @@
     "eject": "react-scripts eject",
     "eslint-check": "eslint --print-config src/App.tsx | eslint-config-prettier-check",
     "eslint": "eslint --ext .js,.jsx,.ts,.tsx ./",
-    "prettier-check": "prettier --check .eslintrc.js package.json tsconfig.json \"{src,public}/**/*{.js,.jsx,.ts,.tsx,.json,.css}\"",
-    "prettier": "prettier --write .eslintrc.js package.json tsconfig.json \"{src,public}/**/*{.js,.jsx,.ts,.tsx,.json,.css}\""
+    "prettier-check": "prettier --check .eslintrc.js package.json tsconfig.json \"{src,public,.github}/**/*{.js,.jsx,.ts,.tsx,.json,.css,.yaml}\"",
+    "prettier": "prettier --write .eslintrc.js package.json tsconfig.json \"{src,public,.github}/**/*{.js,.jsx,.ts,.tsx,.json,.css,.yaml}\""
   },
   "eslintConfig": {
     "extends": "react-app"

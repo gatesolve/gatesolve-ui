@@ -1,5 +1,0 @@
-[[redirects]]
-  from = "/gatesolve-ui/*"
-  to = "/:splat"
-
-  status = 200
