@@ -91,7 +91,9 @@ jobs:
         id: deployment
         uses: actions/github-script@0.9.0
         with:
+          debug: true
           result-encoding: string
+          previews: "ant-man-preview"
           script: |
             const result = await github.repos.createDeployment({
               ...context.repo,
@@ -104,12 +106,8 @@ jobs:
               description: "Triggered by event ${{ github.event_name }} for ref ${{ github.ref }} and commit ${{ github.sha }}",
               transient_environment: true,
               // production_environment: false,
-              mediaType: {
-                previews: ["ant-man-preview"],
-              },
             });
             return(result.data.id);
-          debug: true
       - name: Publish to Netlify
         id: publish-netlify
         # FIXME: Once https://github.com/netlify/actions/pull/24 is merged, use
@@ -125,6 +123,8 @@ jobs:
         if: always()
         uses: actions/github-script@0.9.0
         with:
+          debug: true
+          previews: "ant-man-preview,flash-preview"
           script: |
             github.repos.createDeploymentStatus({
               ...context.repo,
@@ -135,11 +135,7 @@ jobs:
               environment: "pull-request-${{ steps.pull-number.outputs.pull_number }}",
               environment_url: "${{ steps.publish-netlify.outputs.NETLIFY_URL }}",
               // auto_inactive: true,
-              mediaType: {
-                previews: ["ant-man-preview", "flash-preview"],
-              },
             })
-          debug: true
 
   publish-netlify-production:
     name: Publish to Netlify production URL
@@ -158,7 +154,9 @@ jobs:
         id: deployment
         uses: actions/github-script@0.9.0
         with:
+          debug: true
           result-encoding: string
+          previews: "ant-man-preview"
           script: |
             const result = await github.repos.createDeployment({
               ...context.repo,
@@ -171,12 +169,8 @@ jobs:
               description: "Triggered by event ${{ github.event_name }} for ref ${{ github.ref }} and commit ${{ github.sha }}",
               // transient_environment: false,
               // production_environment: true,
-              mediaType: {
-                previews: ["ant-man-preview"],
-              },
             });
             return(result.data.id);
-          debug: true
       - name: Publish to Netlify
         id: publish-netlify
         # FIXME: Once https://github.com/netlify/actions/pull/24 is merged, use
@@ -192,6 +186,8 @@ jobs:
         if: always()
         uses: actions/github-script@0.9.0
         with:
+          debug: true
+          previews: "ant-man-preview,flash-preview"
           script: |
             github.repos.createDeploymentStatus({
               ...context.repo,
@@ -202,8 +198,4 @@ jobs:
               environment: "production",
               environment_url: "${{ steps.publish-netlify.outputs.NETLIFY_URL }}",
               // auto_inactive: true,
-              mediaType: {
-                previews: ["ant-man-preview", "flash-preview"],
-              },
             })
-          debug: true
