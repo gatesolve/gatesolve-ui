@@ -87,27 +87,37 @@ jobs:
       - name: Extract pull request number
         id: pull-number
         run: echo "::set-output name=pull_number::$(jq --raw-output .pull_request.number "${GITHUB_EVENT_PATH}")"
+      - name: Create GitHub deployment
+        id: deployment
+        uses: bobheadxi/deployments@2139d3ff7910f8b0a8e96616d2ff36c88d38271a
+        with:
+          step: start
+          token: "${{ github.token }}"
+          env: "pull-request-${{ steps.pull-number.outputs.pull_number }}"
+          desc: "Triggered by event ${{ github.event_name }} for ref ${{ github.ref }} and commit ${{ github.sha }}"
+          transient: "true"
+          no_override: "false"
       - name: Publish to Netlify
         id: publish-netlify
         # FIXME: Once https://github.com/netlify/actions/pull/24 is merged, use
         # the official one.
         uses: Triloworld/actions/cli@3eff4d5cd9bf9f7ba528c1f1bbb94a37c3a3201d
         with:
-          args: deploy --dir=./build --message=\"Triggered by event ${{ github.event_name }} for branch or tag ${{ github.ref }} and commit ${{ github.sha }}\"
+          args: deploy --dir=./build --message=\"Triggered by event ${{ github.event_name }} for ref ${{ github.ref }} and commit ${{ github.sha }}\"
         env:
           DEBUG: "*"
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-      - name: Create GitHub deployment (success)
-        uses: chrnorm/deployment-action@0a0479c8ab41cd336ddc266342ca0a1c54727a72
-        if: success()
+      - name: Update GitHub deployment status
+        uses: bobheadxi/deployments@2139d3ff7910f8b0a8e96616d2ff36c88d38271a
+        if: always()
         with:
-          token: "${{ github.token }}"
-          environment: "pull-request-${{ steps.pull-number.outputs.pull_number }}"
-          # The action actually uses target_url as environment_url.
-          target_url: "${{ steps.publish-netlify.outputs.NETLIFY_URL }}"
-          initial_status: success
-          description: "Triggered by event ${{ github.event_name }} for branch or tag ${{ github.ref }} and commit ${{ github.sha }}"
+          step: finish
+          token: ${{ github.token }}
+          status: ${{ job.status }}
+          deployment_id: ${{ steps.deployment.outputs.deployment_id }}
+          env_url: "${{ steps.publish-netlify.outputs.NETLIFY_URL }}"
+          desc: "Triggered by event ${{ github.event_name }} for ref ${{ github.ref }} and commit ${{ github.sha }}"
 
   publish-netlify-production:
     name: Publish to Netlify production URL
@@ -122,24 +132,34 @@ jobs:
         uses: actions/download-artifact@v1
         with:
           name: build
+      - name: Create GitHub deployment
+        id: deployment
+        uses: bobheadxi/deployments@2139d3ff7910f8b0a8e96616d2ff36c88d38271a
+        with:
+          step: start
+          token: "${{ github.token }}"
+          env: production
+          desc: "Triggered by event ${{ github.event_name }} for ref ${{ github.ref }} and commit ${{ github.sha }}"
+          transient: "false"
+          no_override: "false"
       - name: Publish to Netlify
         id: publish-netlify
         # FIXME: Once https://github.com/netlify/actions/pull/24 is merged, use
         # the official one.
         uses: Triloworld/actions/cli@3eff4d5cd9bf9f7ba528c1f1bbb94a37c3a3201d
         with:
-          args: deploy --dir=./build --prod --message=\"Triggered by event ${{ github.event_name }} for branch or tag ${{ github.ref }} and commit ${{ github.sha }}\"
+          args: deploy --dir=./build --prod --message=\"Triggered by event ${{ github.event_name }} for ref ${{ github.ref }} and commit ${{ github.sha }}\"
         env:
           DEBUG: "*"
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-      - name: Create GitHub deployment (success)
-        uses: chrnorm/deployment-action@0a0479c8ab41cd336ddc266342ca0a1c54727a72
-        if: success()
+      - name: Update GitHub deployment status
+        uses: bobheadxi/deployments@2139d3ff7910f8b0a8e96616d2ff36c88d38271a
+        if: always()
         with:
-          token: "${{ github.token }}"
-          environment: production
-          # The action actually uses target_url as environment_url.
-          target_url: "${{ steps.publish-netlify.outputs.NETLIFY_URL }}"
-          initial_status: success
-          description: "Triggered by event ${{ github.event_name }} for branch or tag ${{ github.ref }} and commit ${{ github.sha }}"
+          step: finish
+          token: ${{ github.token }}
+          status: ${{ job.status }}
+          deployment_id: ${{ steps.deployment.outputs.deployment_id }}
+          env_url: "${{ steps.publish-netlify.outputs.NETLIFY_URL }}"
+          desc: "Triggered by event ${{ github.event_name }} for ref ${{ github.ref }} and commit ${{ github.sha }}"
