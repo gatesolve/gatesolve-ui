@@ -1,6 +1,7 @@
-import { FlexibleRoadPlanner } from "plannerjs";
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { FeatureCollection } from "geojson";
+
+import { Planner } from "./planner-config";
 
 import { queryEntrances } from "./overpass";
 
@@ -149,12 +150,11 @@ export default function calculatePlan(
     })
     .then((targets) => {
       targets.forEach((target) => {
-        const planner = new FlexibleRoadPlanner();
+        const planner = new Planner();
         planner
           .query({
             from: { latitude: origin[0], longitude: origin[1] },
             to: { latitude: target.lat, longitude: target.lon },
-            roadNetworkOnly: true,
           })
           .take(1)
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
