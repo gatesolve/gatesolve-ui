@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import MapGL, { Source, Layer, ViewportProps, MapRequest } from "react-map-gl";
+import type mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { FeatureCollection } from "geojson";
@@ -18,6 +19,7 @@ interface State {
   origin: [number, number];
   destination: [number, number];
   route: FeatureCollection;
+  basemapStyle: string | object;
 }
 
 const initialOrigin: [number, number] = [60.16295, 24.93071];
@@ -32,6 +34,12 @@ const initialState: State = {
     zoom: 16,
     bearing: 0,
     pitch: 0,
+  },
+  basemapStyle: {
+    layers: [],
+    sources: {},
+    version: 8,
+    glyphs: "https://fonts.openmaptiles.org/{fontstack}/{range}.pbf",
   },
 };
 
@@ -48,6 +56,17 @@ const transformRequest = (originalURL?: string): MapRequest => {
 
 const App: React.FC = () => {
   const [state, setState] = useState(initialState);
+
+  useEffect(() => {
+    const asyncAction = async (): Promise<void> => {
+      const response = await fetch(
+        "https://raw.githubusercontent.com/HSLdevcom/hsl-map-style/master/simple-style.json"
+      );
+      const style = (await response.json()) as mapboxgl.Style;
+      setState((prevState) => ({ ...prevState, basemapStyle: style }));
+    };
+    asyncAction();
+  }, []);
 
   useEffect(() => {
     setState(
@@ -88,7 +107,7 @@ const App: React.FC = () => {
         {...state.viewport}
         width="100%"
         height="90%"
-        mapStyle="https://raw.githubusercontent.com/HSLdevcom/hsl-map-style/master/simple-style.json"
+        mapStyle={state.basemapStyle}
         transformRequest={transformRequest}
         onViewportChange={(viewport): void =>
           setState((prevState): State => ({ ...prevState, viewport }))
