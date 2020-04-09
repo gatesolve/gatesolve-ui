@@ -5,8 +5,9 @@ export const routeLineLayer = {
   id: "route-line",
   type: "line",
   paint: {
-    "line-opacity": 0.5,
+    "line-opacity": ["coalesce", ["get", "opacity"], 0.5] as Expression,
     "line-width": 5,
+    "line-color": ["get", "color"] as Expression,
   },
 };
 
@@ -16,6 +17,24 @@ export const routePointLayer = {
   paint: {
     "circle-radius": 5,
     "circle-color": ["get", "color"] as Expression,
+  },
+  filter: ["==", "Point", ["geometry-type"]],
+};
+
+export const routePointSymbolLayer = {
+  id: "route-point-symbol",
+  type: "symbol",
+  paint: {
+    "text-color": "#000",
+    "text-halo-color": "#fff",
+    "text-halo-width": 1,
+  },
+  layout: {
+    "text-field": ["get", "ref"] as Expression,
+    "text-anchor": ("center" as unknown) as Expression,
+    "text-font": ["Klokantech Noto Sans Regular"],
+    "text-size": 8,
+    "text-offset": [0, -0.05],
   },
   filter: ["==", "Point", ["geometry-type"]],
 };

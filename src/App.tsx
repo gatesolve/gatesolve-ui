@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from "react";
-import MapGL, { Source, Layer, ViewportProps } from "react-map-gl";
+import MapGL, { Source, Layer, ViewportProps, MapRequest } from "react-map-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { FeatureCollection } from "geojson";
 
-import { routePointLayer, routeLineLayer } from "./map-style";
+import {
+  routePointLayer,
+  routePointSymbolLayer,
+  routeLineLayer,
+} from "./map-style";
 import PinMarker from "./components/PinMarker";
 import calculatePlan, { geometryToGeoJSON } from "./planner";
 import "./App.css";
@@ -16,19 +20,30 @@ interface State {
   route: FeatureCollection;
 }
 
-const initialOrigin: [number, number] = [60.17, 24.94];
-const initialDestination: [number, number] = [60.18, 24.95];
+const initialOrigin: [number, number] = [60.16295, 24.93071];
+const initialDestination: [number, number] = [60.16259, 24.93155];
 const initialState: State = {
   origin: initialOrigin,
   destination: initialDestination,
-  route: geometryToGeoJSON(initialOrigin, initialDestination, []),
+  route: geometryToGeoJSON(initialOrigin, initialDestination),
   viewport: {
-    latitude: 60.17,
-    longitude: 24.94,
-    zoom: 14,
+    latitude: 60.163,
+    longitude: 24.931,
+    zoom: 16,
     bearing: 0,
     pitch: 0,
   },
+};
+
+const transformRequest = (originalURL?: string): MapRequest => {
+  if (!originalURL) {
+    throw Error("This cannot happen as URL isn't actually optional.");
+  }
+  const url = originalURL.replace(
+    "https://static.hsldev.com/mapfonts/Klokantech Noto Sans",
+    "https://fonts.openmaptiles.org/Klokantech Noto Sans"
+  );
+  return { url };
 };
 
 const App: React.FC = () => {
@@ -38,7 +53,7 @@ const App: React.FC = () => {
     setState(
       (prevState): State => ({
         ...prevState,
-        route: geometryToGeoJSON(state.origin, state.destination, []),
+        route: geometryToGeoJSON(state.origin, state.destination),
       })
     );
     calculatePlan(state.origin, state.destination, (geojson) => {
@@ -74,6 +89,7 @@ const App: React.FC = () => {
         width="100%"
         height="90%"
         mapStyle="https://raw.githubusercontent.com/HSLdevcom/hsl-map-style/master/simple-style.json"
+        transformRequest={transformRequest}
         onViewportChange={(viewport): void =>
           setState((prevState): State => ({ ...prevState, viewport }))
         }
@@ -105,6 +121,10 @@ const App: React.FC = () => {
           <Layer
             // eslint-disable-next-line react/jsx-props-no-spreading
             {...routePointLayer}
+          />
+          <Layer
+            // eslint-disable-next-line react/jsx-props-no-spreading
+            {...routePointSymbolLayer}
           />
         </Source>
         <PinMarker

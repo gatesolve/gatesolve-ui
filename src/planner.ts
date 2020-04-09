@@ -1,14 +1,58 @@
-import { FlexibleTransitPlanner } from "plannerjs";
+import { FlexibleRoadPlanner } from "plannerjs";
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { FeatureCollection } from "geojson";
 
 import { queryEntrances } from "./overpass";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function extractGeometry(path: any): Array<[number, number]> {
+function extractGeometry(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  path: any
+): [
+  Array<[number, number]>,
+  Array<[number, number]>,
+  Array<Array<[number, number]>>
+] {
   const coordinates = [] as Array<[number, number]>;
+  const obstacles = [] as Array<[number, number]>;
+  const obstacleWays = new Map();
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   path.legs[0].getSteps().forEach((step: any) => {
+    const node = step.stopLocation;
+    if (
+      path.context[step.through]?.definedTags[
+        "https://w3id.org/openstreetmap/terms#highway"
+      ] === "https://w3id.org/openstreetmap/terms#Steps"
+    ) {
+      if (!obstacleWays.has(step.through)) {
+        obstacleWays.set(step.through, []);
+      }
+      obstacleWays
+        .get(step.through)
+        .push(
+          [
+            step.startLocation.longitude as number,
+            step.startLocation.latitude as number,
+          ],
+          [
+            step.stopLocation.longitude as number,
+            step.stopLocation.latitude as number,
+          ]
+        );
+    }
+    if (node.definedTags?.["https://w3id.org/openstreetmap/terms#barrier"]) {
+      // eslint-disable-next-line no-console
+      console.log(
+        step.through,
+        node.definedTags[
+          "https://w3id.org/openstreetmap/terms#barrier"
+        ].replace(/^.*#/, ""),
+        node.id,
+        node.definedTags,
+        node.freeformTags
+      );
+      obstacles.push([node.longitude as number, node.latitude as number]);
+    }
     coordinates.push([
       step.startLocation.longitude as number,
       step.startLocation.latitude as number,
@@ -18,13 +62,16 @@ function extractGeometry(path: any): Array<[number, number]> {
       step.stopLocation.latitude as number,
     ]);
   });
-  return coordinates;
+  return [coordinates, obstacles, Array.from(obstacleWays.values())];
 }
 
 export function geometryToGeoJSON(
   origin: [number, number],
   destination: [number, number],
-  coordinates: Array<[number, number]>
+  destinationRef?: string,
+  coordinates?: Array<[number, number]>,
+  obstacles?: Array<[number, number]>,
+  obstacleWays?: Array<Array<[number, number]>>
 ): FeatureCollection {
   return {
     type: "FeatureCollection",
@@ -33,10 +80,32 @@ export function geometryToGeoJSON(
         type: "Feature",
         geometry: {
           type: "LineString",
-          coordinates,
+          coordinates: coordinates || [],
         },
         properties: {
           color: "#000",
+        },
+      },
+      {
+        type: "Feature",
+        geometry: {
+          type: "MultiLineString",
+          coordinates: obstacleWays || [],
+        },
+        properties: {
+          color: "#dc0451",
+          opacity: 1,
+        },
+      },
+      {
+        type: "Feature",
+        geometry: {
+          type: "MultiPoint",
+          coordinates: obstacles || [],
+        },
+        properties: {
+          color: "#dc0451",
+          ref: "!",
         },
       },
       {
@@ -57,6 +126,7 @@ export function geometryToGeoJSON(
         },
         properties: {
           color: "#64be14",
+          ref: destinationRef,
         },
       },
     ],
@@ -79,7 +149,7 @@ export default function calculatePlan(
     })
     .then((targets) => {
       targets.forEach((target) => {
-        const planner = new FlexibleTransitPlanner();
+        const planner = new FlexibleRoadPlanner();
         planner
           .query({
             from: { latitude: origin[0], longitude: origin[1] },
@@ -90,11 +160,18 @@ export default function calculatePlan(
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           .on("data", async (path: any) => {
             const completePath = await planner.completePath(path);
-            const geometry = extractGeometry(completePath);
+            // eslint-disable-next-line no-console
+            console.log("Plan", completePath, "from", origin, "to", target);
+            const [geometry, obstacles, obstacleWays] = extractGeometry(
+              completePath
+            );
             const geoJSON = geometryToGeoJSON(
               origin,
               [target.lat, target.lon],
-              geometry
+              target.tags?.["ref"] || target.tags?.["addr:unit"],
+              geometry,
+              obstacles,
+              obstacleWays
             );
             callback(geoJSON);
           });
