@@ -1,1 +1,2 @@
 /gatesolve-ui/* /:splat 200
+/route/* / 200
