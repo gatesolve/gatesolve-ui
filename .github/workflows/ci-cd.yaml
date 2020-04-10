@@ -40,7 +40,7 @@ jobs:
         run: yarn prettier-check
       - name: Run ESLint
         run: yarn eslint --max-warnings=0
-      - name: Run tests
+      - name: Run non-E2E tests
         run: yarn test
         env:
           CI: true
@@ -147,6 +147,59 @@ jobs:
               issue_number: "${{ steps.pull-number.outputs.pull_number }}",
               body: "${{ steps.publish-netlify.outputs.NETLIFY_URL }} has the deployment for the merge commit `${{ github.sha }}` corresponding to the pull request HEAD commit `${{ github.event.pull_request.head.sha }}`.",
             })
+      # Make the URL available for E2E tests.
+      - name: Persist Netlify draft URL
+        run: |
+          mkdir -p ./netlify-draft-url && echo "${{ steps.publish-netlify.outputs.NETLIFY_URL }}" > ./netlify-draft-url/url
+      - name: Upload Netlify draft URL
+        uses: actions/upload-artifact@v1
+        with:
+          name: netlify-draft-url
+          path: ./netlify-draft-url
+
+  run-e2e-tests:
+    name: Run E2E tests using Netlify draft URL
+    needs: publish-netlify-draft
+    runs-on: ubuntu-18.04
+    strategy:
+      matrix:
+        node-version: [12.x]
+    steps:
+      - name: Download Netlify draft URL
+        uses: actions/download-artifact@v1
+        with:
+          name: netlify-draft-url
+      - name: Set Netlify draft URL to an output
+        id: netlify-draft-url
+        run: echo "::set-output name=url::$(cat ./netlify-draft-url/url)"
+      # It is faster to install dependencies again than to download an artifact
+      # containing everything.
+      - name: Check the repository out
+        uses: actions/checkout@v2
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+      - name: Set up the cache
+        uses: actions/cache@v1
+        id: yarn-cache
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+      - name: Install dependencies
+        run: yarn --frozen-lockfile
+      - name: Install Playwright
+        uses: microsoft/playwright-github-action@11413a1e4dfa5b193634b90340f5fadf22b81b27
+      - name: Run E2E tests using Netlify
+        run: yarn test-e2e
+        env:
+          CI: true
+          E2E_TEST_URL: "${{ steps.netlify-draft-url.outputs.url }}"
 
   publish-netlify-production:
     name: Publish to Netlify production URL
