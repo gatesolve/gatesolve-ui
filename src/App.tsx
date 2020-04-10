@@ -12,6 +12,7 @@ import MapGL, {
 import "mapbox-gl/dist/mapbox-gl.css";
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { FeatureCollection } from "geojson";
+import { ReactAutosuggestGeocoder } from "react-autosuggest-geocoder";
 
 import {
   routePointLayer,
@@ -146,6 +147,22 @@ const App: React.FC = () => {
       <header className="App-header">
         <h2>Gatesolve</h2>
       </header>
+      <ReactAutosuggestGeocoder
+        url="https://api.digitransit.fi/geocoding/v1/"
+        sources="oa,osm,nlsfi"
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        onSuggestionSelected={(event: any, { suggestion }: any): any => {
+          setState(
+            (prevState): State => ({
+              ...prevState,
+              destination: [
+                suggestion.geometry.coordinates[1],
+                suggestion.geometry.coordinates[0],
+              ],
+            })
+          );
+        }}
+      />
       <MapGL
         ref={map}
         // This is according to the Get Started materials:
