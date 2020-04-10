@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from "react";
+import { useRouteMatch, useHistory } from "react-router-dom";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type { match } from "react-router-dom";
 import MapGL, { Source, Layer, ViewportProps, MapRequest } from "react-map-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 // eslint-disable-next-line import/no-extraneous-dependencies
@@ -46,8 +49,39 @@ const transformRequest = (originalURL?: string): MapRequest => {
   return { url };
 };
 
+const parseLatLng = (text: string): [number, number] =>
+  text.split(",").map(Number) as [number, number];
+
 const App: React.FC = () => {
+  const urlMatch =
+    useRouteMatch({
+      path: "/route/:from/:to",
+    }) as match<{ from: string; to: string }>;
+
   const [state, setState] = useState(initialState);
+
+  useEffect(() => {
+    if (urlMatch) {
+      setState(
+        (prevState): State => ({
+          ...prevState,
+          origin: parseLatLng(urlMatch.params.from),
+          destination: parseLatLng(urlMatch.params.to),
+        })
+      );
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const history = useHistory();
+
+  useEffect(() => {
+    if (
+      history.location.pathname !==
+      `/route/${state.origin}/${state.destination}/`
+    ) {
+      history.replace(`/route/${state.origin}/${state.destination}/`);
+    }
+  }, [history, state.origin, state.destination]);
 
   useEffect(() => {
     setState(
