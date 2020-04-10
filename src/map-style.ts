@@ -27,13 +27,13 @@ export const routePointSymbolLayer = {
   paint: {
     "text-color": "#000",
     "text-halo-color": "#fff",
-    "text-halo-width": 1,
+    "text-halo-width": 3,
   },
   layout: {
     "text-field": ["get", "ref"] as Expression,
     "text-anchor": ("center" as unknown) as Expression,
     "text-font": ["Klokantech Noto Sans Regular"],
-    "text-size": 8,
+    "text-size": 24,
     "text-offset": [0, -0.05],
   },
   filter: ["==", "Point", ["geometry-type"]],
