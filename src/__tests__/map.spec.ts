@@ -1,3 +1,6 @@
+// FIXME: We should not need to use the !. non-null assertions after the expects
+// https://github.com/DefinitelyTyped/DefinitelyTyped/issues/41179
+/* eslint @typescript-eslint/no-non-null-assertion: 0 */
 import { chromium, Browser, Page } from "playwright";
 import { act } from "@testing-library/react";
 
@@ -8,9 +11,10 @@ describe("Basic map functionality", () => {
   let browser: Browser;
 
   beforeAll(async () => {
+    // FIXME Find out why the test fails without slowMo
     browser = process.env.GITHUB_ACTIONS
-      ? await chromium.launch()
-      : await chromium.launch({ headless: false });
+      ? await chromium.launch({ slowMo: 100, headless: true })
+      : await chromium.launch({ slowMo: 100, headless: false });
     page = await browser.newPage();
 
     await act(async () => {
@@ -29,18 +33,26 @@ describe("Basic map functionality", () => {
   test("left-clicking changes destination", async () => {
     const clickX = 200;
     const clickY = 200;
-    const mapElem = await page.$("div.mapboxgl-map");
+
+    const appElem = await page.$(".App");
+    expect(appElem).toBeTruthy();
+    const mapElem = await page.$(".mapboxgl-map");
+    expect(mapElem).toBeTruthy();
+
     await act(async () => {
-      await mapElem?.click({ position: { x: clickX, y: clickY } });
+      // FIXME We should click mapElem here, but that hangs
+      await appElem!.click({ position: { x: clickX, y: clickY } });
     });
+
     const destination = await page.$('[data-testid="destination"]');
-    const bbox = await destination?.boundingBox();
-    if (bbox) {
-      // Pin points into the middle of the bottom of the bounding box.
-      expect(Math.abs(clickX - (bbox.x + bbox.width / 2))).toBeLessThanOrEqual(
-        1
-      );
-      expect(Math.abs(clickY - (bbox.y + bbox.height))).toBeLessThanOrEqual(1);
-    }
+    expect(destination).toBeTruthy();
+    const bbox = await destination!.boundingBox();
+    expect(bbox).toBeTruthy();
+
+    // Pin points into the middle of the bottom of the bounding box.
+    expect(Math.abs(clickX - (bbox!.x + bbox!.width / 2))).toBeLessThanOrEqual(
+      1
+    );
+    expect(Math.abs(clickY - (bbox!.y + bbox!.height))).toBeLessThanOrEqual(1);
   });
 });
