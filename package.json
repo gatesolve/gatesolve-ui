@@ -31,7 +31,9 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test",
+    "test": "tsc --noemit && react-scripts test --testPathIgnorePatterns \"src/__tests__/\"",
+    "test-e2e": "tsc --noemit && react-scripts test --testPathPattern \"src/__tests__/\"",
+    "test-all": "tsc --noemit && react-scripts test",
     "eject": "react-scripts eject",
     "eslint-check": "eslint --print-config src/App.tsx | eslint-config-prettier-check",
     "eslint": "eslint --ext .js,.jsx,.ts,.tsx ./",
@@ -67,6 +69,7 @@
     "eslint-plugin-prettier": "^3.1.2",
     "eslint-plugin-react": "^7.19.0",
     "eslint-plugin-react-hooks": "^3.0.0",
+    "playwright": "^0.13.0",
     "prettier": "^2.0.3"
   }
 }
