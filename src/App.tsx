@@ -1,8 +1,14 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useRouteMatch, useHistory } from "react-router-dom";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { match } from "react-router-dom";
-import MapGL, { Source, Layer, ViewportProps, MapRequest } from "react-map-gl";
+import MapGL, {
+  Source,
+  Layer,
+  WebMercatorViewport,
+  ViewportProps,
+  MapRequest,
+} from "react-map-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { FeatureCollection } from "geojson";
@@ -52,7 +58,28 @@ const transformRequest = (originalURL?: string): MapRequest => {
 const parseLatLng = (text: string): [number, number] =>
   text.split(",").map(Number) as [number, number];
 
+const fitBounds = (
+  viewportProps: Partial<ViewportProps>,
+  latLngs: Array<[number, number]>
+): Partial<ViewportProps> => {
+  const viewport = new WebMercatorViewport(viewportProps);
+  const minLng = Math.min(...latLngs.map((x) => x[1]));
+  const maxLng = Math.max(...latLngs.map((x) => x[1]));
+  const minLat = Math.min(...latLngs.map((x) => x[0]));
+  const maxLat = Math.max(...latLngs.map((x) => x[0]));
+  return viewport.fitBounds(
+    [
+      [minLng, minLat],
+      [maxLng, maxLat],
+    ],
+    { padding: 40 }
+  );
+};
+
 const App: React.FC = () => {
+  const map = useRef<MapGL>(null);
+  const mapViewport = useRef<Partial<ViewportProps>>({});
+
   const urlMatch =
     useRouteMatch({
       path: "/route/:from/:to",
@@ -62,11 +89,15 @@ const App: React.FC = () => {
 
   useEffect(() => {
     if (urlMatch) {
+      const origin = parseLatLng(urlMatch.params.from);
+      const destination = parseLatLng(urlMatch.params.to);
+      const viewport = fitBounds(mapViewport.current, [origin, destination]);
       setState(
         (prevState): State => ({
           ...prevState,
-          origin: parseLatLng(urlMatch.params.from),
-          destination: parseLatLng(urlMatch.params.to),
+          origin,
+          destination,
+          viewport: { ...mapViewport.current, ...viewport },
         })
       );
     }
@@ -116,6 +147,7 @@ const App: React.FC = () => {
         <h2>Gatesolve</h2>
       </header>
       <MapGL
+        ref={map}
         // This is according to the Get Started materials:
         // https://uber.github.io/react-map-gl/docs/get-started/get-started/
         // eslint-disable-next-line react/jsx-props-no-spreading
@@ -124,9 +156,10 @@ const App: React.FC = () => {
         height="90%"
         mapStyle="https://raw.githubusercontent.com/HSLdevcom/hsl-map-style/master/simple-style.json"
         transformRequest={transformRequest}
-        onViewportChange={(viewport): void =>
-          setState((prevState): State => ({ ...prevState, viewport }))
-        }
+        onViewportChange={(viewport): void => {
+          mapViewport.current = viewport;
+          setState((prevState): State => ({ ...prevState, viewport }));
+        }}
         onClick={(event): void => {
           // Filter out events not caused by left mouse button
           if (event.srcEvent.button !== 0) return;
