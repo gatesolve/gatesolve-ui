@@ -6,6 +6,7 @@ import MapGL, {
   Source,
   Layer,
   WebMercatorViewport,
+  GeolocateControl,
   ViewportProps,
   MapRequest,
 } from "react-map-gl";
@@ -217,6 +218,23 @@ const App: React.FC = () => {
           event.srcEvent.preventDefault();
         }}
       >
+        <GeolocateControl
+          positionOptions={{ enableHighAccuracy: true }}
+          trackUserLocation
+          // FIXME: The type is wrong in @types/react-map-gl
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          onGeolocate={(geolocationPosition: any): void => {
+            setState(
+              (prevState): State => ({
+                ...prevState,
+                origin: [
+                  geolocationPosition.coords.latitude,
+                  geolocationPosition.coords.longitude,
+                ],
+              })
+            );
+          }}
+        />
         <Source type="geojson" data={state.route}>
           <Layer
             // eslint-disable-next-line react/jsx-props-no-spreading
