@@ -40,12 +40,11 @@ describe("Geolocation", () => {
   });
 
   test("clicking geolocation button turns geolocation on", async () => {
-    const geolocationButton = await page.$('button[title="Geolocate"]');
-    expect(geolocationButton).toBeTruthy();
-    const isPressed = await geolocationButton!.getAttribute("aria-pressed");
-    expect(isPressed).toEqual("false");
-    await geolocationButton.click();
-    expect(isPressed).toEqual("true");
+    const isPressedBefore = await page.$eval('button[title=Geolocate]', elem => elem.getAttribute("aria-pressed"));
+    expect(isPressedBefore).toEqual("false");
+    await page.click('button[title=Geolocate]');
+    const isPressedAfter = await page.$eval('button[title=Geolocate]', elem => elem.getAttribute("aria-pressed"));
+    expect(isPressedAfter).toEqual("true");
   });
 
   test("clicking geolocation button does not click the map behind it", async () => {
