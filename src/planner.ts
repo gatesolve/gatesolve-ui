@@ -1,9 +1,14 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
-import { FeatureCollection } from "geojson";
+import {
+  Feature,
+  FeatureCollection,
+  Geometry,
+  GeoJsonProperties,
+} from "geojson";
 
 import { Planner } from "./planner-config";
 
-import { queryEntrances } from "./overpass";
+import { ElementWithCoordinates } from "./overpass";
 
 function extractGeometry(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -67,114 +72,113 @@ function extractGeometry(
 }
 
 export function geometryToGeoJSON(
-  origin: [number, number],
-  destination: [number, number],
-  destinationRef?: string,
+  origin?: [number, number],
+  targets?: Array<ElementWithCoordinates>,
   coordinates?: Array<[number, number]>,
   obstacles?: Array<[number, number]>,
   obstacleWays?: Array<Array<[number, number]>>
 ): FeatureCollection {
-  return {
-    type: "FeatureCollection",
-    features: [
-      {
-        type: "Feature",
-        geometry: {
-          type: "LineString",
-          coordinates: coordinates || [],
-        },
-        properties: {
-          color: "#000",
-        },
+  const features = [] as Array<Feature<Geometry, GeoJsonProperties>>;
+  if (origin) {
+    features.push({
+      type: "Feature",
+      geometry: {
+        type: "Point",
+        coordinates: [origin[1], origin[0]],
       },
-      {
-        type: "Feature",
-        geometry: {
-          type: "MultiLineString",
-          coordinates: obstacleWays || [],
-        },
-        properties: {
-          color: "#dc0451",
-          opacity: 1,
-        },
+      properties: {
+        color: "#00afff",
       },
-      {
-        type: "Feature",
-        geometry: {
-          type: "MultiPoint",
-          coordinates: obstacles || [],
-        },
-        properties: {
-          color: "#dc0451",
-          ref: "!",
-        },
-      },
-      {
+    });
+  }
+  if (targets) {
+    targets.forEach((target) => {
+      features.push({
         type: "Feature",
         geometry: {
           type: "Point",
-          coordinates: [origin[1], origin[0]],
-        },
-        properties: {
-          color: "#00afff",
-        },
-      },
-      {
-        type: "Feature",
-        geometry: {
-          type: "Point",
-          coordinates: [destination[1], destination[0]],
+          coordinates: [target.lon, target.lat],
         },
         properties: {
           color: "#64be14",
-          ref: destinationRef,
+          ref: target.tags?.["ref"] || target.tags?.["addr:unit"],
         },
+      });
+    });
+  }
+  if (coordinates) {
+    features.push({
+      type: "Feature",
+      geometry: {
+        type: "LineString",
+        coordinates,
       },
-    ],
+      properties: {
+        color: "#000",
+      },
+    });
+  }
+  if (obstacleWays) {
+    features.push({
+      type: "Feature",
+      geometry: {
+        type: "MultiLineString",
+        coordinates: obstacleWays,
+      },
+      properties: {
+        color: "#dc0451",
+        opacity: 1,
+      },
+    });
+  }
+  if (obstacles) {
+    features.push({
+      type: "Feature",
+      geometry: {
+        type: "MultiPoint",
+        coordinates: obstacles,
+      },
+      properties: {
+        color: "#dc0451",
+        ref: "!",
+      },
+    });
+  }
+  return {
+    type: "FeatureCollection",
+    features,
   };
 }
 
 export default function calculatePlan(
   origin: [number, number],
-  destination: [number, number],
+  targets: Array<ElementWithCoordinates>,
   callback: (f: FeatureCollection) => void
 ): void {
-  queryEntrances(destination)
-    .then((entrances) => {
-      if (!entrances.length) {
-        return [
-          { id: -1, type: "node", lat: destination[0], lon: destination[1] },
-        ];
-      }
-      return entrances;
-    })
-    .then((targets) => {
-      targets.forEach((target) => {
-        const planner = new Planner();
-        planner
-          .query({
-            from: { latitude: origin[0], longitude: origin[1] },
-            to: { latitude: target.lat, longitude: target.lon },
-          })
-          .take(1)
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          .on("data", async (path: any) => {
-            const completePath = await planner.completePath(path);
-            // eslint-disable-next-line no-console
-            console.log("Plan", completePath, "from", origin, "to", target);
-            const [geometry, obstacles, obstacleWays] = extractGeometry(
-              completePath
-            );
-            const geoJSON = geometryToGeoJSON(
-              origin,
-              [target.lat, target.lon],
-              target.tags?.["ref"] || target.tags?.["addr:unit"],
-              geometry,
-              obstacles,
-              obstacleWays
-            );
-            callback(geoJSON);
-          });
+  targets.forEach((target) => {
+    const planner = new Planner();
+    planner
+      .query({
+        from: { latitude: origin[0], longitude: origin[1] },
+        to: { latitude: target.lat, longitude: target.lon },
+      })
+      .take(1)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .on("data", async (path: any) => {
+        const completePath = await planner.completePath(path);
+        // eslint-disable-next-line no-console
+        console.log("Plan", completePath, "from", origin, "to", target);
+        const [geometry, obstacles, obstacleWays] = extractGeometry(
+          completePath
+        );
+        const geoJSON = geometryToGeoJSON(
+          origin,
+          [target],
+          geometry,
+          obstacles,
+          obstacleWays
+        );
+        callback(geoJSON);
       });
-    });
+  });
 }
