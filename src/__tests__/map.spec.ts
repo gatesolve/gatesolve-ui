@@ -55,8 +55,4 @@ describe("Basic map functionality", () => {
     );
     expect(Math.abs(clickY - (bbox!.y + bbox!.height))).toBeLessThanOrEqual(1);
   });
-
-  // test("geolocation button turns geolocation on");
-  // test("geolocation button clicking does not go through to the map and change destination");
-  // test("given that the geolocation is on when geolocation updates then origin updates as well");
 });
