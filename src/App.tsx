@@ -228,6 +228,7 @@ const App: React.FC = () => {
         }}
       >
         <GeolocateControl
+          className="mapboxgl-ctrl-bottom-left"
           positionOptions={{ enableHighAccuracy: true }}
           trackUserLocation
           // FIXME: The type is wrong in @types/react-map-gl

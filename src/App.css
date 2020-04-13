@@ -67,3 +67,7 @@
 .App .react-autosuggest__suggestion--highlighted > .autosuggest-item {
   background: #ddd;
 }
+
+.mapboxgl-ctrl-bottom-left {
+  margin: 12px;
+}
