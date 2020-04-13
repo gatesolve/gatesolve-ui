@@ -19,6 +19,7 @@
     "mapbox-gl": "^1.9.1",
     "plannerjs": "^0.4.0",
     "react": "^16.13.1",
+    "react-autosuggest-geocoder": "gatesolve/react-autosuggest-geocoder#fix/modify-for-gatesolve",
     "react-dom": "^16.13.1",
     "react-map-gl": "^5.2.3",
     "react-router": "^5.1.2",

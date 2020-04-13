@@ -25,3 +25,45 @@
 .App-link {
   color: #61dafb;
 }
+
+.App .react-autosuggest__container {
+  position: absolute;
+  z-index: 1;
+  box-sizing: border-box;
+  width: 100%;
+  padding: 1em;
+  background: linear-gradient(rgba(0, 0, 0, 0.2), transparent);
+}
+
+.App .react-autosuggest__input {
+  border: none !important;
+}
+
+.App .react-autosuggest__input--open {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.App .react-autosuggest__suggestions-container--open {
+  max-height: 10em;
+  overflow-y: auto;
+  border-bottom-left-radius: 3px;
+  border-bottom-right-radius: 3px;
+}
+
+.App .react-autosuggest__suggestion {
+  border-top: solid 0.5px lightgray;
+}
+
+.App .autosuggest-item {
+  background: #fff;
+  font-size: 75%;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0.5em 0em 0.5em 1.5em;
+  text-align: left;
+}
+
+.App .react-autosuggest__suggestion--highlighted > .autosuggest-item {
+  background: #ddd;
+}
