@@ -68,12 +68,23 @@ const fitBounds = (
   const maxLng = Math.max(...latLngs.map((x) => x[1]));
   const minLat = Math.min(...latLngs.map((x) => x[0]));
   const maxLat = Math.max(...latLngs.map((x) => x[0]));
+  const padding = 20;
+  const markerSize = 50;
+  const occludedTop = 40;
+  const circleRadius = 5;
   return viewport.fitBounds(
     [
       [minLng, minLat],
       [maxLng, maxLat],
     ],
-    { padding: 40 }
+    {
+      padding: {
+        top: padding + occludedTop + markerSize,
+        bottom: padding + circleRadius,
+        left: padding + markerSize / 2,
+        right: padding + markerSize / 2,
+      },
+    }
   );
 };
 
@@ -152,13 +163,22 @@ const App: React.FC = () => {
         sources="oa,osm,nlsfi"
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         onSuggestionSelected={(event: any, { suggestion }: any): any => {
+          const { origin } = state;
+          const destination =
+            [
+              suggestion.geometry.coordinates[1],
+              suggestion.geometry.coordinates[0],
+            ] as [number, number];
+          const viewport = fitBounds(mapViewport.current, [
+            origin,
+            destination,
+          ]);
           setState(
             (prevState): State => ({
               ...prevState,
-              destination: [
-                suggestion.geometry.coordinates[1],
-                suggestion.geometry.coordinates[0],
-              ],
+              origin,
+              destination,
+              viewport: { ...mapViewport.current, ...viewport },
             })
           );
         }}
