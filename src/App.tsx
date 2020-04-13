@@ -199,8 +199,17 @@ const App: React.FC = () => {
           setState((prevState): State => ({ ...prevState, viewport }));
         }}
         onClick={(event): void => {
-          // Filter out events not caused by left mouse button
-          if (event.srcEvent.button !== 0) return;
+          if (
+            // Filter out events not caused by left mouse button
+            event.srcEvent.button !== 0 ||
+            // FIXME GeolocateControl lets clicks through
+            event.target.className === "mapboxgl-ctrl-icon" ||
+            // FIXME Attribution lets clicks through
+            event.target.className ===
+              "mapboxgl-ctrl mapboxgl-ctrl-attrib mapboxgl-compact"
+          ) {
+            return;
+          }
           setState(
             (prevState): State => ({
               ...prevState,
