@@ -92,6 +92,7 @@ const fitBounds = (
 const App: React.FC = () => {
   const map = useRef<MapGL>(null);
   const mapViewport = useRef<Partial<ViewportProps>>({});
+  const geolocationTimestamp = useRef<number | null>(null);
 
   const urlMatch =
     useRouteMatch({
@@ -234,15 +235,22 @@ const App: React.FC = () => {
           // FIXME: The type is wrong in @types/react-map-gl
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           onGeolocate={(geolocationPosition: any): void => {
-            setState(
-              (prevState): State => ({
-                ...prevState,
-                origin: [
-                  geolocationPosition.coords.latitude,
-                  geolocationPosition.coords.longitude,
-                ],
-              })
-            );
+            if (
+              geolocationTimestamp.current === null ||
+              geolocationPosition.timestamp - geolocationTimestamp.current >
+                10000
+            ) {
+              geolocationTimestamp.current = geolocationPosition.timestamp;
+              setState(
+                (prevState): State => ({
+                  ...prevState,
+                  origin: [
+                    geolocationPosition.coords.latitude,
+                    geolocationPosition.coords.longitude,
+                  ],
+                })
+              );
+            }
           }}
         />
         <Source type="geojson" data={state.route}>
