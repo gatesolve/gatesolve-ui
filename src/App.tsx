@@ -22,12 +22,14 @@ import {
 } from "./map-style";
 import PinMarker from "./components/PinMarker";
 import calculatePlan, { geometryToGeoJSON } from "./planner";
+import { queryEntrances, ElementWithCoordinates } from "./overpass";
 import "./App.css";
 
 interface State {
   viewport: Partial<ViewportProps>;
   origin: [number, number];
   destination: [number, number];
+  entrances: Array<ElementWithCoordinates>;
   route: FeatureCollection;
 }
 
@@ -36,7 +38,8 @@ const initialDestination: [number, number] = [60.16259, 24.93155];
 const initialState: State = {
   origin: initialOrigin,
   destination: initialDestination,
-  route: geometryToGeoJSON(initialOrigin, initialDestination),
+  entrances: [],
+  route: geometryToGeoJSON(),
   viewport: {
     latitude: 60.163,
     longitude: 24.931,
@@ -129,19 +132,46 @@ const App: React.FC = () => {
   }, [history, state.origin, state.destination]);
 
   useEffect(() => {
+    queryEntrances(state.destination).then((result) => {
+      setState(
+        (prevState): State => {
+          if (prevState.destination !== state.destination) {
+            return prevState;
+          }
+          const entrances = result.length
+            ? result
+            : [
+                {
+                  id: -1,
+                  type: "node",
+                  lat: state.destination[0],
+                  lon: state.destination[1],
+                },
+              ];
+
+          return {
+            ...prevState,
+            entrances,
+          };
+        }
+      );
+    });
+  }, [state.destination]);
+
+  useEffect(() => {
     setState(
       (prevState): State => ({
         ...prevState,
-        route: geometryToGeoJSON(state.origin, state.destination),
+        route: geometryToGeoJSON(undefined, state.entrances),
       })
     );
-    calculatePlan(state.origin, state.destination, (geojson) => {
+    calculatePlan(state.origin, state.entrances, (geojson) => {
       setState(
         (prevState): State => {
           // don't use the result if the parameters changed meanwhile
           if (
             state.origin !== prevState.origin ||
-            state.destination !== prevState.destination
+            state.entrances !== prevState.entrances
           ) {
             return prevState;
           }
@@ -153,7 +183,7 @@ const App: React.FC = () => {
         }
       );
     });
-  }, [state.origin, state.destination]);
+  }, [state.origin, state.entrances]);
 
   return (
     <div data-testid="app" className="App">

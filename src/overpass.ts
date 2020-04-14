@@ -14,7 +14,7 @@ export type Element =
   | ElementWithCoordinates
   | (ElementCore & Partial<Coordinates>);
 
-type ElementWithCoordinates = ElementCore & Coordinates;
+export type ElementWithCoordinates = ElementCore & Coordinates;
 
 interface ElementCore {
   type: string;
