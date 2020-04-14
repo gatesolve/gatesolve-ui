@@ -74,6 +74,7 @@ function extractGeometry(
 export function geometryToGeoJSON(
   origin?: [number, number],
   targets?: Array<ElementWithCoordinates>,
+  entrances?: Array<ElementWithCoordinates>,
   coordinates?: Array<[number, number]>,
   obstacles?: Array<[number, number]>,
   obstacleWays?: Array<Array<[number, number]>>
@@ -101,7 +102,22 @@ export function geometryToGeoJSON(
         },
         properties: {
           color: "#64be14",
-          ref: target.tags?.["ref"] || target.tags?.["addr:unit"],
+        },
+      });
+    });
+  }
+  if (entrances) {
+    entrances.forEach((entrance) => {
+      features.push({
+        type: "Feature",
+        geometry: {
+          type: "Point",
+          coordinates: [entrance.lon, entrance.lat],
+        },
+        properties: {
+          color: "#00ffff00",
+          ref: entrance.tags?.["ref"] || entrance.tags?.["addr:unit"],
+          opacity: 0,
         },
       });
     });
@@ -177,6 +193,7 @@ export default function calculatePlan(
         const geoJSON = geometryToGeoJSON(
           origin,
           [target],
+          undefined,
           geometry,
           obstacles,
           obstacleWays

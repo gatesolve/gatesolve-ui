@@ -28,13 +28,25 @@ import "./App.css";
 interface State {
   viewport: Partial<ViewportProps>;
   origin: [number, number];
-  destination: [number, number];
+  destination: ElementWithCoordinates;
   entrances: Array<ElementWithCoordinates>;
   route: FeatureCollection;
 }
 
+const latLngToDestination = (
+  latLng: [number, number]
+): ElementWithCoordinates => ({
+  id: -1,
+  type: "node",
+  lat: latLng[0],
+  lon: latLng[1],
+});
+
 const initialOrigin: [number, number] = [60.16295, 24.93071];
-const initialDestination: [number, number] = [60.16259, 24.93155];
+const initialDestination: ElementWithCoordinates = latLngToDestination([
+  60.16259,
+  24.93155,
+]);
 const initialState: State = {
   origin: initialOrigin,
   destination: initialDestination,
@@ -113,7 +125,7 @@ const App: React.FC = () => {
         (prevState): State => ({
           ...prevState,
           origin,
-          destination,
+          destination: latLngToDestination(destination),
           viewport: { ...mapViewport.current, ...viewport },
         })
       );
@@ -123,11 +135,11 @@ const App: React.FC = () => {
   const history = useHistory();
 
   useEffect(() => {
+    const destination = [state.destination.lat, state.destination.lon];
     if (
-      history.location.pathname !==
-      `/route/${state.origin}/${state.destination}/`
+      history.location.pathname !== `/route/${state.origin}/${destination}/`
     ) {
-      history.replace(`/route/${state.origin}/${state.destination}/`);
+      history.replace(`/route/${state.origin}/${destination}/`);
     }
   }, [history, state.origin, state.destination]);
 
@@ -138,16 +150,7 @@ const App: React.FC = () => {
           if (prevState.destination !== state.destination) {
             return prevState;
           }
-          const entrances = result.length
-            ? result
-            : [
-                {
-                  id: -1,
-                  type: "node",
-                  lat: state.destination[0],
-                  lon: state.destination[1],
-                },
-              ];
+          const entrances = result.length ? result : [state.destination];
 
           return {
             ...prevState,
@@ -159,19 +162,37 @@ const App: React.FC = () => {
   }, [state.destination]);
 
   useEffect(() => {
+    let targets = [] as Array<ElementWithCoordinates>;
+
+    // Try to find the destination among the entrances
+    state.entrances.forEach((entrance) => {
+      if (
+        state.destination.type === entrance.type &&
+        state.destination.id === entrance.id
+      ) {
+        targets = [entrance];
+      }
+    });
+
+    // If the destination entrance wasn't found, route to all entrances
+    if (!targets.length) {
+      targets = state.entrances;
+    }
+
     setState(
       (prevState): State => ({
         ...prevState,
-        route: geometryToGeoJSON(undefined, state.entrances),
+        route: geometryToGeoJSON(undefined, undefined, state.entrances),
       })
     );
-    calculatePlan(state.origin, state.entrances, (geojson) => {
+    calculatePlan(state.origin, targets, (geojson) => {
       setState(
         (prevState): State => {
           // don't use the result if the parameters changed meanwhile
           if (
             state.origin !== prevState.origin ||
-            state.entrances !== prevState.entrances
+            state.entrances !== prevState.entrances ||
+            state.destination !== prevState.destination
           ) {
             return prevState;
           }
@@ -183,7 +204,8 @@ const App: React.FC = () => {
         }
       );
     });
-  }, [state.origin, state.entrances]);
+  }, [state.origin, state.entrances]); // eslint-disable-line react-hooks/exhaustive-deps
+  // XXX: state.destination is missing above as we need to wait for state.entrances to change as well
 
   return (
     <div data-testid="app" className="App">
@@ -205,11 +227,18 @@ const App: React.FC = () => {
             origin,
             destination,
           ]);
+          const [type, id] = suggestion.properties.source_id.split(":");
           setState(
             (prevState): State => ({
               ...prevState,
               origin,
-              destination,
+              destination: {
+                lat: destination[0],
+                lon: destination[1],
+                type,
+                id: Number(id),
+              },
+              entrances: [],
               viewport: { ...mapViewport.current, ...viewport },
             })
           );
@@ -244,7 +273,10 @@ const App: React.FC = () => {
           setState(
             (prevState): State => ({
               ...prevState,
-              destination: [event.lngLat[1], event.lngLat[0]],
+              destination: latLngToDestination([
+                event.lngLat[1],
+                event.lngLat[0],
+              ]),
             })
           );
         }}
@@ -323,12 +355,15 @@ const App: React.FC = () => {
               setState(
                 (prevState): State => ({
                   ...prevState,
-                  destination: [event.lngLat[1], event.lngLat[0]],
+                  destination: latLngToDestination([
+                    event.lngLat[1],
+                    event.lngLat[0],
+                  ]),
                 })
               );
             },
-            longitude: state.destination[1],
-            latitude: state.destination[0],
+            longitude: state.destination.lon,
+            latitude: state.destination.lat,
           }}
           pin={{
             dataTestId: "destination",

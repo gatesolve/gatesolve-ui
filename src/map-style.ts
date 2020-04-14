@@ -15,6 +15,7 @@ export const routePointLayer = {
   id: "route-point",
   type: "circle",
   paint: {
+    "circle-opacity": ["coalesce", ["get", "opacity"], 1] as Expression,
     "circle-radius": 5,
     "circle-color": ["get", "color"] as Expression,
   },
