@@ -6,6 +6,7 @@ import MapGL, {
   Source,
   Layer,
   WebMercatorViewport,
+  GeolocateControl,
   ViewportProps,
   MapRequest,
 } from "react-map-gl";
@@ -91,6 +92,7 @@ const fitBounds = (
 const App: React.FC = () => {
   const map = useRef<MapGL>(null);
   const mapViewport = useRef<Partial<ViewportProps>>({});
+  const geolocationTimestamp = useRef<number | null>(null);
 
   const urlMatch =
     useRouteMatch({
@@ -198,8 +200,17 @@ const App: React.FC = () => {
           setState((prevState): State => ({ ...prevState, viewport }));
         }}
         onClick={(event): void => {
-          // Filter out events not caused by left mouse button
-          if (event.srcEvent.button !== 0) return;
+          if (
+            // Filter out events not caused by left mouse button
+            event.srcEvent.button !== 0 ||
+            // FIXME GeolocateControl lets clicks through
+            event.target.className === "mapboxgl-ctrl-icon" ||
+            // FIXME Attribution lets clicks through
+            event.target.className ===
+              "mapboxgl-ctrl mapboxgl-ctrl-attrib mapboxgl-compact"
+          ) {
+            return;
+          }
           setState(
             (prevState): State => ({
               ...prevState,
@@ -217,6 +228,31 @@ const App: React.FC = () => {
           event.srcEvent.preventDefault();
         }}
       >
+        <GeolocateControl
+          className="mapboxgl-ctrl-bottom-left"
+          positionOptions={{ enableHighAccuracy: true }}
+          trackUserLocation
+          // FIXME: The type is wrong in @types/react-map-gl
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          onGeolocate={(geolocationPosition: any): void => {
+            if (
+              geolocationTimestamp.current === null ||
+              geolocationPosition.timestamp - geolocationTimestamp.current >
+                10000
+            ) {
+              geolocationTimestamp.current = geolocationPosition.timestamp;
+              setState(
+                (prevState): State => ({
+                  ...prevState,
+                  origin: [
+                    geolocationPosition.coords.latitude,
+                    geolocationPosition.coords.longitude,
+                  ],
+                })
+              );
+            }
+          }}
+        />
         <Source type="geojson" data={state.route}>
           <Layer
             // eslint-disable-next-line react/jsx-props-no-spreading
