@@ -136,7 +136,7 @@
         "hasObject": "osm:NoAccess"
       },
       "concludes": {
-        "hasAccess": false
+        "hasAccess": true
       },
       "hasOrder": 2
     },
@@ -146,7 +146,7 @@
         "hasObject": "osm:Private"
       },
       "concludes": {
-        "hasAccess": false
+        "hasAccess": true
       },
       "hasOrder": 2
     },
@@ -508,7 +508,7 @@
         "hasObject": "osm:NoAccess"
       },
       "concludes": {
-        "isObstacle": true
+        "isObstacle": false
       },
       "hasOrder": 0
     },
@@ -518,7 +518,7 @@
         "hasObject": "osm:Private"
       },
       "concludes": {
-        "isObstacle": true
+        "isObstacle": false
       },
       "hasOrder": 0
     },
