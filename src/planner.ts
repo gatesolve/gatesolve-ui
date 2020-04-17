@@ -151,7 +151,11 @@ export default function calculatePlan(
     .then((targets) => {
       targets.forEach((target) => {
         const planner = new Planner();
+        // XXX setProfileID requires URL to start with scheme, so guess
+        const protocol =
+          process.env.NODE_ENV === "production" ? "https" : "http";
         planner
+          .setProfileID(`${protocol}://${process.env.PUBLIC_URL}/delivery.json`)
           .query({
             from: { latitude: origin[0], longitude: origin[1] },
             to: { latitude: target.lat, longitude: target.lon },
