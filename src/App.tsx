@@ -19,6 +19,8 @@ import {
   routePointLayer,
   routePointSymbolLayer,
   routeLineLayer,
+  allEntrancesLayer,
+  allEntrancesSymbolLayer,
 } from "./map-style";
 import PinMarker from "./components/PinMarker";
 import calculatePlan, { geometryToGeoJSON } from "./planner";
@@ -313,6 +315,22 @@ const App: React.FC = () => {
             }
           }}
         />
+        <Source
+          id="osm-qa-tiles"
+          type="vector"
+          tiles={["https://tile.olmap.org/osm-qa-tiles/{z}/{x}/{y}.pbf"]}
+          minzoom={12}
+          maxzoom={12}
+        >
+          <Layer
+            // eslint-disable-next-line react/jsx-props-no-spreading
+            {...allEntrancesLayer}
+          />
+          <Layer
+            // eslint-disable-next-line react/jsx-props-no-spreading
+            {...allEntrancesSymbolLayer}
+          />
+        </Source>
         <Source type="geojson" data={state.route}>
           <Layer
             // eslint-disable-next-line react/jsx-props-no-spreading
