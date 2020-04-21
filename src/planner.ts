@@ -115,7 +115,7 @@ export function geometryToGeoJSON(
           coordinates: [entrance.lon, entrance.lat],
         },
         properties: {
-          color: "#00ffff00",
+          color: "#00ffff",
           ref: entrance.tags?.["ref"] || entrance.tags?.["addr:unit"],
           opacity: 0,
         },
