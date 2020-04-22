@@ -9,6 +9,7 @@ import MapGL, { Popup, Source, Layer, Marker } from "@urbica/react-map-gl";
 import { WebMercatorViewport } from "viewport-mercator-project";
 import type { WebMercatorViewportOptions } from "viewport-mercator-project";
 import { distance as turfDistance } from "@turf/turf";
+import { MapboxGeoJSONFeature } from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { FeatureCollection } from "geojson";
@@ -21,6 +22,7 @@ import {
   routeImaginaryLineLayer,
   allEntrancesLayer,
   allEntrancesSymbolLayer,
+  buildingHighlightLayer,
 } from "./map-style";
 import Pin, { pinAsSVG } from "./components/Pin";
 import UserPosition from "./components/UserPosition";
@@ -42,6 +44,7 @@ interface State {
   destination?: ElementWithCoordinates;
   entrances?: Array<ElementWithCoordinates>;
   route: FeatureCollection;
+  highlights?: MapboxGeoJSONFeature | FeatureCollection;
   isGeolocating: boolean;
   geolocationPosition: LatLng | null;
   popupCoordinates: ElementWithCoordinates | null;
@@ -63,6 +66,10 @@ const destinationToLatLng = (destination: ElementWithCoordinates): LatLng => [
 const initialState: State = {
   entrances: [],
   route: geometryToGeoJSON(),
+  highlights: {
+    type: "FeatureCollection",
+    features: [],
+  },
   viewport: {
     latitude: 60.17,
     longitude: 24.941,
@@ -393,6 +400,21 @@ const App: React.FC = () => {
             ...prevState,
             destination: element,
             popupCoordinates: element,
+            highlights: {
+              type: "FeatureCollection",
+              features: [],
+            },
+          };
+        }
+        if (feature?.sourceLayer === "building") {
+          // If a building was clicked, highlight it and set as destination
+          return {
+            ...prevState,
+            highlights: feature.toJSON(),
+            destination: latLngToDestination([
+              event.lngLat.lat,
+              event.lngLat.lng,
+            ]),
           };
         }
         // As a fallback, toggle popup.
@@ -408,6 +430,10 @@ const App: React.FC = () => {
             event.lngLat.lat,
             event.lngLat.lng,
           ]),
+          highlights: {
+            type: "FeatureCollection",
+            features: [],
+          },
         };
       }
     );
@@ -583,6 +609,14 @@ const App: React.FC = () => {
             source="osm-qa-tiles"
           />
         </Source>
+        <Source id="highlights" type="geojson" data={state.highlights}>
+          <Layer
+            // eslint-disable-next-line react/jsx-props-no-spreading
+            {...buildingHighlightLayer}
+            source="highlights"
+          />
+        </Source>
+
         <Source id="route" type="geojson" data={state.route}>
           <Layer
             // eslint-disable-next-line react/jsx-props-no-spreading
