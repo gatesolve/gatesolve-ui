@@ -48,10 +48,10 @@ export const allEntrancesSymbolLayer = {
   id: "entrance-symbol",
   "source-layer": "osm",
   type: "symbol",
-  minzoom: 15,
+  minzoom: 16,
   paint: {
-    "text-color": "#000",
-    "text-halo-color": "#fff",
+    "text-color": "#fff",
+    "text-halo-color": "#64be14",
     "text-halo-width": 3,
   },
   layout: {
@@ -63,7 +63,11 @@ export const allEntrancesSymbolLayer = {
     "text-anchor": ("center" as unknown) as Expression,
     "text-font": ["Klokantech Noto Sans Regular"],
     "text-size": 24,
-    "text-offset": [0, -0.05],
+    "text-offset": [0, -1.3],
+    "icon-image": "icon-pin-48-#64be14-#fff",
+    "icon-anchor": ("bottom" as unknown) as Expression,
+    "icon-allow-overlap": true,
+    "text-allow-overlap": true,
   },
   filter: ["has", "entrance"],
 };
