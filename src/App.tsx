@@ -23,8 +23,10 @@ import {
   allEntrancesSymbolLayer,
 } from "./map-style";
 import PinMarker from "./components/PinMarker";
+import { pinAsSVG } from "./components/Pin";
 import calculatePlan, { geometryToGeoJSON } from "./planner";
 import { queryEntrances, ElementWithCoordinates } from "./overpass";
+import { addImageSVG } from "./mapbox-utils";
 import "./App.css";
 
 interface State {
@@ -110,6 +112,21 @@ const App: React.FC = () => {
   const map = useRef<MapGL>(null);
   const mapViewport = useRef<Partial<ViewportProps>>({});
   const geolocationTimestamp = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (!map.current) {
+      return;
+    }
+    const mapboxgl = map.current.getMap();
+    mapboxgl?.on("styleimagemissing", (event) => {
+      if (!event.id.startsWith("icon-pin-")) {
+        return;
+      }
+      const [, , size, fill, stroke] = event.id.split("-");
+      const svgData = pinAsSVG(size, `fill: ${fill}; stroke: ${stroke}`);
+      addImageSVG(mapboxgl, event.id, svgData, size);
+    });
+  }, [map]);
 
   const urlMatch = useRouteMatch({
     path: "/route/:from/:to",
