@@ -113,18 +113,19 @@ const App: React.FC = () => {
   const mapViewport = useRef<Partial<ViewportProps>>({});
   const geolocationTimestamp = useRef<number | null>(null);
 
+  // Install a callback to dynamically create pin icons that our map styles use
   useEffect(() => {
     if (!map.current) {
-      return;
+      return; // No map yet, so nothing to do
     }
     const mapboxgl = map.current.getMap();
-    mapboxgl?.on("styleimagemissing", (event) => {
-      if (!event.id.startsWith("icon-pin-")) {
-        return;
+    mapboxgl?.on("styleimagemissing", ({ id: iconId }) => {
+      if (!iconId.startsWith("icon-pin-")) {
+        return; // We only know how to generate pin icons
       }
-      const [, , size, fill, stroke] = event.id.split("-");
+      const [, , size, fill, stroke] = iconId.split("-"); // e.g. icon-pin-48-green-#fff
       const svgData = pinAsSVG(size, `fill: ${fill}; stroke: ${stroke}`);
-      addImageSVG(mapboxgl, event.id, svgData, size);
+      addImageSVG(mapboxgl, iconId, svgData, size);
     });
   }, [map]);
 
@@ -179,6 +180,7 @@ const App: React.FC = () => {
     });
   }, [state.destination]);
 
+  // Set off routing calculation when inputs change; collect results in state.route
   useEffect(() => {
     let targets = [] as Array<ElementWithCoordinates>;
 
@@ -197,12 +199,14 @@ const App: React.FC = () => {
       targets = state.entrances;
     }
 
+    // Clear previous routing results by setting an empty result set
     setState(
       (prevState): State => ({
         ...prevState,
         route: geometryToGeoJSON(),
       })
     );
+
     calculatePlan(state.origin, targets, (geojson) => {
       setState(
         (prevState): State => {
@@ -287,8 +291,11 @@ const App: React.FC = () => {
           ) {
             return;
           }
+
+          // Inspect the topmost feature under click
           const feature = event.features[0];
           if (feature?.properties.entrance) {
+            // If an entrance was clicked, set it as the destination
             setState(
               (prevState): State => ({
                 ...prevState,
@@ -301,6 +308,7 @@ const App: React.FC = () => {
               })
             );
           } else {
+            // As a fallback, set the clicked coordinates as the destination
             setState(
               (prevState): State => ({
                 ...prevState,
