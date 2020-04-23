@@ -27,6 +27,7 @@ export const allEntrancesLayer = {
   "source-layer": "osm",
   type: "circle",
   minzoom: 12,
+  maxzoom: 15.99999,
   paint: {
     "circle-radius": [
       "interpolate",

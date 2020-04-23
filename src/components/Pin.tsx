@@ -12,7 +12,7 @@ const SVG_PATH =
 
 export const pinAsSVG = (size: number, style: string): string => `
 <svg xmlns="http://www.w3.org/2000/svg"
-  width="${size}px"
+  width="${0.767*size}px"
   height="${size}px"
   style="${style}"
   viewBox="${SVG_VIEWBOX}"

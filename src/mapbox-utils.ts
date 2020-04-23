@@ -7,26 +7,29 @@ export const addImageSVG = (
   svgData: string,
   size: number
 ): void => {
-  const ratio = window.devicePixelRatio;
-
-  const canvas = document.createElement("canvas");
-  canvas.width = ratio * size;
-  canvas.height = ratio * size;
-
-  const ctx = canvas.getContext("2d");
-  const img = new Image(size, size);
-
   const svgDataUrl = `data:image/svg+xml,${encodeURIComponent(svgData)}`;
-
+  
+  const img = new Image();//undefined, size);
   img.onload = (): void => {
+    const ratio = window.devicePixelRatio;
+    const canvas = document.createElement("canvas");
+    canvas.width = ratio * img.width;
+    canvas.height = ratio * img.height;
+    const app = document!.querySelector('.App');
+    app!.insertBefore(canvas, app!.firstChild);
+    app!.insertBefore(img, app!.firstChild);
+
+    const ctx = canvas.getContext("2d");
+
     if (!ctx) {
       throw Error("canvas.getContext failed");
     }
+    console.log("image", img.width, img.height);
 
-    ctx.drawImage(img, 0, 0, ratio * size, ratio * size);
+    ctx.drawImage(img, 0, 0, ratio * img.width, ratio * img.height);
     mapboxgl.addImage(
       imageId,
-      ctx.getImageData(0, 0, ratio * size, ratio * size),
+      ctx.getImageData(0, 0, ratio * img.width, ratio * img.height),
       { pixelRatio: ratio }
     );
   };
