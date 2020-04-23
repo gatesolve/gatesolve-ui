@@ -287,15 +287,30 @@ const App: React.FC = () => {
           ) {
             return;
           }
-          setState(
-            (prevState): State => ({
-              ...prevState,
-              destination: latLngToDestination([
-                event.lngLat[1],
-                event.lngLat[0],
-              ]),
-            })
-          );
+          const feature = event.features[0];
+          if (feature?.properties.entrance) {
+            setState(
+              (prevState): State => ({
+                ...prevState,
+                destination: {
+                  id: feature.properties["@id"],
+                  type: feature.properties["@type"],
+                  lat: feature.geometry.coordinates[1],
+                  lon: feature.geometry.coordinates[0],
+                },
+              })
+            );
+          } else {
+            setState(
+              (prevState): State => ({
+                ...prevState,
+                destination: latLngToDestination([
+                  event.lngLat[1],
+                  event.lngLat[0],
+                ]),
+              })
+            );
+          }
         }}
         onContextMenu={(event): void => {
           setState(
