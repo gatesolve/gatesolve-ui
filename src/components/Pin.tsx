@@ -31,8 +31,9 @@ const Pin: React.FC<PinProps> = ({
       height={height}
       style={style}
       viewBox={SVG_VIEWBOX}
+      pointerEvents="none"
     >
-      <path d={SVG_PATH} />
+      <path d={SVG_PATH} pointerEvents="visiblepainted" cursor="pointer" />
     </svg>
   );
 };
