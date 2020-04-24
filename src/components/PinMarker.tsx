@@ -3,6 +3,8 @@ import { Marker, MarkerProps } from "react-map-gl";
 
 import Pin, { PinProps } from "./Pin";
 
+import "./PinMarker.css";
+
 export interface PinMarkerProps {
   marker: MarkerProps;
   pin: PinProps;
@@ -18,6 +20,7 @@ const PinMarker: React.FC<PinMarkerProps> = ({
       {...marker}
       offsetLeft={-height / 2}
       offsetTop={-height}
+      className="PinMarker"
     >
       <Pin
         // eslint-disable-next-line react/jsx-props-no-spreading

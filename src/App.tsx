@@ -19,10 +19,14 @@ import {
   routePointLayer,
   routePointSymbolLayer,
   routeLineLayer,
+  allEntrancesLayer,
+  allEntrancesSymbolLayer,
 } from "./map-style";
 import PinMarker from "./components/PinMarker";
+import { pinAsSVG } from "./components/Pin";
 import calculatePlan, { geometryToGeoJSON } from "./planner";
 import { queryEntrances, ElementWithCoordinates } from "./overpass";
+import { addImageSVG } from "./mapbox-utils";
 import "./App.css";
 
 interface State {
@@ -109,6 +113,22 @@ const App: React.FC = () => {
   const mapViewport = useRef<Partial<ViewportProps>>({});
   const geolocationTimestamp = useRef<number | null>(null);
 
+  // Install a callback to dynamically create pin icons that our map styles use
+  useEffect(() => {
+    if (!map.current) {
+      return; // No map yet, so nothing to do
+    }
+    const mapboxgl = map.current.getMap();
+    mapboxgl?.on("styleimagemissing", ({ id: iconId }) => {
+      if (!iconId.startsWith("icon-pin-")) {
+        return; // We only know how to generate pin icons
+      }
+      const [, , size, fill, stroke] = iconId.split("-"); // e.g. icon-pin-48-green-#fff
+      const svgData = pinAsSVG(size, `fill: ${fill}; stroke: ${stroke}`);
+      addImageSVG(mapboxgl, iconId, svgData, size);
+    });
+  }, [map]);
+
   const urlMatch = useRouteMatch({
     path: "/route/:from/:to",
   }) as match<{ from: string; to: string }>;
@@ -160,6 +180,7 @@ const App: React.FC = () => {
     });
   }, [state.destination]);
 
+  // Set off routing calculation when inputs change; collect results in state.route
   useEffect(() => {
     let targets = [] as Array<ElementWithCoordinates>;
 
@@ -178,12 +199,14 @@ const App: React.FC = () => {
       targets = state.entrances;
     }
 
+    // Clear previous routing results by setting an empty result set
     setState(
       (prevState): State => ({
         ...prevState,
-        route: geometryToGeoJSON(undefined, undefined, state.entrances),
+        route: geometryToGeoJSON(),
       })
     );
+
     calculatePlan(state.origin, targets, (geojson) => {
       setState(
         (prevState): State => {
@@ -256,6 +279,19 @@ const App: React.FC = () => {
           mapViewport.current = viewport;
           setState((prevState): State => ({ ...prevState, viewport }));
         }}
+        onHover={(event): void => {
+          // Inspect the topmost feature under click
+          const feature = event.features?.[0];
+          // Set cursor shape depending whether we would click an entrance
+          const cursor = feature?.properties.entrance ? "pointer" : "grab";
+          // FIXME: Better way to set the pointer shape or at least find the element
+          const mapboxOverlaysElement = document.querySelector(
+            ".overlays"
+          ) as HTMLElement;
+          if (mapboxOverlaysElement) {
+            mapboxOverlaysElement.style.cursor = cursor;
+          }
+        }}
         onClick={(event): void => {
           if (
             // Filter out events not caused by left mouse button
@@ -268,15 +304,34 @@ const App: React.FC = () => {
           ) {
             return;
           }
-          setState(
-            (prevState): State => ({
-              ...prevState,
-              destination: latLngToDestination([
-                event.lngLat[1],
-                event.lngLat[0],
-              ]),
-            })
-          );
+
+          // Inspect the topmost feature under click
+          const feature = event.features[0];
+          if (feature?.properties.entrance) {
+            // If an entrance was clicked, set it as the destination
+            setState(
+              (prevState): State => ({
+                ...prevState,
+                destination: {
+                  id: feature.properties["@id"],
+                  type: feature.properties["@type"],
+                  lat: feature.geometry.coordinates[1],
+                  lon: feature.geometry.coordinates[0],
+                },
+              })
+            );
+          } else {
+            // As a fallback, set the clicked coordinates as the destination
+            setState(
+              (prevState): State => ({
+                ...prevState,
+                destination: latLngToDestination([
+                  event.lngLat[1],
+                  event.lngLat[0],
+                ]),
+              })
+            );
+          }
         }}
         onContextMenu={(event): void => {
           setState(
@@ -313,6 +368,22 @@ const App: React.FC = () => {
             }
           }}
         />
+        <Source
+          id="osm-qa-tiles"
+          type="vector"
+          tiles={["https://tile.olmap.org/osm-qa-tiles/{z}/{x}/{y}.pbf"]}
+          minzoom={12}
+          maxzoom={12}
+        >
+          <Layer
+            // eslint-disable-next-line react/jsx-props-no-spreading
+            {...allEntrancesLayer}
+          />
+          <Layer
+            // eslint-disable-next-line react/jsx-props-no-spreading
+            {...allEntrancesSymbolLayer}
+          />
+        </Source>
         <Source type="geojson" data={state.route}>
           <Layer
             // eslint-disable-next-line react/jsx-props-no-spreading
