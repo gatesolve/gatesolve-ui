@@ -279,6 +279,19 @@ const App: React.FC = () => {
           mapViewport.current = viewport;
           setState((prevState): State => ({ ...prevState, viewport }));
         }}
+        onHover={(event): void => {
+          // Inspect the topmost feature under click
+          const feature = event.features?.[0];
+          // Set cursor shape depending whether we would click an entrance
+          const cursor = feature?.properties.entrance ? "pointer" : "grab";
+          // FIXME: Better way to set the pointer shape or at least find the element
+          const mapboxOverlaysElement = document.querySelector(
+            ".overlays"
+          ) as HTMLElement;
+          if (mapboxOverlaysElement) {
+            mapboxOverlaysElement.style.cursor = cursor;
+          }
+        }}
         onClick={(event): void => {
           if (
             // Filter out events not caused by left mouse button
