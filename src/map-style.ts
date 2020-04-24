@@ -30,6 +30,15 @@ export const routeImaginaryLineLayer: LayerProps = {
   },
   filter: ["coalesce", ["get", "imaginary"], false],
 };
+export const routableTilesLayer = {
+  id: "routable-tiles-line",
+  type: "line",
+  paint: {
+    "line-opacity": ["coalesce", ["get", "opacity"], 0.5],
+    "line-width": 2,
+    "line-color": "black",
+  },
+};
 
 export const routePointLayer: LayerProps = {
   id: "route-point",
