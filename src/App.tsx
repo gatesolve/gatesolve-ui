@@ -235,10 +235,13 @@ const App: React.FC = () => {
           ) {
             return prevState;
           }
-          geojson.features.push(...prevState.route.features);
+          const extendedGeojson = {
+            ...geojson,
+            features: geojson.features.concat(prevState.route.features),
+          };
           return {
             ...prevState,
-            route: geojson,
+            route: extendedGeojson,
           };
         }
       );
