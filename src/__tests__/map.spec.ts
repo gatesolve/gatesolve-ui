@@ -19,7 +19,9 @@ describe("Basic map functionality", () => {
 
     await act(async () => {
       await page
-        .goto(process.env.E2E_TEST_URL || "", { waitUntil: "networkidle" })
+        .goto(process.env.E2E_TEST_URL || "http://localhost:3000", {
+          waitUntil: "networkidle",
+        })
         .catch(() => {});
     });
   });
