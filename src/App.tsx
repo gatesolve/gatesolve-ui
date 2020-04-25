@@ -246,29 +246,30 @@ const App: React.FC = () => {
         sources="oa,osm,nlsfi"
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         onSuggestionSelected={(event: any, { suggestion }: any): any => {
-          const { origin } = state;
           const destination = [
             suggestion.geometry.coordinates[1],
             suggestion.geometry.coordinates[0],
           ] as [number, number];
-          const viewport = fitBounds(mapViewport.current, [
-            origin,
-            destination,
-          ]);
           const [type, id] = suggestion.properties.source_id.split(":");
           setState(
-            (prevState): State => ({
-              ...prevState,
-              origin,
-              destination: {
-                lat: destination[0],
-                lon: destination[1],
-                type,
-                id: Number(id),
-              },
-              entrances: [],
-              viewport: { ...mapViewport.current, ...viewport },
-            })
+            (prevState): State => {
+              const viewport = fitBounds(prevState.viewport, [
+                prevState.origin,
+                destination,
+              ]);
+              return {
+                ...prevState,
+                origin: prevState.origin,
+                destination: {
+                  lat: destination[0],
+                  lon: destination[1],
+                  type,
+                  id: Number(id),
+                },
+                entrances: [],
+                viewport: { ...prevState.viewport, ...viewport },
+              };
+            }
           );
         }}
       />
