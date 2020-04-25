@@ -68,6 +68,8 @@ const initialState: State = {
   geolocationPosition: null,
 };
 
+const metropolitanAreaCenter = [60.17066815612902, 24.941510260105133];
+
 const transformRequest = (originalURL: string): { url: string } => {
   const url = originalURL.replace(
     "https://static.hsldev.com/mapfonts/Klokantech Noto Sans",
@@ -254,6 +256,18 @@ const App: React.FC = () => {
       <ReactAutosuggestGeocoder
         url="https://api.digitransit.fi/geocoding/v1/"
         sources="oa,osm,nlsfi"
+        center={{
+          latitude:
+            state.geolocationPosition?.[0] ||
+            state.origin?.[0] ||
+            state.destination?.lat ||
+            metropolitanAreaCenter[0],
+          longitude:
+            state.geolocationPosition?.[1] ||
+            state.origin?.[1] ||
+            state.destination?.lon ||
+            metropolitanAreaCenter[1],
+        }}
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         onSuggestionSelected={(event: any, { suggestion }: any): any => {
           const destination = [
