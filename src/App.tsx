@@ -118,7 +118,9 @@ const App: React.FC = () => {
       return; // No map yet, so nothing to do
     }
     const mapboxgl = map.current.getMap();
-    mapboxgl?.on("styleimagemissing", ({ id: iconId }) => {
+    // FIXME: Unclear why this passed type checking before.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    mapboxgl?.on("styleimagemissing", ({ id: iconId }: any) => {
       if (!iconId.startsWith("icon-pin-")) {
         return; // We only know how to generate pin icons
       }
