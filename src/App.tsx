@@ -27,7 +27,7 @@ import "./App.css";
 import "./components/PinMarker.css";
 
 interface State {
-  viewport: Partial<ViewportProps>;
+  viewport: WebMercatorViewportOptions;
   origin: [number, number];
   destination: ElementWithCoordinates;
   entrances: Array<ElementWithCoordinates>;
@@ -77,10 +77,10 @@ const parseLatLng = (text: string): [number, number] =>
   text.split(",").map(Number) as [number, number];
 
 const fitBounds = (
-  viewportProps: Partial<ViewportProps>,
+  viewportOptions: WebMercatorViewportOptions,
   latLngs: Array<[number, number]>
-): Partial<ViewportProps> => {
-  const viewport = new WebMercatorViewport(viewportProps);
+): WebMercatorViewport => {
+  const viewport = new WebMercatorViewport(viewportOptions);
   const minLng = Math.min(...latLngs.map((x) => x[1]));
   const maxLng = Math.max(...latLngs.map((x) => x[1]));
   const minLat = Math.min(...latLngs.map((x) => x[0]));
