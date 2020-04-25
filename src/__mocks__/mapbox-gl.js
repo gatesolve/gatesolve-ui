@@ -1,10 +1,12 @@
-
 // Source: https://github.com/urbica/react-map-gl/blob/1678d5360f4a038bd342837a354cfb6d259798bb/src/__mocks__/mapbox-gl.js
 
 // LngLatBounds
 function LngLatBounds() {}
 
-LngLatBounds.prototype.toArray = () => [[-180, -90], [180, 90]];
+LngLatBounds.prototype.toArray = () => [
+  [-180, -90],
+  [180, 90],
+];
 
 // Map
 function Map() {
@@ -16,14 +18,14 @@ function Map() {
   this.style = {
     sources: this._sources,
     layers: this._layers,
-    sourceCaches: {}
+    sourceCaches: {},
   };
 
   this.flyTo = jest.fn();
   this.easeTo = jest.fn();
   this.jumpTo = jest.fn();
 
-  this.getCanvas = jest.fn(() => ({ style: { cursor: 'default' } }));
+  this.getCanvas = jest.fn(() => ({ style: { cursor: "default" } }));
   this.getCenter = jest.fn(() => ({ lat: 0, lng: 0 }));
   this.getBearing = jest.fn(() => 0);
   this.getPitch = jest.fn(() => 0);
@@ -36,12 +38,12 @@ function Map() {
 }
 
 Map.prototype.once = function once(_, listener, fn) {
-  const handler = typeof listener === 'function' ? listener : fn;
+  const handler = typeof listener === "function" ? listener : fn;
   handler({ target: this });
 };
 
 Map.prototype.on = function on(_, listener, fn) {
-  const handler = typeof listener === 'function' ? listener : fn;
+  const handler = typeof listener === "function" ? listener : fn;
   handler({ target: this, originalEvent: true, point: { x: 0, y: 0 } });
 };
 
@@ -56,7 +58,7 @@ Map.prototype.setStyle = jest.fn();
 Map.prototype.addSource = function addSource(name, source) {
   this._sources[name] = source;
   this.style.sourceCaches[name] = {
-    clearTiles: jest.fn()
+    clearTiles: jest.fn(),
   };
 };
 
@@ -70,9 +72,9 @@ Map.prototype.getSource = function getSource(name) {
     load: jest.fn(),
     updateImage: jest.fn(),
     _tileJSONRequest: {
-      cancel: jest.fn()
+      cancel: jest.fn(),
     },
-    ...this._sources[name]
+    ...this._sources[name],
   };
 
   return source;
@@ -91,7 +93,7 @@ Map.prototype.addLayer = function addLayer(layer) {
 };
 
 Map.prototype.getLayer = function getLayer(id) {
-  const index = this._layers.findIndex(layer => id === layer.id);
+  const index = this._layers.findIndex((layer) => id === layer.id);
   if (index === -1) {
     return undefined;
   }
@@ -100,8 +102,8 @@ Map.prototype.getLayer = function getLayer(id) {
 };
 
 Map.prototype.moveLayer = function moveLayer(id, before) {
-  const index = this._layers.findIndex(layer => id === layer.id);
-  const beforeIndex = this._layers.findIndex(layer => before === layer.id);
+  const index = this._layers.findIndex((layer) => id === layer.id);
+  const beforeIndex = this._layers.findIndex((layer) => before === layer.id);
   if (!this._layers[index] || !this._layers[beforeIndex]) {
     throw new Error();
   }
@@ -112,7 +114,7 @@ Map.prototype.moveLayer = function moveLayer(id, before) {
 };
 
 Map.prototype.removeLayer = function removeLayer(id) {
-  const index = this._layers.findIndex(layer => id === layer.id);
+  const index = this._layers.findIndex((layer) => id === layer.id);
   if (!this._layers[index]) {
     throw new Error();
   }
@@ -248,5 +250,5 @@ module.exports = {
   NavigationControl,
   ScaleControl,
   TrafficControl,
-  supported: () => true
+  supported: () => true,
 };
