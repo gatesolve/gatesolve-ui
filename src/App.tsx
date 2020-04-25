@@ -109,9 +109,8 @@ const fitBounds = (
 };
 
 const App: React.FC = () => {
-  const map = useRef<MapGL>(null);
-  const mapViewport = useRef<Partial<ViewportProps>>({});
-  const geolocationTimestamp = useRef<number | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const map = useRef<any>(null);
 
   // Install a callback to dynamically create pin icons that our map styles use
   useEffect(() => {
