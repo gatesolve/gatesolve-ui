@@ -300,19 +300,8 @@ const App: React.FC = () => {
             mapboxOverlaysElement.style.cursor = cursor;
           }
         }}
-        onClick={(event): void => {
-          if (
-            // Filter out events not caused by left mouse button
-            event.srcEvent.button !== 0 ||
-            // FIXME GeolocateControl lets clicks through
-            event.target.className === "mapboxgl-ctrl-icon" ||
-            // FIXME Attribution lets clicks through
-            event.target.className ===
-              "mapboxgl-ctrl mapboxgl-ctrl-attrib mapboxgl-compact"
-          ) {
-            return;
-          }
-
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        onClick={(event: any): void => {
           // Inspect the topmost feature under click
           const feature = event.features[0];
           if (feature?.properties.entrance) {
