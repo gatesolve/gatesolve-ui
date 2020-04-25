@@ -32,6 +32,9 @@ interface State {
   destination: ElementWithCoordinates;
   entrances: Array<ElementWithCoordinates>;
   route: FeatureCollection;
+  isGeolocating: boolean;
+  geolocationTimestamp: number | null;
+  geolocationPosition: [number, number] | null;
 }
 
 const latLngToDestination = (
@@ -60,6 +63,9 @@ const initialState: State = {
     bearing: 0,
     pitch: 0,
   },
+  isGeolocating: false,
+  geolocationTimestamp: null,
+  geolocationPosition: null,
 };
 
 const transformRequest = (originalURL: string): { url: string } => {
@@ -340,30 +346,61 @@ const App: React.FC = () => {
         }}
       >
         <GeolocateControl
-          className="mapboxgl-ctrl-bottom-left"
-          positionOptions={{ enableHighAccuracy: true }}
-          trackUserLocation
-          // FIXME: The type is wrong in @types/react-map-gl
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          onGeolocate={(geolocationPosition: any): void => {
-            if (
-              geolocationTimestamp.current === null ||
-              geolocationPosition.timestamp - geolocationTimestamp.current >
-                10000
-            ) {
-              geolocationTimestamp.current = geolocationPosition.timestamp;
-              setState(
-                (prevState): State => ({
-                  ...prevState,
-                  origin: [
-                    geolocationPosition.coords.latitude,
-                    geolocationPosition.coords.longitude,
-                  ],
-                })
-              );
-            }
+          dataTestId="geolocate-control"
+          enableOnMount
+          onEnable={(): void => {
+            setState((prevState) => ({ ...prevState, isGeolocating: true }));
+          }}
+          onDisable={(): void => {
+            setState((prevState) => ({
+              ...prevState,
+              isGeolocating: false,
+              geolocationPosition: null,
+            }));
+          }}
+          onGeolocate={(geolocationPosition: Position): void => {
+            setState(
+              (prevState): State => {
+                if (prevState.isGeolocating) {
+                  const update = {
+                    ...prevState,
+                    geolocationPosition: [
+                      geolocationPosition.coords.latitude,
+                      geolocationPosition.coords.longitude,
+                    ] as [number, number],
+                  };
+                  // Update the origin if time difference is large enough
+                  if (
+                    prevState.geolocationTimestamp == null ||
+                    geolocationPosition.timestamp -
+                      prevState.geolocationTimestamp >
+                      10000
+                  ) {
+                    return {
+                      ...update,
+                      origin: [
+                        geolocationPosition.coords.latitude,
+                        geolocationPosition.coords.longitude,
+                      ],
+                      geolocationTimestamp: geolocationPosition.timestamp,
+                    };
+                  }
+                  return update;
+                }
+                return prevState;
+              }
+            );
           }}
         />
+        {state.geolocationPosition != null && (
+          <Marker
+            offset={[-20, -20]}
+            longitude={state.geolocationPosition[1]}
+            latitude={state.geolocationPosition[0]}
+          >
+            <UserPosition dataTestId="user-marker" />
+          </Marker>
+        )}
         <Source
           id="osm-qa-tiles"
           type="vector"
