@@ -436,47 +436,48 @@ const App: React.FC = () => {
             source="route"
           />
         </Source>
-        <PinMarker
-          marker={{
-            draggable: true,
-            onDragEnd: (event): void => {
-              setState(
-                (prevState): State => ({
-                  ...prevState,
-                  origin: [event.lngLat[1], event.lngLat[0]],
-                })
-              );
-            },
-            longitude: state.origin[1],
-            latitude: state.origin[0],
+        <Marker
+          className="PinMarker"
+          draggable
+          offset={[0, -22.5]}
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          onDragEnd={(lngLat: any): void => {
+            setState(
+              (prevState): State => ({
+                ...prevState,
+                origin: [lngLat.lat, lngLat.lng],
+              })
+            );
           }}
-          pin={{
-            dataTestId: "origin",
-            style: { fill: "#00afff", stroke: "#fff" },
+          longitude={state.origin[1]}
+          latitude={state.origin[0]}
+        >
+          <Pin
+            dataTestId="origin"
+            style={{ fill: "#00afff", stroke: "#fff" }}
+          />
+        </Marker>
+        <Marker
+          className="PinMarker"
+          draggable
+          offset={[0, -22.5]}
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          onDragEnd={(lngLat: any): void => {
+            setState(
+              (prevState): State => ({
+                ...prevState,
+                destination: latLngToDestination([lngLat.lat, lngLat.lng]),
+              })
+            );
           }}
-        />
-        <PinMarker
-          marker={{
-            draggable: true,
-            onDragEnd: (event): void => {
-              setState(
-                (prevState): State => ({
-                  ...prevState,
-                  destination: latLngToDestination([
-                    event.lngLat[1],
-                    event.lngLat[0],
-                  ]),
-                })
-              );
-            },
-            longitude: state.destination.lon,
-            latitude: state.destination.lat,
-          }}
-          pin={{
-            dataTestId: "destination",
-            style: { fill: "#64be14", stroke: "#fff" },
-          }}
-        />
+          longitude={state.destination.lon}
+          latitude={state.destination.lat}
+        >
+          <Pin
+            dataTestId="destination"
+            style={{ fill: "#64be14", stroke: "#fff" }}
+          />
+        </Marker>
       </MapGL>
     </div>
   );
