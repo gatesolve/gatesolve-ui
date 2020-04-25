@@ -2,14 +2,9 @@ import React, { useState, useEffect, useRef } from "react";
 import { useRouteMatch, useHistory } from "react-router-dom";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { match } from "react-router-dom";
-import MapGL, {
-  Source,
-  Layer,
-  WebMercatorViewport,
-  GeolocateControl,
-  ViewportProps,
-  MapRequest,
-} from "react-map-gl";
+import MapGL, { Source, Layer, Marker } from "@urbica/react-map-gl";
+import { WebMercatorViewport } from "viewport-mercator-project";
+import type { WebMercatorViewportOptions } from "viewport-mercator-project";
 import "mapbox-gl/dist/mapbox-gl.css";
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { FeatureCollection } from "geojson";
@@ -22,12 +17,14 @@ import {
   allEntrancesLayer,
   allEntrancesSymbolLayer,
 } from "./map-style";
-import PinMarker from "./components/PinMarker";
-import { pinAsSVG } from "./components/Pin";
+import Pin, { pinAsSVG } from "./components/Pin";
+import UserPosition from "./components/UserPosition";
+import GeolocateControl from "./components/GeolocateControl";
 import calculatePlan, { geometryToGeoJSON } from "./planner";
 import { queryEntrances, ElementWithCoordinates } from "./overpass";
 import { addImageSVG } from "./mapbox-utils";
 import "./App.css";
+import "./components/PinMarker.css";
 
 interface State {
   viewport: Partial<ViewportProps>;
