@@ -286,7 +286,8 @@ const App: React.FC = () => {
         onViewportChange={(viewport: any): void => {
           setState((prevState): State => ({ ...prevState, viewport }));
         }}
-        onHover={(event): void => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        onHover={(event: any): void => {
           // Inspect the topmost feature under click
           const feature = event.features?.[0];
           // Set cursor shape depending whether we would click an entrance
