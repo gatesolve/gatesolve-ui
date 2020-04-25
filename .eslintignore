@@ -8,3 +8,6 @@ src/react-app-env.d.ts
 # This file was created by Create React App so let's not lint it until we need
 # to touch it.
 src/serviceWorker.ts
+
+# Copied from @urbica/react-map-gl
+src/__mocks__/mapbox-gl.js
