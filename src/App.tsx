@@ -163,10 +163,9 @@ const App: React.FC = () => {
 
   useEffect(() => {
     const destination = [state.destination.lat, state.destination.lon];
-    if (
-      history.location.pathname !== `/route/${state.origin}/${destination}/`
-    ) {
-      history.replace(`/route/${state.origin}/${destination}/`);
+    const path = `/route/${state.origin}/${destination}/`;
+    if (history.location.pathname !== path) {
+      history.replace(path);
     }
   }, [history, state.origin, state.destination]);
 
