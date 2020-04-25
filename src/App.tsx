@@ -304,40 +304,39 @@ const App: React.FC = () => {
         onClick={(event: any): void => {
           // Inspect the topmost feature under click
           const feature = event.features[0];
-          if (feature?.properties.entrance) {
-            // If an entrance was clicked, set it as the destination
-            setState(
-              (prevState): State => ({
-                ...prevState,
-                destination: {
-                  id: feature.properties["@id"],
-                  type: feature.properties["@type"],
-                  lat: feature.geometry.coordinates[1],
-                  lon: feature.geometry.coordinates[0],
-                },
-              })
-            );
-          } else {
-            // As a fallback, set the clicked coordinates as the destination
-            setState(
-              (prevState): State => ({
+          setState(
+            (prevState): State => {
+              if (feature?.properties.entrance) {
+                // If an entrance was clicked, set it as the destination
+                return {
+                  ...prevState,
+                  destination: {
+                    id: feature.properties["@id"],
+                    type: feature.properties["@type"],
+                    lat: feature.geometry.coordinates[1],
+                    lon: feature.geometry.coordinates[0],
+                  },
+                };
+              }
+              // As a fallback, set the clicked coordinates as the destination
+              return {
                 ...prevState,
                 destination: latLngToDestination([
-                  event.lngLat[1],
-                  event.lngLat[0],
+                  event.lngLat.lat,
+                  event.lngLat.lng,
                 ]),
-              })
-            );
-          }
+              };
+            }
+          );
         }}
-        onContextMenu={(event): void => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        onContextmenu={(event: any): void => {
           setState(
             (prevState): State => ({
               ...prevState,
-              origin: [event.lngLat[1], event.lngLat[0]],
+              origin: [event.lngLat.lat, event.lngLat.lng],
             })
           );
-          event.srcEvent.preventDefault();
         }}
       >
         <GeolocateControl
