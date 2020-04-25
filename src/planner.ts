@@ -14,6 +14,7 @@ interface RouteGeometries {
   coordinates: Array<[number, number]>;
   obstacles: Array<[number, number]>;
   obstacleWays: Array<Array<[number, number]>>;
+  imaginaryWays: Array<Array<[number, number]>>;
 }
 
 function extractGeometry(
@@ -23,9 +24,23 @@ function extractGeometry(
   const coordinates = [] as Array<[number, number]>;
   const obstacles = [] as Array<[number, number]>;
   const obstacleWays = new Map();
+  const imaginaryWays = [] as Array<Array<[number, number]>>;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   path.legs[0].getSteps().forEach((step: any) => {
+    if (!step.startLocation.id && !step.stopLocation.id) {
+      imaginaryWays.push([
+        [
+          step.startLocation.longitude as number,
+          step.startLocation.latitude as number,
+        ],
+        [
+          step.stopLocation.longitude as number,
+          step.stopLocation.latitude as number,
+        ],
+      ]);
+      return; // guessed segment
+    }
     const node = step.stopLocation;
     if (
       path.context[step.through]?.definedTags[
@@ -74,6 +89,7 @@ function extractGeometry(
     coordinates,
     obstacles,
     obstacleWays: Array.from(obstacleWays.values()),
+    imaginaryWays,
   };
 }
 
@@ -148,6 +164,19 @@ export function geometryToGeoJSON(
       properties: {
         color: "#dc0451",
         opacity: 1,
+      },
+    });
+  }
+  if (routeGeometries?.imaginaryWays) {
+    features.push({
+      type: "Feature",
+      geometry: {
+        type: "MultiLineString",
+        coordinates: routeGeometries.imaginaryWays,
+      },
+      properties: {
+        color: "#000",
+        opacity: 0.25,
       },
     });
   }
