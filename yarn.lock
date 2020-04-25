@@ -8094,7 +8094,7 @@ jest@24.9.0:
     import-local "^2.0.0"
     jest-cli "^24.9.0"
 
-jpeg-js@^0.3.6:
+jpeg-js@^0.3.7:
   version "0.3.7"
   resolved "https://registry.yarnpkg.com/jpeg-js/-/jpeg-js-0.3.7.tgz#471a89d06011640592d314158608690172b1028d"
   integrity sha512-9IXdWudL61npZjvLuVe/ktHiA41iE8qFyLB+4VDTblEsWBzeg8WQTlktdUK4CdncUqtUgUg0bbOmTE2bKBKaBQ==
@@ -9796,38 +9796,38 @@ plannerjs@^0.4.0:
     uritemplate "^0.3.4"
     wellknown "^0.5.0"
 
-playwright-core@=0.13.0:
-  version "0.13.0"
-  resolved "https://registry.yarnpkg.com/playwright-core/-/playwright-core-0.13.0.tgz#50cff00d833e1418e70213d3bf971c6e971e547d"
-  integrity sha512-bH9cOQhmbdXJnHX22PRZ79IdXv5wmLc9tHob2PmkT5qFilopT3INAIJcKkaLN1E/GqIDp0xGdB88Vr5f86g8pQ==
+playwright-core@=0.15.0:
+  version "0.15.0"
+  resolved "https://registry.yarnpkg.com/playwright-core/-/playwright-core-0.15.0.tgz#c605c98a13c81d5a2e2691f15d04758cf302c20a"
+  integrity sha512-uTm4PoF2U3iXkLMMG9vlTxlGfO8atQGAHDxqi8xV7hEjNSYeLTU7c6HN5zwadeHRVuBbNsZ4yqu9u4hoqC7uxQ==
   dependencies:
-    debug "^4.1.0"
+    debug "^4.1.1"
     extract-zip "^2.0.0"
     https-proxy-agent "^3.0.0"
-    jpeg-js "^0.3.6"
+    jpeg-js "^0.3.7"
     mime "^2.4.4"
-    pngjs "^3.4.0"
+    pngjs "^5.0.0"
     progress "^2.0.3"
     proxy-from-env "^1.1.0"
     rimraf "^3.0.2"
     ws "^6.1.0"
 
-playwright@^0.13.0:
-  version "0.13.0"
-  resolved "https://registry.yarnpkg.com/playwright/-/playwright-0.13.0.tgz#6e739c8e097b9da4509a610e6273913ae669e0d5"
-  integrity sha512-jL/2vZ0YP2G+6y3O4lEkpoPqI8okKR2zVO9oSvkBF9rFXmB+1J2BbxhJr5P0szk+iY9PisTjh0d6d9l3q3W6Ew==
+playwright@^0.15.0:
+  version "0.15.0"
+  resolved "https://registry.yarnpkg.com/playwright/-/playwright-0.15.0.tgz#bf5c3bb8404975aba78459310742388c08438431"
+  integrity sha512-UGHkQz8DT43uJ0KgMh2rmj8BI4FE5ReQJ9nm5mG68tt1Cj2sXPdM2b05qptfYYBPtQRetQqtJTauZ6rlCDemaQ==
   dependencies:
-    playwright-core "=0.13.0"
+    playwright-core "=0.15.0"
 
 pn@^1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/pn/-/pn-1.1.0.tgz#e2f4cef0e219f463c179ab37463e4e1ecdccbafb"
   integrity sha512-2qHaIQr2VLRFoxe2nASzsV6ef4yOOH+Fi9FBOVH6cqeSgUnoyySPZkxzLuzd+RYOQTRpROA0ztTMqxROKSb/nA==
 
-pngjs@^3.4.0:
-  version "3.4.0"
-  resolved "https://registry.yarnpkg.com/pngjs/-/pngjs-3.4.0.tgz#99ca7d725965fb655814eaf65f38f12bbdbf555f"
-  integrity sha512-NCrCHhWmnQklfH4MtJMRjZ2a8c80qXeMlQMv2uVp9ISJMTt562SbGd6n2oq0PaPgKm7Z6pL9E2UlLIhC+SHL3w==
+pngjs@^5.0.0:
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/pngjs/-/pngjs-5.0.0.tgz#e79dd2b215767fd9c04561c01236df960bce7fbb"
+  integrity sha512-40QW5YalBNfQo5yRYmiw7Yz6TKKVr3h6970B2YE+3fQpsWcrbj1PzJgxeJ19DRQjhMbKPIuMY8rFaXc8moolVw==
 
 pnp-webpack-plugin@1.6.4:
   version "1.6.4"

@@ -19,7 +19,7 @@ describe("Basic map functionality", () => {
 
     await act(async () => {
       await page
-        .goto(process.env.E2E_TEST_URL || "", { waitUntil: "networkidle0" })
+        .goto(process.env.E2E_TEST_URL || "", { waitUntil: "networkidle" })
         .catch(() => {});
     });
   });
