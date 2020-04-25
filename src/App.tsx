@@ -432,11 +432,13 @@ const App: React.FC = () => {
           maxzoom={12}
         >
           <Layer
+            source-layer="osm"
             // eslint-disable-next-line react/jsx-props-no-spreading
             {...allEntrancesLayer}
             source="osm-qa-tiles"
           />
           <Layer
+            source-layer="osm"
             // eslint-disable-next-line react/jsx-props-no-spreading
             {...allEntrancesSymbolLayer}
             source="osm-qa-tiles"
