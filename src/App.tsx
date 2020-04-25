@@ -411,24 +411,29 @@ const App: React.FC = () => {
           <Layer
             // eslint-disable-next-line react/jsx-props-no-spreading
             {...allEntrancesLayer}
+            source="osm-qa-tiles"
           />
           <Layer
             // eslint-disable-next-line react/jsx-props-no-spreading
             {...allEntrancesSymbolLayer}
+            source="osm-qa-tiles"
           />
         </Source>
-        <Source type="geojson" data={state.route}>
+        <Source id="route" type="geojson" data={state.route}>
           <Layer
             // eslint-disable-next-line react/jsx-props-no-spreading
             {...routeLineLayer}
+            source="route"
           />
           <Layer
             // eslint-disable-next-line react/jsx-props-no-spreading
             {...routePointLayer}
+            source="route"
           />
           <Layer
             // eslint-disable-next-line react/jsx-props-no-spreading
             {...routePointSymbolLayer}
+            source="route"
           />
         </Source>
         <PinMarker
