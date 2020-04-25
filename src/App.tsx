@@ -62,10 +62,7 @@ const initialState: State = {
   },
 };
 
-const transformRequest = (originalURL?: string): MapRequest => {
-  if (!originalURL) {
-    throw Error("This cannot happen as URL isn't actually optional.");
-  }
+const transformRequest = (originalURL: string): { url: string } => {
   const url = originalURL.replace(
     "https://static.hsldev.com/mapfonts/Klokantech Noto Sans",
     "https://fonts.openmaptiles.org/Klokantech Noto Sans"
@@ -133,16 +130,30 @@ const App: React.FC = () => {
   const [state, setState] = useState(initialState);
 
   useEffect(() => {
-    if (urlMatch) {
+    /**
+     * FIXME: urbica/react-map-gl does not expose fitBounds and its viewport
+     * does not include width and height which are required by fitBounds from
+     * viewport-mercator-project. This is dirty but seems to work.
+     */
+    const width = map.current.getMap()?.getContainer()?.clientWidth;
+    const height = map.current.getMap()?.getContainer()?.clientHeight;
+    if (
+      urlMatch &&
+      width != null &&
+      width > 0 &&
+      height != null &&
+      height > 0
+    ) {
       const origin = parseLatLng(urlMatch.params.from);
       const destination = parseLatLng(urlMatch.params.to);
-      const viewport = fitBounds(mapViewport.current, [origin, destination]);
+      const extendedViewport = { ...state.viewport, width, height };
+      const viewport = fitBounds(extendedViewport, [origin, destination]);
       setState(
         (prevState): State => ({
           ...prevState,
           origin,
           destination: latLngToDestination(destination),
-          viewport: { ...mapViewport.current, ...viewport },
+          viewport: { ...prevState.viewport, ...viewport },
         })
       );
     }
