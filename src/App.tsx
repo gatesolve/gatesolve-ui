@@ -121,7 +121,7 @@ const App: React.FC = () => {
     // FIXME: Unclear why this passed type checking before.
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mapboxgl?.on("styleimagemissing", ({ id: iconId }: any) => {
-      if (!iconId.startsWith("icon-pin-")) {
+      if (!iconId?.startsWith("icon-pin-")) {
         return; // We only know how to generate pin icons
       }
       const [, , size, fill, stroke] = iconId.split("-"); // e.g. icon-pin-48-green-#fff
@@ -142,6 +142,9 @@ const App: React.FC = () => {
      * does not include width and height which are required by fitBounds from
      * viewport-mercator-project. This is dirty but seems to work.
      */
+    if (!map.current) {
+      return; // No map yet, so nothing to do
+    }
     const width = map.current.getMap()?.getContainer()?.clientWidth;
     const height = map.current.getMap()?.getContainer()?.clientHeight;
     if (
@@ -164,7 +167,7 @@ const App: React.FC = () => {
         })
       );
     }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [map]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const history = useHistory();
 
@@ -310,7 +313,9 @@ const App: React.FC = () => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         onClick={(event: any): void => {
           // Inspect the topmost feature under click
-          const feature = event.features[0];
+          const feature = map.current
+            ?.getMap()
+            .queryRenderedFeatures(event.point)[0];
           setState(
             (prevState): State => {
               if (feature?.properties.entrance) {

@@ -44,7 +44,12 @@ Map.prototype.once = function once(_, listener, fn) {
 
 Map.prototype.on = function on(_, listener, fn) {
   const handler = typeof listener === "function" ? listener : fn;
-  handler({ target: this, originalEvent: true, point: { x: 0, y: 0 } });
+  handler({
+    target: this,
+    originalEvent: true,
+    point: { x: 0, y: 0 },
+    lngLat: [0, 0],
+  });
 };
 
 Map.prototype.off = jest.fn();
@@ -158,6 +163,8 @@ Map.prototype.setLayoutProperty = jest.fn();
 Map.prototype.setFilter = jest.fn();
 
 Map.prototype.getBounds = () => new LngLatBounds();
+
+Map.prototype.getContainer = () => {};
 
 function Popup() {
   this.setLngLat = jest.fn(() => this);
