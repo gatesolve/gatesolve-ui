@@ -282,8 +282,8 @@ const App: React.FC = () => {
         style={{ width: "100%", height: "90%" }}
         mapStyle="https://raw.githubusercontent.com/HSLdevcom/hsl-map-style/master/simple-style.json"
         transformRequest={transformRequest}
-        onViewportChange={(viewport): void => {
-          mapViewport.current = viewport;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        onViewportChange={(viewport: any): void => {
           setState((prevState): State => ({ ...prevState, viewport }));
         }}
         onHover={(event): void => {
