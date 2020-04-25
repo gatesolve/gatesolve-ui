@@ -1,6 +1,6 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "6ed33222960ca8e30cb6ba43dc04fb5c",
+    "revision": "033f4b4253e3a30177eb9ed41a0816cb",
     "url": "/gatesolve-ui/index.html"
   },
   {
@@ -8,7 +8,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/gatesolve-ui/static/css/2.75edc52f.chunk.css"
   },
   {
-    "revision": "aeca802c777a49c44516",
+    "revision": "7b8b1364ceaae5f396d4",
     "url": "/gatesolve-ui/static/css/main.5e0d1adb.chunk.css"
   },
   {
@@ -20,8 +20,8 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/gatesolve-ui/static/js/2.bdfafd32.chunk.js.LICENSE.txt"
   },
   {
-    "revision": "aeca802c777a49c44516",
-    "url": "/gatesolve-ui/static/js/main.cb578b9d.chunk.js"
+    "revision": "7b8b1364ceaae5f396d4",
+    "url": "/gatesolve-ui/static/js/main.6737ec2a.chunk.js"
   },
   {
     "revision": "7728f35492a288acad38",
