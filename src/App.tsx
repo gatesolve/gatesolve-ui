@@ -48,20 +48,13 @@ const latLngToDestination = (
   lon: latLng[1],
 });
 
-const initialOrigin: [number, number] = [60.16295, 24.93071];
-const initialDestination: ElementWithCoordinates = latLngToDestination([
-  60.16259,
-  24.93155,
-]);
 const initialState: State = {
-  origin: initialOrigin,
-  destination: initialDestination,
   entrances: [],
   route: geometryToGeoJSON(),
   viewport: {
-    latitude: 60.163,
-    longitude: 24.931,
-    zoom: 16,
+    latitude: 60.17,
+    longitude: 24.941,
+    zoom: 15,
     bearing: 0,
     pitch: 0,
   },
