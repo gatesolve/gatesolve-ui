@@ -14,6 +14,7 @@ import {
   routePointLayer,
   routePointSymbolLayer,
   routeLineLayer,
+  routeImaginaryLineLayer,
   allEntrancesLayer,
   allEntrancesSymbolLayer,
 } from "./map-style";
@@ -450,6 +451,12 @@ const App: React.FC = () => {
             {...routeLineLayer}
             source="route"
           />
+          <Layer
+            // eslint-disable-next-line react/jsx-props-no-spreading
+            {...routeImaginaryLineLayer}
+            source="route"
+          />
+
           <Layer
             // eslint-disable-next-line react/jsx-props-no-spreading
             {...routePointLayer}

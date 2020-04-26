@@ -27,8 +27,15 @@ function extractGeometry(
   const imaginaryWays = [] as Array<Array<[number, number]>>;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  path.legs[0].getSteps().forEach((step: any) => {
-    if (!step.startLocation.id && !step.stopLocation.id) {
+  path.legs[0].getSteps().forEach((step: any, index: number) => {
+    /* XXX: Would be nice to get a null step.through from PlannerJS here.
+       Heuristic below: PlannerJS connects the origin and destination to
+       the nearest OSM ways through a node which does not have an id,
+       so the steps whose geometry is not based on an OSM way have
+       nodes without ids at both ends. Additionally, the second step is a
+       false positive if origin and destination connect to same OSM edge.
+     */
+    if (!step.startLocation.id && !step.stopLocation.id && index !== 1) {
       imaginaryWays.push([
         [
           step.startLocation.longitude as number,
@@ -176,7 +183,7 @@ export function geometryToGeoJSON(
       },
       properties: {
         color: "#000",
-        opacity: 0.25,
+        imaginary: true,
       },
     });
   }
