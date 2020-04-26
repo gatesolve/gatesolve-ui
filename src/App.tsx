@@ -193,7 +193,7 @@ const App: React.FC = () => {
       state.destination.lat,
       state.destination.lon,
     ];
-    const path = `/route/${state.origin && state.origin}/${destination}/`;
+    const path = `/route/${state.origin}/${destination}/`;
     if (history.location.pathname !== path) {
       history.replace(path);
     }
