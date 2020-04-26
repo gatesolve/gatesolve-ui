@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useRouteMatch, useHistory } from "react-router-dom";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { match } from "react-router-dom";
-import MapGL, { Source, Layer, Marker } from "@urbica/react-map-gl";
+import MapGL, { Popup, Source, Layer, Marker } from "@urbica/react-map-gl";
 import { WebMercatorViewport } from "viewport-mercator-project";
 import type { WebMercatorViewportOptions } from "viewport-mercator-project";
 import "mapbox-gl/dist/mapbox-gl.css";
@@ -36,6 +36,7 @@ interface State {
   isGeolocating: boolean;
   geolocationTimestamp: number | null;
   geolocationPosition: [number, number] | null;
+  popupCoordinates: [number, number] | null;
 }
 
 const latLngToDestination = (
@@ -67,6 +68,7 @@ const initialState: State = {
   isGeolocating: false,
   geolocationTimestamp: null,
   geolocationPosition: null,
+  popupCoordinates: null,
 };
 
 const metropolitanAreaCenter = [60.17066815612902, 24.941510260105133];
@@ -277,6 +279,33 @@ const App: React.FC = () => {
   }, [state.origin, state.entrances]); // eslint-disable-line react-hooks/exhaustive-deps
   // XXX: state.destination is missing above as we need to wait for state.entrances to change as well
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleMapClick = (event: any): void => {
+    // Inspect the topmost feature under click
+    const feature = map.current?.getMap().queryRenderedFeatures(event.point)[0];
+    setState(
+      (prevState): State => {
+        if (feature?.properties.entrance) {
+          // If an entrance was clicked, set it as the destination
+          return {
+            ...prevState,
+            destination: {
+              id: feature.properties["@id"],
+              type: feature.properties["@type"],
+              lat: feature.geometry.coordinates[1],
+              lon: feature.geometry.coordinates[0],
+            },
+          };
+        }
+        // As a fallback, open a popup.
+        return {
+          ...prevState,
+          popupCoordinates: [event.lngLat.lat, event.lngLat.lng],
+        };
+      }
+    );
+  };
+
   return (
     <div data-testid="app" className="App">
       <header className="App-header">
@@ -353,46 +382,8 @@ const App: React.FC = () => {
             mapboxOverlaysElement.style.cursor = cursor;
           }
         }}
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        onClick={(event: any): void => {
-          // Inspect the topmost feature under click
-          const feature = map.current
-            ?.getMap()
-            .queryRenderedFeatures(event.point)[0];
-          setState(
-            (prevState): State => {
-              if (feature?.properties.entrance) {
-                // If an entrance was clicked, set it as the destination
-                return {
-                  ...prevState,
-                  destination: {
-                    id: feature.properties["@id"],
-                    type: feature.properties["@type"],
-                    lat: feature.geometry.coordinates[1],
-                    lon: feature.geometry.coordinates[0],
-                  },
-                };
-              }
-              // As a fallback, set the clicked coordinates as the destination
-              return {
-                ...prevState,
-                destination: latLngToDestination([
-                  event.lngLat.lat,
-                  event.lngLat.lng,
-                ]),
-              };
-            }
-          );
-        }}
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        onContextmenu={(event: any): void => {
-          setState(
-            (prevState): State => ({
-              ...prevState,
-              origin: [event.lngLat.lat, event.lngLat.lng],
-            })
-          );
-        }}
+        onClick={handleMapClick}
+        onContextmenu={handleMapClick}
       >
         <GeolocateControl
           dataTestId="geolocate-control"
@@ -538,6 +529,72 @@ const App: React.FC = () => {
               style={{ fill: "#64be14", stroke: "#fff" }}
             />
           </Marker>
+        )}
+        {state.popupCoordinates != null && (
+          <Popup
+            latitude={state.popupCoordinates[0]}
+            longitude={state.popupCoordinates[1]}
+            closeButton={false}
+            closeOnClick
+            onClose={(): void =>
+              setState(
+                (prevState): State => ({ ...prevState, popupCoordinates: null })
+              )
+            }
+          >
+            <button
+              data-testid="origin-button"
+              type="button"
+              aria-label="Set origin"
+              onClick={(): void =>
+                setState(
+                  (prevState): State => {
+                    // Check this to appease the compiler.
+                    if (prevState.popupCoordinates != null) {
+                      return {
+                        ...prevState,
+                        origin: prevState.popupCoordinates,
+                        popupCoordinates: null,
+                      };
+                    }
+                    return {
+                      ...prevState,
+                      popupCoordinates: null,
+                    };
+                  }
+                )
+              }
+            >
+              Origin
+            </button>
+            <button
+              data-testid="destination-button"
+              type="button"
+              aria-label="Set destination"
+              onClick={(): void =>
+                setState(
+                  (prevState): State => {
+                    // Check this to appease the compiler.
+                    if (prevState.popupCoordinates != null) {
+                      return {
+                        ...prevState,
+                        destination: latLngToDestination(
+                          prevState.popupCoordinates
+                        ),
+                        popupCoordinates: null,
+                      };
+                    }
+                    return {
+                      ...prevState,
+                      popupCoordinates: null,
+                    };
+                  }
+                )
+              }
+            >
+              Destination
+            </button>
+          </Popup>
         )}
       </MapGL>
     </div>
