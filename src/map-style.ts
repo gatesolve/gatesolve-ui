@@ -1,4 +1,4 @@
-import { LayerProps } from "react-map-gl";
+import type { LayerProps } from "react-map-gl";
 
 export const routeLineLayer: LayerProps = {
   id: "route-line",
