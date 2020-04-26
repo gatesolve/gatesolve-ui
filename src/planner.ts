@@ -10,20 +10,37 @@ import { Planner } from "./planner-config";
 
 import { ElementWithCoordinates } from "./overpass";
 
+interface RouteGeometries {
+  coordinates: Array<[number, number]>;
+  obstacles: Array<[number, number]>;
+  obstacleWays: Array<Array<[number, number]>>;
+  imaginaryWays: Array<Array<[number, number]>>;
+}
+
 function extractGeometry(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   path: any
-): [
-  Array<[number, number]>,
-  Array<[number, number]>,
-  Array<Array<[number, number]>>
-] {
+): RouteGeometries {
   const coordinates = [] as Array<[number, number]>;
   const obstacles = [] as Array<[number, number]>;
   const obstacleWays = new Map();
+  const imaginaryWays = [] as Array<Array<[number, number]>>;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   path.legs[0].getSteps().forEach((step: any) => {
+    if (!step.startLocation.id && !step.stopLocation.id) {
+      imaginaryWays.push([
+        [
+          step.startLocation.longitude as number,
+          step.startLocation.latitude as number,
+        ],
+        [
+          step.stopLocation.longitude as number,
+          step.stopLocation.latitude as number,
+        ],
+      ]);
+      return; // guessed segment
+    }
     const node = step.stopLocation;
     if (
       path.context[step.through]?.definedTags[
@@ -68,16 +85,19 @@ function extractGeometry(
       step.stopLocation.latitude as number,
     ]);
   });
-  return [coordinates, obstacles, Array.from(obstacleWays.values())];
+  return {
+    coordinates,
+    obstacles,
+    obstacleWays: Array.from(obstacleWays.values()),
+    imaginaryWays,
+  };
 }
 
 export function geometryToGeoJSON(
   origin?: [number, number],
   targets?: Array<ElementWithCoordinates>,
   entrances?: Array<ElementWithCoordinates>,
-  coordinates?: Array<[number, number]>,
-  obstacles?: Array<[number, number]>,
-  obstacleWays?: Array<Array<[number, number]>>
+  routeGeometries?: RouteGeometries
 ): FeatureCollection {
   const features = [] as Array<Feature<Geometry, GeoJsonProperties>>;
   if (origin) {
@@ -122,24 +142,24 @@ export function geometryToGeoJSON(
       });
     });
   }
-  if (coordinates) {
+  if (routeGeometries?.coordinates) {
     features.push({
       type: "Feature",
       geometry: {
         type: "LineString",
-        coordinates,
+        coordinates: routeGeometries.coordinates,
       },
       properties: {
         color: "#000",
       },
     });
   }
-  if (obstacleWays) {
+  if (routeGeometries?.obstacleWays) {
     features.push({
       type: "Feature",
       geometry: {
         type: "MultiLineString",
-        coordinates: obstacleWays,
+        coordinates: routeGeometries.obstacleWays,
       },
       properties: {
         color: "#dc0451",
@@ -147,12 +167,25 @@ export function geometryToGeoJSON(
       },
     });
   }
-  if (obstacles) {
+  if (routeGeometries?.imaginaryWays) {
+    features.push({
+      type: "Feature",
+      geometry: {
+        type: "MultiLineString",
+        coordinates: routeGeometries.imaginaryWays,
+      },
+      properties: {
+        color: "#000",
+        opacity: 0.25,
+      },
+    });
+  }
+  if (routeGeometries?.obstacles) {
     features.push({
       type: "Feature",
       geometry: {
         type: "MultiPoint",
-        coordinates: obstacles,
+        coordinates: routeGeometries.obstacles,
       },
       properties: {
         color: "#dc0451",
@@ -187,16 +220,12 @@ export default function calculatePlan(
         const completePath = await planner.completePath(path);
         // eslint-disable-next-line no-console
         console.log("Plan", completePath, "from", origin, "to", target);
-        const [geometry, obstacles, obstacleWays] = extractGeometry(
-          completePath
-        );
+        const routeGeometries = extractGeometry(completePath);
         const geoJSON = geometryToGeoJSON(
           origin,
           [target],
           undefined,
-          geometry,
-          obstacles,
-          obstacleWays
+          routeGeometries
         );
         callback(geoJSON);
       });
