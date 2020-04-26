@@ -121,7 +121,9 @@ const fitBounds = (
         left: padding + markerSize / 2,
         right: padding + markerSize / 2,
       },
-    }
+      maxZoom: 19,
+    } as any // eslint-disable-line @typescript-eslint/no-explicit-any
+    // XXX above: @types/viewport-mercator-project is missing maxZoom
   );
 };
 
