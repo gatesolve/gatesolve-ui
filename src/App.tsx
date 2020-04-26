@@ -29,9 +29,9 @@ import "./components/PinMarker.css";
 
 interface State {
   viewport: WebMercatorViewportOptions;
-  origin: [number, number];
-  destination: ElementWithCoordinates;
-  entrances: Array<ElementWithCoordinates>;
+  origin?: [number, number];
+  destination?: ElementWithCoordinates;
+  entrances?: Array<ElementWithCoordinates>;
   route: FeatureCollection;
   isGeolocating: boolean;
   geolocationTimestamp: number | null;
@@ -79,18 +79,32 @@ const transformRequest = (originalURL: string): { url: string } => {
   return { url };
 };
 
-const parseLatLng = (text: string): [number, number] =>
-  text.split(",").map(Number) as [number, number];
+const parseLatLng = (
+  text: string | undefined
+): [number, number] | undefined => {
+  if (text) {
+    const parts = text.split(",");
+    if (parts.length === 2 && parts[0].length && parts[1].length) {
+      const [lat, lon] = parts.map(Number);
+      if (!Number.isNaN(lat) && lon > -90 && lon < 90) {
+        return [lat, lon];
+      }
+    }
+  }
+  return undefined;
+};
 
 const fitBounds = (
   viewportOptions: WebMercatorViewportOptions,
-  latLngs: Array<[number, number]>
-): WebMercatorViewport => {
+  latLngs: Array<[number, number] | undefined>
+): WebMercatorViewportOptions => {
   const viewport = new WebMercatorViewport(viewportOptions);
-  const minLng = Math.min(...latLngs.map((x) => x[1]));
-  const maxLng = Math.max(...latLngs.map((x) => x[1]));
-  const minLat = Math.min(...latLngs.map((x) => x[0]));
-  const maxLat = Math.max(...latLngs.map((x) => x[0]));
+  const inputs = latLngs.filter((x) => x) as Array<[number, number]>;
+  if (!inputs.length) return viewportOptions; // Nothing to do
+  const minLng = Math.min(...inputs.map((x) => x[1]));
+  const maxLng = Math.max(...inputs.map((x) => x[1]));
+  const minLat = Math.min(...inputs.map((x) => x[0]));
+  const maxLat = Math.max(...inputs.map((x) => x[0]));
   const padding = 20;
   const markerSize = 50;
   const occludedTop = 40;
@@ -107,7 +121,9 @@ const fitBounds = (
         left: padding + markerSize / 2,
         right: padding + markerSize / 2,
       },
-    }
+      maxZoom: 19,
+    } as any // eslint-disable-line @typescript-eslint/no-explicit-any
+    // XXX above: @types/viewport-mercator-project is missing maxZoom
   );
 };
 
@@ -134,7 +150,7 @@ const App: React.FC = () => {
   }, [map]);
 
   const urlMatch = useRouteMatch({
-    path: "/route/:from/:to",
+    path: "/route/:from?/:to?",
   }) as match<{ from: string; to: string }>;
 
   const [state, setState] = useState(initialState);
@@ -165,7 +181,7 @@ const App: React.FC = () => {
         (prevState): State => ({
           ...prevState,
           origin,
-          destination: latLngToDestination(destination),
+          destination: destination && latLngToDestination(destination),
           viewport: { ...prevState.viewport, ...viewport },
         })
       );
@@ -175,17 +191,22 @@ const App: React.FC = () => {
   const history = useHistory();
 
   useEffect(() => {
-    const destination = [state.destination.lat, state.destination.lon];
-    const path = `/route/${state.origin}/${destination}/`;
+    const destination = state.destination && [
+      state.destination.lat,
+      state.destination.lon,
+    ];
+    const path = `/route/${state.origin && state.origin}/${destination}/`;
     if (history.location.pathname !== path) {
       history.replace(path);
     }
   }, [history, state.origin, state.destination]);
 
   useEffect(() => {
+    if (!state.destination) return; // Nothing to do yet
     queryEntrances(state.destination).then((result) => {
       setState(
         (prevState): State => {
+          if (!state.destination) return prevState; // XXX Typescript needs this
           if (prevState.destination !== state.destination) {
             return prevState;
           }
@@ -202,10 +223,14 @@ const App: React.FC = () => {
 
   // Set off routing calculation when inputs change; collect results in state.route
   useEffect(() => {
+    if (!state.origin || !state.destination || !state.entrances) {
+      return; // Nothing to do yet
+    }
     let targets = [] as Array<ElementWithCoordinates>;
 
     // Try to find the destination among the entrances
     state.entrances.forEach((entrance) => {
+      if (!state.destination) return; // XXX: Typescript needs this
       if (
         state.destination.type === entrance.type &&
         state.destination.id === entrance.id
@@ -468,48 +493,52 @@ const App: React.FC = () => {
             source="route"
           />
         </Source>
-        <Marker
-          className="PinMarker"
-          draggable
-          offset={[0, -22.5]}
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          onDragEnd={(lngLat: any): void => {
-            setState(
-              (prevState): State => ({
-                ...prevState,
-                origin: [lngLat.lat, lngLat.lng],
-              })
-            );
-          }}
-          longitude={state.origin[1]}
-          latitude={state.origin[0]}
-        >
-          <Pin
-            dataTestId="origin"
-            style={{ fill: "#00afff", stroke: "#fff" }}
-          />
-        </Marker>
-        <Marker
-          className="PinMarker"
-          draggable
-          offset={[0, -22.5]}
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          onDragEnd={(lngLat: any): void => {
-            setState(
-              (prevState): State => ({
-                ...prevState,
-                destination: latLngToDestination([lngLat.lat, lngLat.lng]),
-              })
-            );
-          }}
-          longitude={state.destination.lon}
-          latitude={state.destination.lat}
-        >
-          <Pin
-            dataTestId="destination"
-            style={{ fill: "#64be14", stroke: "#fff" }}
-          />
-        </Marker>
+        {state.origin && (
+          <Marker
+            className="PinMarker"
+            draggable
+            offset={[0, -22.5]}
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            onDragEnd={(lngLat: any): void => {
+              setState(
+                (prevState): State => ({
+                  ...prevState,
+                  origin: [lngLat.lat, lngLat.lng],
+                })
+              );
+            }}
+            longitude={state.origin[1]}
+            latitude={state.origin[0]}
+          >
+            <Pin
+              dataTestId="origin"
+              style={{ fill: "#00afff", stroke: "#fff" }}
+            />
+          </Marker>
+        )}
+        {state.destination && (
+          <Marker
+            className="PinMarker"
+            draggable
+            offset={[0, -22.5]}
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            onDragEnd={(lngLat: any): void => {
+              setState(
+                (prevState): State => ({
+                  ...prevState,
+                  destination: latLngToDestination([lngLat.lat, lngLat.lng]),
+                })
+              );
+            }}
+            longitude={state.destination.lon}
+            latitude={state.destination.lat}
+          >
+            <Pin
+              dataTestId="destination"
+              style={{ fill: "#64be14", stroke: "#fff" }}
+            />
+          </Marker>
+        )}
       </MapGL>
     </div>
   );
