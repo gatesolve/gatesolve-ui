@@ -46,6 +46,13 @@ describe("Basic map functionality", () => {
       await appElem!.click({ position: { x: clickX, y: clickY } });
     });
 
+    const popup = await page.$('[data-testid="destination-button"]');
+    expect(popup).toBeTruthy();
+
+    await act(async () => {
+      await popup!.click();
+    });
+
     const destination = await page.$('[data-testid="destination"]');
     expect(destination).toBeTruthy();
     const bbox = await destination!.boundingBox();

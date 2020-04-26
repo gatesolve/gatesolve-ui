@@ -551,6 +551,7 @@ const App: React.FC = () => {
             }
           >
             <button
+              data-testid="origin-button"
               type="button"
               aria-label="Set origin"
               onClick={(): void =>
@@ -575,6 +576,7 @@ const App: React.FC = () => {
               Origin
             </button>
             <button
+              data-testid="destination-button"
               type="button"
               aria-label="Set destination"
               onClick={(): void =>
