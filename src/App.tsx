@@ -279,6 +279,33 @@ const App: React.FC = () => {
   }, [state.origin, state.entrances]); // eslint-disable-line react-hooks/exhaustive-deps
   // XXX: state.destination is missing above as we need to wait for state.entrances to change as well
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleMapClick = (event: any): void => {
+    // Inspect the topmost feature under click
+    const feature = map.current?.getMap().queryRenderedFeatures(event.point)[0];
+    setState(
+      (prevState): State => {
+        if (feature?.properties.entrance) {
+          // If an entrance was clicked, set it as the destination
+          return {
+            ...prevState,
+            destination: {
+              id: feature.properties["@id"],
+              type: feature.properties["@type"],
+              lat: feature.geometry.coordinates[1],
+              lon: feature.geometry.coordinates[0],
+            },
+          };
+        }
+        // As a fallback, open a popup.
+        return {
+          ...prevState,
+          popupCoordinates: [event.lngLat.lat, event.lngLat.lng],
+        };
+      }
+    );
+  };
+
   return (
     <div data-testid="app" className="App">
       <header className="App-header">
@@ -355,43 +382,8 @@ const App: React.FC = () => {
             mapboxOverlaysElement.style.cursor = cursor;
           }
         }}
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        onClick={(event: any): void => {
-          // Inspect the topmost feature under click
-          const feature = map.current
-            ?.getMap()
-            .queryRenderedFeatures(event.point)[0];
-          setState(
-            (prevState): State => {
-              if (feature?.properties.entrance) {
-                // If an entrance was clicked, set it as the destination
-                return {
-                  ...prevState,
-                  destination: {
-                    id: feature.properties["@id"],
-                    type: feature.properties["@type"],
-                    lat: feature.geometry.coordinates[1],
-                    lon: feature.geometry.coordinates[0],
-                  },
-                };
-              }
-              // As a fallback, open a popup.
-              return {
-                ...prevState,
-                popupCoordinates: [event.lngLat.lat, event.lngLat.lng],
-              };
-            }
-          );
-        }}
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        onContextmenu={(event: any): void => {
-          setState(
-            (prevState): State => ({
-              ...prevState,
-              origin: [event.lngLat.lat, event.lngLat.lng],
-            })
-          );
-        }}
+        onClick={handleMapClick}
+        onContextmenu={handleMapClick}
       >
         <GeolocateControl
           dataTestId="geolocate-control"
