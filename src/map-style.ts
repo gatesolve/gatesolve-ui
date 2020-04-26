@@ -3,11 +3,32 @@ import type { LayerProps } from "react-map-gl";
 export const routeLineLayer: LayerProps = {
   id: "route-line",
   type: "line",
+  layout: {
+    "line-cap": "round",
+    "line-join": "round",
+  },
   paint: {
     "line-opacity": ["coalesce", ["get", "opacity"], 0.5],
     "line-width": 5,
     "line-color": ["get", "color"],
   },
+  filter: ["!", ["coalesce", ["get", "imaginary"], false]],
+};
+
+export const routeImaginaryLineLayer: LayerProps = {
+  id: "route-imaginary-line",
+  type: "line",
+  layout: {
+    "line-cap": "round",
+    "line-join": "round",
+  },
+  paint: {
+    "line-opacity": ["coalesce", ["get", "opacity"], 0.5],
+    "line-width": 5,
+    "line-color": ["get", "color"],
+    "line-dasharray": [0, 2],
+  },
+  filter: ["coalesce", ["get", "imaginary"], false],
 };
 
 export const routePointLayer: LayerProps = {
