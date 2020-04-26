@@ -5,6 +5,7 @@ import type { match } from "react-router-dom";
 import MapGL, { Popup, Source, Layer, Marker } from "@urbica/react-map-gl";
 import { WebMercatorViewport } from "viewport-mercator-project";
 import type { WebMercatorViewportOptions } from "viewport-mercator-project";
+import { distance as turfDistance } from "@turf/turf";
 import "mapbox-gl/dist/mapbox-gl.css";
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { FeatureCollection } from "geojson";
@@ -29,12 +30,12 @@ import "./components/PinMarker.css";
 
 interface State {
   viewport: WebMercatorViewportOptions;
+  isOriginExplicit: boolean;
   origin?: [number, number];
   destination?: ElementWithCoordinates;
   entrances?: Array<ElementWithCoordinates>;
   route: FeatureCollection;
   isGeolocating: boolean;
-  geolocationTimestamp: number | null;
   geolocationPosition: [number, number] | null;
   popupCoordinates: [number, number] | null;
 }
@@ -58,8 +59,8 @@ const initialState: State = {
     bearing: 0,
     pitch: 0,
   },
+  isOriginExplicit: false,
   isGeolocating: false,
-  geolocationTimestamp: null,
   geolocationPosition: null,
   popupCoordinates: null,
 };
@@ -73,6 +74,9 @@ const transformRequest = (originalURL: string): { url: string } => {
   );
   return { url };
 };
+
+const distance = (from: [number, number], to: [number, number]): number =>
+  turfDistance([from[1], from[0]], [to[1], to[0]], { units: "metres" });
 
 const parseLatLng = (
   text: string | undefined
@@ -176,6 +180,7 @@ const App: React.FC = () => {
         (prevState): State => ({
           ...prevState,
           origin,
+          isOriginExplicit: origin != null,
           destination: destination && latLngToDestination(destination),
           viewport: { ...prevState.viewport, ...viewport },
         })
@@ -299,6 +304,33 @@ const App: React.FC = () => {
     );
   };
 
+  /**
+   * Two tasks:
+   * - update geolocation position into state
+   * - change origin if deemed appropriate
+   */
+  const onGeolocate = (position: Position): void =>
+    setState(
+      (prevState): State => {
+        if (prevState.isGeolocating) {
+          const geolocationPosition: [number, number] = [
+            position.coords.latitude,
+            position.coords.longitude,
+          ];
+          const updateBase = { ...prevState, geolocationPosition };
+          if (
+            !prevState.isOriginExplicit &&
+            (prevState.origin == null ||
+              distance(prevState.origin, geolocationPosition) > 20)
+          ) {
+            return { ...updateBase, origin: geolocationPosition };
+          }
+          return updateBase;
+        }
+        return prevState;
+      }
+    );
+
   return (
     <div data-testid="app" className="App">
       <header className="App-header">
@@ -382,7 +414,11 @@ const App: React.FC = () => {
           dataTestId="geolocate-control"
           enableOnMount
           onEnable={(): void => {
-            setState((prevState) => ({ ...prevState, isGeolocating: true }));
+            setState((prevState) => ({
+              ...prevState,
+              isOriginExplicit: false,
+              isGeolocating: true,
+            }));
           }}
           onDisable={(): void => {
             setState((prevState) => ({
@@ -391,39 +427,7 @@ const App: React.FC = () => {
               geolocationPosition: null,
             }));
           }}
-          onGeolocate={(geolocationPosition: Position): void => {
-            setState(
-              (prevState): State => {
-                if (prevState.isGeolocating) {
-                  const update = {
-                    ...prevState,
-                    geolocationPosition: [
-                      geolocationPosition.coords.latitude,
-                      geolocationPosition.coords.longitude,
-                    ] as [number, number],
-                  };
-                  // Update the origin if time difference is large enough
-                  if (
-                    prevState.geolocationTimestamp == null ||
-                    geolocationPosition.timestamp -
-                      prevState.geolocationTimestamp >
-                      10000
-                  ) {
-                    return {
-                      ...update,
-                      origin: [
-                        geolocationPosition.coords.latitude,
-                        geolocationPosition.coords.longitude,
-                      ],
-                      geolocationTimestamp: geolocationPosition.timestamp,
-                    };
-                  }
-                  return update;
-                }
-                return prevState;
-              }
-            );
-          }}
+          onGeolocate={onGeolocate}
         />
         {state.geolocationPosition != null && (
           <Marker
@@ -488,6 +492,7 @@ const App: React.FC = () => {
                 (prevState): State => ({
                   ...prevState,
                   origin: [lngLat.lat, lngLat.lng],
+                  isOriginExplicit: true,
                 })
               );
             }}
@@ -547,11 +552,13 @@ const App: React.FC = () => {
                       return {
                         ...prevState,
                         origin: prevState.popupCoordinates,
+                        isOriginExplicit: true,
                         popupCoordinates: null,
                       };
                     }
                     return {
                       ...prevState,
+                      isOriginExplicit: true,
                       popupCoordinates: null,
                     };
                   }
