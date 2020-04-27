@@ -24,7 +24,7 @@ import UserPosition from "./components/UserPosition";
 import GeolocateControl from "./components/GeolocateControl";
 import calculatePlan, { geometryToGeoJSON } from "./planner";
 import { queryEntrances, ElementWithCoordinates } from "./overpass";
-import { addImageSVG } from "./mapbox-utils";
+import { addImageSVG, getMapSize } from "./mapbox-utils";
 import "./App.css";
 import "./components/PinMarker.css";
 
@@ -161,8 +161,7 @@ const App: React.FC = () => {
     if (!map.current) {
       return; // No map yet, so nothing to do
     }
-    const width = map.current.getMap()?.getContainer()?.clientWidth;
-    const height = map.current.getMap()?.getContainer()?.clientHeight;
+    const { width, height } = getMapSize(map.current.getMap());
     if (
       urlMatch &&
       width != null &&
@@ -358,10 +357,10 @@ const App: React.FC = () => {
           const [type, id] = suggestion.properties.source_id.split(":");
           setState(
             (prevState): State => {
-              const viewport = fitBounds(prevState.viewport, [
-                prevState.origin,
-                destination,
-              ]);
+              const viewport = fitBounds(
+                { ...prevState.viewport, ...getMapSize(map.current?.getMap()) },
+                [prevState.origin, destination]
+              );
               return {
                 ...prevState,
                 origin: prevState.origin,
