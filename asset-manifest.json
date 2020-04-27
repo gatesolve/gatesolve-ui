@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/gatesolve-ui/static/css/main.5e0d1adb.chunk.css",
-    "main.js": "/gatesolve-ui/static/js/main.66eea74e.chunk.js",
-    "main.js.map": "/gatesolve-ui/static/js/main.66eea74e.chunk.js.map",
+    "main.js": "/gatesolve-ui/static/js/main.fe0ab64b.chunk.js",
+    "main.js.map": "/gatesolve-ui/static/js/main.fe0ab64b.chunk.js.map",
     "runtime-main.js": "/gatesolve-ui/static/js/runtime-main.424a3eff.js",
     "runtime-main.js.map": "/gatesolve-ui/static/js/runtime-main.424a3eff.js.map",
     "static/css/2.75edc52f.chunk.css": "/gatesolve-ui/static/css/2.75edc52f.chunk.css",
     "static/js/2.3ad85544.chunk.js": "/gatesolve-ui/static/js/2.3ad85544.chunk.js",
     "static/js/2.3ad85544.chunk.js.map": "/gatesolve-ui/static/js/2.3ad85544.chunk.js.map",
     "index.html": "/gatesolve-ui/index.html",
-    "precache-manifest.9493a137d96c48b2657f933ed80bfada.js": "/gatesolve-ui/precache-manifest.9493a137d96c48b2657f933ed80bfada.js",
+    "precache-manifest.5c6c651dd890e4bbaf73d6293689cb27.js": "/gatesolve-ui/precache-manifest.5c6c651dd890e4bbaf73d6293689cb27.js",
     "service-worker.js": "/gatesolve-ui/service-worker.js",
     "static/css/2.75edc52f.chunk.css.map": "/gatesolve-ui/static/css/2.75edc52f.chunk.css.map",
     "static/css/main.5e0d1adb.chunk.css.map": "/gatesolve-ui/static/css/main.5e0d1adb.chunk.css.map",
@@ -20,6 +20,6 @@
     "static/css/2.75edc52f.chunk.css",
     "static/js/2.3ad85544.chunk.js",
     "static/css/main.5e0d1adb.chunk.css",
-    "static/js/main.66eea74e.chunk.js"
+    "static/js/main.fe0ab64b.chunk.js"
   ]
 }
