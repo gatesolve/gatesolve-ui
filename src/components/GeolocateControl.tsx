@@ -6,7 +6,7 @@ export interface GeolocateControlProps {
   onGeolocate: PositionCallback;
   onGeolocateError?: PositionErrorCallback;
   positionOptions?: PositionOptions;
-  onEnable?: () => void;
+  onEnable?: (isInitiatedByUser: boolean) => void;
   onDisable?: () => void;
   enableOnMount?: boolean;
 }
@@ -52,7 +52,7 @@ const GeolocateControl: React.FC<GeolocateControlProps> = ({
     }
   };
 
-  const startWatching = (): void => {
+  const startWatching = (isInitiatedByUser: boolean): void => {
     if (isGeolocationSupported && watchID == null) {
       setWatchId(
         window.navigator.geolocation.watchPosition(
@@ -63,7 +63,7 @@ const GeolocateControl: React.FC<GeolocateControlProps> = ({
       );
       setHasBeenUsed(true);
       if (onEnable != null) {
-        onEnable();
+        onEnable(isInitiatedByUser);
       }
     }
   };
@@ -137,7 +137,7 @@ const GeolocateControl: React.FC<GeolocateControlProps> = ({
       (!isPermissionsSupported ||
         (permissionState != null && permissionState !== "denied"))
     ) {
-      startWatching();
+      startWatching(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
@@ -170,7 +170,7 @@ const GeolocateControl: React.FC<GeolocateControlProps> = ({
         // Warn the user again if they press the button.
         showWarningOfDeniedGeolocation();
       } else {
-        startWatching();
+        startWatching(true);
       }
     } else {
       stopWatching();
