@@ -28,21 +28,21 @@ import { addImageSVG } from "./mapbox-utils";
 import "./App.css";
 import "./components/PinMarker.css";
 
+type LatLng = [number, number];
+
 interface State {
   viewport: WebMercatorViewportOptions;
   isOriginExplicit: boolean;
-  origin?: [number, number];
+  origin?: LatLng;
   destination?: ElementWithCoordinates;
   entrances?: Array<ElementWithCoordinates>;
   route: FeatureCollection;
   isGeolocating: boolean;
-  geolocationPosition: [number, number] | null;
-  popupCoordinates: [number, number] | null;
+  geolocationPosition: LatLng | null;
+  popupCoordinates: LatLng | null;
 }
 
-const latLngToDestination = (
-  latLng: [number, number]
-): ElementWithCoordinates => ({
+const latLngToDestination = (latLng: LatLng): ElementWithCoordinates => ({
   id: -1,
   type: "node",
   lat: latLng[0],
@@ -75,12 +75,10 @@ const transformRequest = (originalURL: string): { url: string } => {
   return { url };
 };
 
-const distance = (from: [number, number], to: [number, number]): number =>
+const distance = (from: LatLng, to: LatLng): number =>
   turfDistance([from[1], from[0]], [to[1], to[0]], { units: "metres" });
 
-const parseLatLng = (
-  text: string | undefined
-): [number, number] | undefined => {
+const parseLatLng = (text: string | undefined): LatLng | undefined => {
   if (text) {
     const parts = text.split(",");
     if (parts.length === 2 && parts[0].length && parts[1].length) {
@@ -95,10 +93,10 @@ const parseLatLng = (
 
 const fitBounds = (
   viewportOptions: WebMercatorViewportOptions,
-  latLngs: Array<[number, number] | undefined>
+  latLngs: Array<LatLng | undefined>
 ): WebMercatorViewportOptions => {
   const viewport = new WebMercatorViewport(viewportOptions);
-  const inputs = latLngs.filter((x) => x) as Array<[number, number]>;
+  const inputs = latLngs.filter((x) => x) as Array<LatLng>;
   if (!inputs.length) return viewportOptions; // Nothing to do
   const minLng = Math.min(...inputs.map((x) => x[1]));
   const maxLng = Math.max(...inputs.map((x) => x[1]));
@@ -313,7 +311,7 @@ const App: React.FC = () => {
     setState(
       (prevState): State => {
         if (prevState.isGeolocating) {
-          const geolocationPosition: [number, number] = [
+          const geolocationPosition: LatLng = [
             position.coords.latitude,
             position.coords.longitude,
           ];
@@ -353,10 +351,10 @@ const App: React.FC = () => {
         }}
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         onSuggestionSelected={(event: any, { suggestion }: any): any => {
-          const destination = [
+          const destination: LatLng = [
             suggestion.geometry.coordinates[1],
             suggestion.geometry.coordinates[0],
-          ] as [number, number];
+          ];
           const [type, id] = suggestion.properties.source_id.split(":");
           setState(
             (prevState): State => {
