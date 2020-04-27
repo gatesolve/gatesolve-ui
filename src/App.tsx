@@ -161,6 +161,16 @@ const App: React.FC = () => {
 
   const [state, setState] = useState(initialState);
 
+  const fitMap = (
+    viewportOptions: WebMercatorViewportOptions,
+    latLngs: Array<LatLng | undefined>
+  ): WebMercatorViewportOptions => {
+    return fitBounds(
+      { ...viewportOptions, ...getMapSize(map.current?.getMap()) },
+      latLngs
+    );
+  };
+
   useEffect(() => {
     /**
      * FIXME: urbica/react-map-gl does not expose fitBounds and its viewport
@@ -287,6 +297,10 @@ const App: React.FC = () => {
                       ...prevState,
                       origin: prevState.geolocationPosition || undefined,
                       isOriginExplicit: false,
+                      viewport: fitMap(prevState.viewport, [
+                        prevState.destination &&
+                          destinationToLatLng(prevState.destination),
+                      ]),
                     })
                   );
                 }}
@@ -300,6 +314,7 @@ const App: React.FC = () => {
                   (prevState): State => ({
                     ...prevState,
                     destination: undefined,
+                    viewport: fitMap(prevState.viewport, [prevState.origin]),
                   })
                 );
               }}
@@ -388,11 +403,20 @@ const App: React.FC = () => {
     setState(
       (prevState): State => {
         if (prevState.isGeolocating) {
+          const isFirstPosition = prevState.geolocationPosition == null;
           const geolocationPosition: LatLng = [
             position.coords.latitude,
             position.coords.longitude,
           ];
-          const updateBase = { ...prevState, geolocationPosition };
+          const viewport =
+            isFirstPosition && !prevState.isOriginExplicit
+              ? fitMap(prevState.viewport, [
+                  geolocationPosition,
+                  prevState.destination &&
+                    destinationToLatLng(prevState.destination),
+                ])
+              : prevState.viewport;
+          const updateBase = { ...prevState, geolocationPosition, viewport };
           if (
             !prevState.isOriginExplicit &&
             (prevState.origin == null ||
@@ -435,10 +459,10 @@ const App: React.FC = () => {
           const [type, id] = suggestion.properties.source_id.split(":");
           setState(
             (prevState): State => {
-              const viewport = fitBounds(
-                { ...prevState.viewport, ...getMapSize(map.current?.getMap()) },
-                [prevState.origin, destination]
-              );
+              const viewport = fitMap(prevState.viewport, [
+                prevState.origin,
+                destination,
+              ]);
               return {
                 ...prevState,
                 origin: prevState.origin,
