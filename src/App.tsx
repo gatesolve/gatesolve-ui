@@ -438,6 +438,8 @@ const App: React.FC = () => {
       <ReactAutosuggestGeocoder
         url="https://api.digitransit.fi/geocoding/v1/"
         sources="oa,osm,nlsfi"
+        highlightFirstSuggestion
+        inputProps={{ placeholder: "Destination name or address" }}
         center={{
           latitude:
             state.geolocationPosition?.[0] ||
