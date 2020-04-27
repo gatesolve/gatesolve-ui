@@ -488,10 +488,11 @@ const App: React.FC = () => {
         <GeolocateControl
           dataTestId="geolocate-control"
           enableOnMount
-          onEnable={(): void => {
+          onEnable={(isInitiatedByUser): void => {
             setState((prevState) => ({
               ...prevState,
-              isOriginExplicit: false,
+              isOriginExplicit:
+                !isInitiatedByUser && prevState.isOriginExplicit,
               isGeolocating: true,
             }));
           }}
