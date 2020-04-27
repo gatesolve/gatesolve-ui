@@ -1,7 +1,10 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, ReactText } from "react";
 import { useRouteMatch, useHistory } from "react-router-dom";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { match } from "react-router-dom";
+import { Button, IconButton } from "@material-ui/core";
+import { Close as CloseIcon } from "@material-ui/icons";
+import { useSnackbar } from "notistack";
 import MapGL, { Popup, Source, Layer, Marker } from "@urbica/react-map-gl";
 import { WebMercatorViewport } from "viewport-mercator-project";
 import type { WebMercatorViewportOptions } from "viewport-mercator-project";
@@ -40,6 +43,7 @@ interface State {
   isGeolocating: boolean;
   geolocationPosition: LatLng | null;
   popupCoordinates: LatLng | null;
+  snackbar?: ReactText;
 }
 
 const latLngToDestination = (latLng: LatLng): ElementWithCoordinates => ({
@@ -48,6 +52,11 @@ const latLngToDestination = (latLng: LatLng): ElementWithCoordinates => ({
   lat: latLng[0],
   lon: latLng[1],
 });
+
+const destinationToLatLng = (destination: ElementWithCoordinates): LatLng => [
+  destination.lat,
+  destination.lon,
+];
 
 const initialState: State = {
   entrances: [],
@@ -187,6 +196,11 @@ const App: React.FC = () => {
 
   const history = useHistory();
 
+  const snackbarFunctions = useSnackbar();
+  // XXX: useSnackbar does not return functions during unit tests
+  const enqueueSnackbar = snackbarFunctions?.enqueueSnackbar;
+  const closeSnackbar = snackbarFunctions?.closeSnackbar;
+
   useEffect(() => {
     const destination = state.destination && [
       state.destination.lat,
@@ -220,6 +234,8 @@ const App: React.FC = () => {
 
   // Set off routing calculation when inputs change; collect results in state.route
   useEffect(() => {
+    if (state.snackbar) closeSnackbar(state.snackbar);
+
     if (!state.origin || !state.destination || !state.entrances) {
       return; // Nothing to do yet
     }
@@ -248,6 +264,68 @@ const App: React.FC = () => {
         route: geometryToGeoJSON(),
       })
     );
+
+    // Don't calculate routes between points more than 200 meters apart
+    if (distance(state.origin, destinationToLatLng(state.destination)) > 200) {
+      const message = state.isOriginExplicit
+        ? "Distance too long!"
+        : "Routing starts when distance is shorter";
+      const snackbar = enqueueSnackbar(message, {
+        variant: "warning",
+        persist: true,
+        anchorOrigin: {
+          vertical: "bottom",
+          horizontal: "center",
+        },
+        action: (
+          <>
+            {state.isOriginExplicit && (
+              <Button
+                onClick={(): void => {
+                  setState(
+                    (prevState): State => ({
+                      ...prevState,
+                      origin: prevState.geolocationPosition || undefined,
+                      isOriginExplicit: false,
+                    })
+                  );
+                }}
+              >
+                Discard origin
+              </Button>
+            )}
+            <Button
+              onClick={(): void => {
+                setState(
+                  (prevState): State => ({
+                    ...prevState,
+                    destination: undefined,
+                  })
+                );
+              }}
+            >
+              Discard destination
+            </Button>
+            <Button
+              target="_blank"
+              rel="noreferrer"
+              href={`https://www.google.com/maps/dir/?api=1&origin=${state.origin[0]},${state.origin[1]}&destination=${state.destination.lat},${state.destination.lon}`}
+            >
+              Google Maps
+            </Button>
+
+            <IconButton
+              aria-label="close"
+              onClick={(): void => closeSnackbar(snackbar)}
+            >
+              <CloseIcon />
+            </IconButton>
+          </>
+        ),
+      });
+      setState((prevState): State => ({ ...prevState, snackbar }));
+      return;
+    }
 
     calculatePlan(state.origin, targets, (geojson) => {
       setState(
