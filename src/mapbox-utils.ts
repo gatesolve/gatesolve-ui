@@ -33,3 +33,10 @@ export const addImageSVG = (
 
   img.src = svgDataUrl;
 };
+
+export const getMapSize = (
+  mapboxgl: Map
+): { width: number; height: number } => ({
+  width: mapboxgl?.getContainer()?.clientWidth,
+  height: mapboxgl?.getContainer()?.clientHeight,
+});
