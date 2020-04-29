@@ -45,8 +45,8 @@
     "test-all": "react-scripts test",
     "eslint-check": "eslint --print-config src/App.tsx | eslint-config-prettier-check",
     "eslint": "eslint --ext .js,.jsx,.ts,.tsx ./",
-    "prettier-check": "prettier --check .eslintrc.js package.json tsconfig.json \"{src,public,.github}/**/*{.js,.jsx,.ts,.tsx,.json,.css,.yaml}\"",
-    "prettier": "prettier --write .eslintrc.js package.json tsconfig.json \"{src,public,.github}/**/*{.js,.jsx,.ts,.tsx,.json,.css,.yaml}\""
+    "prettier-check": "prettier --check .",
+    "prettier": "prettier --write ."
   },
   "browserslist": {
     "production": [
