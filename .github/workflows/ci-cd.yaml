@@ -149,6 +149,7 @@ jobs:
               environment_url: "${{ steps.publish-netlify.outputs.NETLIFY_URL }}",
               // auto_inactive: true,
             })
+      # FIXME: Remove this step when deployment links show up on the PR page.
       - name: Post pull request comment with deployment link
         if: success()
         uses: actions/github-script@0.9.0
