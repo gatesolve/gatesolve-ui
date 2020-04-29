@@ -48,9 +48,6 @@
     "prettier-check": "prettier --check .eslintrc.js package.json tsconfig.json \"{src,public,.github}/**/*{.js,.jsx,.ts,.tsx,.json,.css,.yaml}\"",
     "prettier": "prettier --write .eslintrc.js package.json tsconfig.json \"{src,public,.github}/**/*{.js,.jsx,.ts,.tsx,.json,.css,.yaml}\""
   },
-  "eslintConfig": {
-    "extends": "react-app"
-  },
   "browserslist": {
     "production": [
       ">0.2%",
