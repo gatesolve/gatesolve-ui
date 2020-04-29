@@ -44,7 +44,7 @@
     "test-e2e": "react-scripts test --testPathPattern \"src/__tests__/\"",
     "test-all": "react-scripts test",
     "eslint-check": "eslint --print-config src/App.tsx | eslint-config-prettier-check",
-    "eslint": "eslint --ext .js,.jsx,.ts,.tsx ./",
+    "eslint": "eslint --max-warnings=0 --ext .js,.jsx,.ts,.tsx ./",
     "prettier-check": "prettier --check .",
     "prettier": "prettier --write ."
   },

@@ -41,7 +41,7 @@ jobs:
       - name: Check that code has been prettified
         run: yarn prettier-check
       - name: Run ESLint
-        run: yarn eslint --max-warnings=0
+        run: yarn eslint
       - name: Run non-E2E tests
         run: yarn test
         env:
