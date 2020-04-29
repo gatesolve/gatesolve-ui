@@ -6,15 +6,15 @@ we can help you find the correct entrance and the way there.
 
 ## Data sources
 
-* Route calculations are done based on data from OpenStreetMap with the Planner.js library.
-The OpenStreetMap data is loaded in the Routable Tiles format as provided by Forum Virium Helsinki
-at https://tile.olmap.org/routable-tiles/
+- Route calculations are done based on data from OpenStreetMap with the Planner.js library.
+  The OpenStreetMap data is loaded in the Routable Tiles format as provided by Forum Virium Helsinki
+  at https://tile.olmap.org/routable-tiles/
 
-* Building entrance data is from OpenStreetMap and the OSM QA tiles as provided at https://tile.olmap.org/osm-qa-tiles/
+- Building entrance data is from OpenStreetMap and the OSM QA tiles as provided at https://tile.olmap.org/osm-qa-tiles/
 
-* Address and POI search is based on OpenStreetMap and other data as provided by Digitransit's Pelias endpoint.
+- Address and POI search is based on OpenStreetMap and other data as provided by Digitransit's Pelias endpoint.
 
-* Background map is based on OpenStreetMap as provided by Digitransit and the HSL map style.
+- Background map is based on OpenStreetMap as provided by Digitransit and the HSL map style.
 
 ## Getting started
 
@@ -46,6 +46,7 @@ Launches the test runner for end-to-end tests.
 By default, the tests are run against [http://localhost:3000](http://localhost:3000),
 so you should run `yarn start` in parallel.
 Alternatively, you can set the environment variable `E2E_TEST_URL`, e.g.
+
 ```
 E2E_TEST_URL=https://app.gatesolve.com yarn test-e2e
 ```
