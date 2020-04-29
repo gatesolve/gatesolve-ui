@@ -55,6 +55,15 @@ jobs:
         with:
           name: build
           path: ./build
+      # This is used to checkout the same SHA in later jobs
+      - name: Persist build commit SHA
+        run: |
+          mkdir -p ./build-commit-sha && echo "${GITHUB_SHA}" > ./build-commit-sha/sha
+      - name: Upload buld commit SHA
+        uses: actions/upload-artifact@v1
+        with:
+          name: build-commit-sha
+          path: ./build-commit-sha
 
   publish-github-pages:
     name: Publish to GitHub Pages
@@ -178,8 +187,22 @@ jobs:
         run: echo "::set-output name=url::$(cat ./netlify-draft-url/url)"
       # It is faster to install dependencies again than to download an artifact
       # containing everything.
-      - name: Check the repository out
+      #
+      # Also there can be a race condition where the wrong SHA is checked out if
+      # something else has been merged into master before this checkout but
+      # after the previous checkout within this same GitHub Actions run. Avoid
+      # the race condition by specifying the SHA.
+      - name: Download build commit SHA
+        uses: actions/download-artifact@v1
+        with:
+          name: build-commit-sha
+      - name: Set build commit SHA to an output
+        id: build-commit-sha
+        run: echo "::set-output name=sha::$(cat ./build-commit-sha/sha)"
+      - name: Check the repository out at the same SHA as in build phase
         uses: actions/checkout@v2
+        with:
+          ref: ${{ steps.build-commit-sha.outputs.sha }}
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v1
         with:
