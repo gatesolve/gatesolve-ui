@@ -34,6 +34,8 @@ jobs:
             ${{ runner.os }}-yarn-
       - name: Install dependencies
         run: yarn --frozen-lockfile
+      - name: Check that code passes type checking
+        run: yarn type-check
       - name: Check that ESLint config is consistent with Prettier
         run: yarn eslint-check
       - name: Check that code has been prettified
