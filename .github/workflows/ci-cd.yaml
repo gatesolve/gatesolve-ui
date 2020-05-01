@@ -159,7 +159,7 @@ jobs:
               issue_number: "${{ steps.pull-number.outputs.pull_number }}",
               body: "${{ steps.publish-netlify.outputs.NETLIFY_URL }} has the deployment for the merge commit `${{ github.sha }}` corresponding to the pull request HEAD commit `${{ github.event.pull_request.head.sha }}`.",
             })
-      # Make the URL available for E2E tests.
+      # Make the URL available for the other jobs.
       - name: Persist Netlify draft URL
         run: |
           mkdir -p ./netlify-draft-url && echo "${{ steps.publish-netlify.outputs.NETLIFY_URL }}" > ./netlify-draft-url/url
@@ -228,6 +228,93 @@ jobs:
         env:
           CI: true
           E2E_TEST_URL: "${{ steps.netlify-draft-url.outputs.url }}"
+
+  run-lighthouse:
+    name: Create a Lighthouse report
+    needs: publish-netlify-draft
+    runs-on: ubuntu-18.04
+    strategy:
+      matrix:
+        node-version: [12.x]
+    steps:
+      - name: Download Netlify draft URL
+        uses: actions/download-artifact@v1
+        with:
+          name: netlify-draft-url
+      - name: Set Netlify draft URL to an output
+        id: netlify-draft-url
+        run: echo "::set-output name=url::$(cat ./netlify-draft-url/url)"
+      # treosh/lighthouse-ci-action requires the git repo so check it out.
+      - name: Download build commit SHA
+        uses: actions/download-artifact@v1
+        with:
+          name: build-commit-sha
+      - name: Set build commit SHA to an output
+        id: build-commit-sha
+        run: echo "::set-output name=sha::$(cat ./build-commit-sha/sha)"
+      - name: Check the repository out at the same SHA as in build phase
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ steps.build-commit-sha.outputs.sha }}
+      - name: Extract pull request number
+        id: pull-number
+        run: echo "::set-output name=pull_number::$(jq --raw-output .pull_request.number "${GITHUB_EVENT_PATH}")"
+      - name: Encode URL arguments for Lighthouse as JSON
+        id: lighthouse-urls
+        run: |
+          if [ -z ${PRODUCTION_URL+foo} ]; then
+            echo "::set-output name=urls::\"${{ steps.netlify-draft-url.outputs.url }}\""
+          else
+            echo "::set-output name=urls::\"${{ steps.netlify-draft-url.outputs.url }}\\n${PRODUCTION_URL}\""
+          fi
+        env:
+          PRODUCTION_URL: ${{ secrets.PRODUCTION_URL }}
+      - name: Audit Netlify draft URL using Lighthouse
+        id: lighthouse
+        uses: treosh/lighthouse-ci-action@9c031d281115e69bbf9c6aa35bda1bc3bdafb35a
+        with:
+          urls: |
+            ${{ fromJSON(steps.lighthouse-urls.outputs.urls) }}
+          uploadArtifacts: true
+          temporaryPublicStorage: true
+          runs: 3
+      - name: Post pull request comment with Lighthouse report link(s)
+        uses: actions/github-script@0.9.0
+        with:
+          debug: true
+          script: |
+            // The keys are the tested URLs and the values are the report URLs.
+            const links = JSON.parse(${{ toJSON(steps.lighthouse.outputs.links) }});
+            const keys = Object.keys(links);
+            const productionIndex = keys.findIndex((key) =>
+              key.startsWith(process.env.PRODUCTION_URL)
+            );
+            const isProductionResultFound = productionIndex !== -1;
+            const isProductionDefined =
+              process.env.PRODUCTION_URL != null && process.env.PRODUCTION_URL !== "";
+            if (isProductionDefined !== isProductionResultFound) {
+              console.error("PRODUCTION_URL is defined but there are no results for it.");
+              process.exit(1);
+            }
+            // draftIndex is 0 unless productionIndex happens to be 0.
+            const draftIndex = productionIndex === 0 ? 1 : 0;
+            const productionReportURL = links[keys[productionIndex]];
+            const draftReportURL = links[keys[draftIndex]];
+            const bodyStart = `The Lighthouse report for the **draft** URL: ${draftReportURL}\n\n`;
+            const bodyMiddle =
+              (isProductionResultFound &&
+                `The Lighthouse report for the **production** URL: ${productionReportURL}\n\nThe links`) ||
+              "The link";
+            const bodyEnd =
+              " might expire after the next 7 days. GitHub Actions workflow artifacts contain more reports that might expire later.";
+            const body = `${bodyStart}${bodyMiddle}${bodyEnd}`;
+            await github.issues.createComment({
+              ...context.repo,
+              issue_number: "${{ steps.pull-number.outputs.pull_number }}",
+              body,
+            });
+        env:
+          PRODUCTION_URL: ${{ secrets.PRODUCTION_URL }}
 
   publish-netlify-production:
     name: Publish to Netlify production URL
