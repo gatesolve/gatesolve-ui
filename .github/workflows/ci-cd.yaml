@@ -123,9 +123,7 @@ jobs:
             return(result.data.id);
       - name: Publish to Netlify
         id: publish-netlify
-        # FIXME: Once https://github.com/netlify/actions/pull/24 is merged, use
-        # the official one.
-        uses: Triloworld/actions/cli@3eff4d5cd9bf9f7ba528c1f1bbb94a37c3a3201d
+        uses: netlify/actions/cli@0b1104d9197d0ad6ac075a768fc7b76f86459a02
         with:
           args: deploy --dir=./build --message=\"Triggered by event ${{ github.event_name }} for ref ${{ github.ref }} and commit ${{ github.sha }}\"
         env:
@@ -267,9 +265,7 @@ jobs:
             return(result.data.id);
       - name: Publish to Netlify
         id: publish-netlify
-        # FIXME: Once https://github.com/netlify/actions/pull/24 is merged, use
-        # the official one.
-        uses: Triloworld/actions/cli@3eff4d5cd9bf9f7ba528c1f1bbb94a37c3a3201d
+        uses: netlify/actions/cli@0b1104d9197d0ad6ac075a768fc7b76f86459a02
         with:
           args: deploy --dir=./build --prod --message=\"Triggered by event ${{ github.event_name }} for ref ${{ github.ref }} and commit ${{ github.sha }}\"
         env:
