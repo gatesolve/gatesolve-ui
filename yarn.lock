@@ -11939,9 +11939,9 @@ react-app-polyfill@^1.0.6:
     regenerator-runtime "^0.13.3"
     whatwg-fetch "^3.0.0"
 
-react-autosuggest-geocoder@gatesolve/react-autosuggest-geocoder#fix/modify-for-gatesolve:
+"react-autosuggest-geocoder@https://github.com/gatesolve/react-autosuggest-geocoder#fix/modify-for-gatesolve":
   version "1.0.1"
-  resolved "https://codeload.github.com/gatesolve/react-autosuggest-geocoder/tar.gz/4db2a4ebcb0e1ea316dddd809ac039a2a52e846b"
+  resolved "https://github.com/gatesolve/react-autosuggest-geocoder#b3856dceeb70b57f3e71a2cfcab8145783b00a1d"
   dependencies:
     lodash "^4.17.15"
     node-fetch "^2.6.0"
