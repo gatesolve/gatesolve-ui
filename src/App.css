@@ -26,13 +26,22 @@
   color: #61dafb;
 }
 
-.App .react-autosuggest__container {
+.App-shadow {
   position: absolute;
   z-index: 1;
   box-sizing: border-box;
   width: 100%;
-  padding: 1em;
+  height: 6em;
   background: linear-gradient(rgba(0, 0, 0, 0.2), transparent);
+  pointer-events: none;
+}
+
+.App .react-autosuggest__container {
+  position: absolute;
+  z-index: 1;
+  box-sizing: border-box;
+  width: calc(100% - 2em);
+  margin: 1em;
 }
 
 .App .react-autosuggest__input {

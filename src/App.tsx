@@ -440,6 +440,7 @@ const App: React.FC = () => {
       <header className="App-header">
         <h2>Gatesolve</h2>
       </header>
+      <div className="App-shadow" />
       <ReactAutosuggestGeocoder
         url="https://api.digitransit.fi/geocoding/v1/"
         sources="oa,osm,nlsfi"
