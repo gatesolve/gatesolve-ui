@@ -40,7 +40,7 @@
   position: absolute;
   z-index: 1;
   box-sizing: border-box;
-  width: 100%;
+  width: calc(100% - 2em);
   margin: 1em;
 }
 
