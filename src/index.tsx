@@ -9,7 +9,7 @@ import * as serviceWorker from "./serviceWorker";
 ReactDOM.render(
   <React.StrictMode>
     <Router>
-      <SnackbarProvider dense maxSnack={3} preventDuplicate>
+      <SnackbarProvider dense maxSnack={3}>
         <App />
       </SnackbarProvider>
     </Router>
