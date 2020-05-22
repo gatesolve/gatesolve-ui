@@ -8,8 +8,8 @@ export const routeLineLayer: LayerProps = {
     "line-join": "round",
   },
   paint: {
-    "line-opacity": ["coalesce", ["get", "opacity"], 0.5],
-    "line-width": 5,
+    "line-opacity": ["coalesce", ["get", "opacity"], 0.8],
+    "line-width": 2,
     "line-color": ["get", "color"],
   },
   filter: ["!", ["coalesce", ["get", "imaginary"], false]],
