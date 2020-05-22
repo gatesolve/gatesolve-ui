@@ -69,8 +69,8 @@ export const allEntrancesSymbolLayer: LayerProps = {
   type: "symbol",
   minzoom: 16,
   paint: {
-    "text-color": "#fff",
-    "text-halo-color": "#64be14",
+    "text-halo-color": "#fff",
+    "text-color": "#64be14",
     "text-halo-width": 3,
   },
   layout: {
@@ -79,7 +79,7 @@ export const allEntrancesSymbolLayer: LayerProps = {
     "text-font": ["Klokantech Noto Sans Regular"],
     "text-size": 24,
     "text-offset": [0, -1.3],
-    "icon-image": "icon-pin-48-#64be14-#fff",
+    "icon-image": "icon-pin-48-#fff-#64be14",
     "icon-anchor": "bottom",
     "icon-allow-overlap": true,
     "text-allow-overlap": true,
