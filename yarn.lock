@@ -9989,10 +9989,9 @@ pkg-up@^2.0.0:
   dependencies:
     find-up "^2.1.0"
 
-plannerjs@^0.4.0:
+"plannerjs@https://github.com/gatesolve/planner.js#build-for-gatesolve":
   version "0.4.0"
-  resolved "https://registry.yarnpkg.com/plannerjs/-/plannerjs-0.4.0.tgz#eaa7bf459b65194e28abf38942826e24cfba7ae3"
-  integrity sha512-DIJnKCy/yECK2efC6+LH7XBrdy8ClJjNiG8aq3aLi081fv++a/q0O5eQC58i/0zl2VXszCuJXhwtH/TQ7iwD8w==
+  resolved "https://github.com/gatesolve/planner.js#d909d5a10b53861735fe2ecff00a716aefa213c8"
   dependencies:
     "@turf/turf" "^5.1.6"
     "@types/concaveman" "^1.1.3"
