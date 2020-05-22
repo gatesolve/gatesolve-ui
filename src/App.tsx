@@ -31,6 +31,8 @@ import { addImageSVG, getMapSize } from "./mapbox-utils";
 import "./App.css";
 import "./components/PinMarker.css";
 
+const maxRoutingDistance = 200; // in meters
+
 type LatLng = [number, number];
 
 interface State {
@@ -276,7 +278,10 @@ const App: React.FC = () => {
     );
 
     // Don't calculate routes between points more than 200 meters apart
-    if (distance(state.origin, destinationToLatLng(state.destination)) > 200) {
+    if (
+      distance(state.origin, destinationToLatLng(state.destination)) >
+      maxRoutingDistance
+    ) {
       const message = state.isOriginExplicit
         ? "Distance too long!"
         : "Routing starts when distance is shorter";
@@ -461,10 +466,12 @@ const App: React.FC = () => {
           const [type, id] = suggestion.properties.source_id.split(":");
           setState(
             (prevState): State => {
-              const viewport = fitMap(prevState.viewport, [
-                prevState.origin,
-                destination,
-              ]);
+              const pointsToFit =
+                prevState.origin &&
+                distance(prevState.origin, destination) < maxRoutingDistance
+                  ? [prevState.origin, destination]
+                  : [destination];
+              const viewport = fitMap(prevState.viewport, pointsToFit);
               return {
                 ...prevState,
                 origin: prevState.origin,
