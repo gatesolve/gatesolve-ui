@@ -73,7 +73,12 @@ export const allEntrancesSymbolLayer: LayerProps = {
     "text-halo-width": 3,
   },
   layout: {
-    "text-field": ["coalesce", ["get", "ref"], ["get", "addr:unit"]],
+    "text-field": [
+      "coalesce",
+      ["get", "ref"],
+      ["get", "addr:unit"],
+      ["get", "addr:housenumber"],
+    ],
     "text-anchor": "center",
     "text-font": ["Klokantech Noto Sans Regular"],
     "text-size": 24,
