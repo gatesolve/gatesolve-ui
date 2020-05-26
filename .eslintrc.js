@@ -15,6 +15,7 @@ module.exports = {
     "react-hooks",
   ],
   extends: [
+    "react-app",
     "eslint:recommended",
     "airbnb-typescript",
     "airbnb/hooks",
@@ -25,6 +26,7 @@ module.exports = {
     "plugin:eslint-comments/recommended",
     "plugin:import/recommended",
     "plugin:react/recommended",
+    "plugin:jsx-a11y/recommended",
     "plugin:prettier/recommended",
     "prettier",
     "prettier/@typescript-eslint",
