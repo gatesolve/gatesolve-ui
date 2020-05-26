@@ -21,6 +21,8 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
+      - name: Get latest stable yarn
+        run: yarn policies set-version
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
         run: echo "::set-output name=dir::$(yarn cache dir)"
@@ -33,13 +35,15 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-yarn-
       - name: Install dependencies
-        run: yarn --frozen-lockfile
+        run: yarn --frozen-lockfile --non-interactive
+      - name: Check that code passes type checking
+        run: yarn type-check
       - name: Check that ESLint config is consistent with Prettier
         run: yarn eslint-check
       - name: Check that code has been prettified
         run: yarn prettier-check
       - name: Run ESLint
-        run: yarn eslint --max-warnings=0
+        run: yarn eslint
       - name: Run non-E2E tests
         run: yarn test
         env:
@@ -51,6 +55,15 @@ jobs:
         with:
           name: build
           path: ./build
+      # This is used to checkout the same SHA in later jobs
+      - name: Persist build commit SHA
+        run: |
+          mkdir -p ./build-commit-sha && echo "${GITHUB_SHA}" > ./build-commit-sha/sha
+      - name: Upload build commit SHA
+        uses: actions/upload-artifact@v1
+        with:
+          name: build-commit-sha
+          path: ./build-commit-sha
 
   publish-github-pages:
     name: Publish to GitHub Pages
@@ -110,9 +123,7 @@ jobs:
             return(result.data.id);
       - name: Publish to Netlify
         id: publish-netlify
-        # FIXME: Once https://github.com/netlify/actions/pull/24 is merged, use
-        # the official one.
-        uses: Triloworld/actions/cli@3eff4d5cd9bf9f7ba528c1f1bbb94a37c3a3201d
+        uses: netlify/actions/cli@0b1104d9197d0ad6ac075a768fc7b76f86459a02
         with:
           args: deploy --dir=./build --message=\"Triggered by event ${{ github.event_name }} for ref ${{ github.ref }} and commit ${{ github.sha }}\"
         env:
@@ -136,6 +147,7 @@ jobs:
               environment_url: "${{ steps.publish-netlify.outputs.NETLIFY_URL }}",
               // auto_inactive: true,
             })
+      # FIXME: Remove this step when deployment links show up on the PR page.
       - name: Post pull request comment with deployment link
         if: success()
         uses: actions/github-script@0.9.0
@@ -174,12 +186,28 @@ jobs:
         run: echo "::set-output name=url::$(cat ./netlify-draft-url/url)"
       # It is faster to install dependencies again than to download an artifact
       # containing everything.
-      - name: Check the repository out
+      #
+      # Also there can be a race condition where the wrong SHA is checked out if
+      # something else has been merged into master before this checkout but
+      # after the previous checkout within this same GitHub Actions run. Avoid
+      # the race condition by specifying the SHA.
+      - name: Download build commit SHA
+        uses: actions/download-artifact@v1
+        with:
+          name: build-commit-sha
+      - name: Set build commit SHA to an output
+        id: build-commit-sha
+        run: echo "::set-output name=sha::$(cat ./build-commit-sha/sha)"
+      - name: Check the repository out at the same SHA as in build phase
         uses: actions/checkout@v2
+        with:
+          ref: ${{ steps.build-commit-sha.outputs.sha }}
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
+      - name: Get latest stable yarn
+        run: yarn policies set-version
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
         run: echo "::set-output name=dir::$(yarn cache dir)"
@@ -192,7 +220,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-yarn-
       - name: Install dependencies
-        run: yarn --frozen-lockfile
+        run: yarn --frozen-lockfile --non-interactive
       - name: Install Playwright
         uses: microsoft/playwright-github-action@11413a1e4dfa5b193634b90340f5fadf22b81b27
       - name: Run E2E tests using Netlify
@@ -237,9 +265,7 @@ jobs:
             return(result.data.id);
       - name: Publish to Netlify
         id: publish-netlify
-        # FIXME: Once https://github.com/netlify/actions/pull/24 is merged, use
-        # the official one.
-        uses: Triloworld/actions/cli@3eff4d5cd9bf9f7ba528c1f1bbb94a37c3a3201d
+        uses: netlify/actions/cli@0b1104d9197d0ad6ac075a768fc7b76f86459a02
         with:
           args: deploy --dir=./build --prod --message=\"Triggered by event ${{ github.event_name }} for ref ${{ github.ref }} and commit ${{ github.sha }}\"
         env:
