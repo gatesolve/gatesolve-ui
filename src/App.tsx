@@ -1,11 +1,10 @@
-import React, { useState, useEffect, useRef, ReactText } from "react";
+import React, { useState, useEffect, useRef, ReactText, Suspense } from "react";
 import { useRouteMatch, useHistory } from "react-router-dom";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { match } from "react-router-dom";
 import { Button, IconButton } from "@material-ui/core";
 import { Close as CloseIcon } from "@material-ui/icons";
 import { useSnackbar } from "notistack";
-import MapGL, { Popup, Source, Layer, Marker } from "@urbica/react-map-gl";
 import { WebMercatorViewport } from "viewport-mercator-project";
 import type { WebMercatorViewportOptions } from "viewport-mercator-project";
 import { distance as turfDistance } from "@turf/turf";
@@ -136,6 +135,20 @@ const fitBounds = (
 };
 
 const App: React.FC = () => {
+  const MapGL = React.lazy(() => import("@urbica/react-map-gl"));
+  const Popup = React.lazy(async () => {
+    return (await import("@urbica/react-map-gl")).Popup;
+  });
+  const Source = React.lazy(async () => {
+    return (await import("@urbica/react-map-gl")).Source;
+  });
+  const Layer = React.lazy(async () => {
+    return (await import("@urbica/react-map-gl")).Layer;
+  });
+  const Marker = React.lazy(async () => {
+    return (await import("@urbica/react-map-gl")).Marker;
+  });
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const map = useRef<any>(null);
 
@@ -489,224 +502,229 @@ const App: React.FC = () => {
           );
         }}
       />
-      <MapGL
-        ref={map}
-        // This is according to the Get Started materials:
-        // https://uber.github.io/react-map-gl/docs/get-started/get-started/
-        // eslint-disable-next-line react/jsx-props-no-spreading
-        {...state.viewport}
-        style={{ width: "100%", height: "90%" }}
-        mapStyle="https://raw.githubusercontent.com/HSLdevcom/hsl-map-style/master/simple-style.json"
-        transformRequest={transformRequest}
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        onViewportChange={(viewport: any): void => {
-          setState((prevState): State => ({ ...prevState, viewport }));
-        }}
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        onHover={(event: any): void => {
-          // Inspect the topmost feature under click
-          const feature = event.features?.[0];
-          // Set cursor shape depending whether we would click an entrance
-          const cursor = feature?.properties.entrance ? "pointer" : "grab";
-          // FIXME: Better way to set the pointer shape or at least find the element
-          const mapboxOverlaysElement = document.querySelector(
-            ".overlays"
-          ) as HTMLElement;
-          if (mapboxOverlaysElement) {
-            mapboxOverlaysElement.style.cursor = cursor;
-          }
-        }}
-        onClick={handleMapClick}
-        onContextmenu={handleMapClick}
-      >
-        <GeolocateControl
-          dataTestId="geolocate-control"
-          enableOnMount
-          onEnable={(isInitiatedByUser): void => {
-            setState((prevState) => ({
-              ...prevState,
-              isOriginExplicit:
-                !isInitiatedByUser && prevState.isOriginExplicit,
-              isGeolocating: true,
-            }));
+      <Suspense fallback={<div>loading</div>}>
+        <MapGL
+          ref={map}
+          // This is according to the Get Started materials:
+          // https://uber.github.io/react-map-gl/docs/get-started/get-started/
+          // eslint-disable-next-line react/jsx-props-no-spreading
+          {...state.viewport}
+          style={{ width: "100%", height: "90%" }}
+          mapStyle="https://raw.githubusercontent.com/HSLdevcom/hsl-map-style/master/simple-style.json"
+          transformRequest={transformRequest}
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          onViewportChange={(viewport: any): void => {
+            setState((prevState): State => ({ ...prevState, viewport }));
           }}
-          onDisable={(): void => {
-            setState((prevState) => ({
-              ...prevState,
-              isGeolocating: false,
-              geolocationPosition: null,
-            }));
-          }}
-          onGeolocate={onGeolocate}
-        />
-        {state.geolocationPosition != null && (
-          <Marker
-            offset={[-20, -20]}
-            longitude={state.geolocationPosition[1]}
-            latitude={state.geolocationPosition[0]}
-          >
-            <UserPosition dataTestId="user-marker" />
-          </Marker>
-        )}
-        <Source
-          id="osm-qa-tiles"
-          type="vector"
-          tiles={["https://tile.olmap.org/osm-qa-tiles/{z}/{x}/{y}.pbf"]}
-          minzoom={12}
-          maxzoom={12}
-        >
-          <Layer
-            source-layer="osm"
-            // eslint-disable-next-line react/jsx-props-no-spreading
-            {...allEntrancesLayer}
-            source="osm-qa-tiles"
-          />
-          <Layer
-            source-layer="osm"
-            // eslint-disable-next-line react/jsx-props-no-spreading
-            {...allEntrancesSymbolLayer}
-            source="osm-qa-tiles"
-          />
-        </Source>
-        <Source id="route" type="geojson" data={state.route}>
-          <Layer
-            // eslint-disable-next-line react/jsx-props-no-spreading
-            {...routeLineLayer}
-            source="route"
-          />
-          <Layer
-            // eslint-disable-next-line react/jsx-props-no-spreading
-            {...routeImaginaryLineLayer}
-            source="route"
-          />
-
-          <Layer
-            // eslint-disable-next-line react/jsx-props-no-spreading
-            {...routePointLayer}
-            source="route"
-          />
-          <Layer
-            // eslint-disable-next-line react/jsx-props-no-spreading
-            {...routePointSymbolLayer}
-            source="route"
-          />
-        </Source>
-        {state.origin && (
-          <Marker
-            className="PinMarker"
-            draggable
-            offset={[0, -22.5]}
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            onDragEnd={(lngLat: any): void => {
-              setState(
-                (prevState): State => ({
-                  ...prevState,
-                  origin: [lngLat.lat, lngLat.lng],
-                  isOriginExplicit: true,
-                })
-              );
-            }}
-            longitude={state.origin[1]}
-            latitude={state.origin[0]}
-          >
-            <Pin
-              dataTestId="origin"
-              style={{ fill: "#00afff", stroke: "#fff" }}
-            />
-          </Marker>
-        )}
-        {state.destination && (
-          <Marker
-            className="PinMarker"
-            draggable
-            offset={[0, -22.5]}
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            onDragEnd={(lngLat: any): void => {
-              setState(
-                (prevState): State => ({
-                  ...prevState,
-                  destination: latLngToDestination([lngLat.lat, lngLat.lng]),
-                })
-              );
-            }}
-            longitude={state.destination.lon}
-            latitude={state.destination.lat}
-          >
-            <Pin
-              dataTestId="destination"
-              style={{ fill: "#64be14", stroke: "#fff" }}
-            />
-          </Marker>
-        )}
-        {state.popupCoordinates != null && (
-          <Popup
-            latitude={state.popupCoordinates[0]}
-            longitude={state.popupCoordinates[1]}
-            closeButton={false}
-            closeOnClick
-            onClose={(): void =>
-              setState(
-                (prevState): State => ({ ...prevState, popupCoordinates: null })
-              )
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          onHover={(event: any): void => {
+            // Inspect the topmost feature under click
+            const feature = event.features?.[0];
+            // Set cursor shape depending whether we would click an entrance
+            const cursor = feature?.properties.entrance ? "pointer" : "grab";
+            // FIXME: Better way to set the pointer shape or at least find the element
+            const mapboxOverlaysElement = document.querySelector(
+              ".overlays"
+            ) as HTMLElement;
+            if (mapboxOverlaysElement) {
+              mapboxOverlaysElement.style.cursor = cursor;
             }
+          }}
+          onClick={handleMapClick}
+          onContextmenu={handleMapClick}
+        >
+          <GeolocateControl
+            dataTestId="geolocate-control"
+            enableOnMount
+            onEnable={(isInitiatedByUser): void => {
+              setState((prevState) => ({
+                ...prevState,
+                isOriginExplicit:
+                  !isInitiatedByUser && prevState.isOriginExplicit,
+                isGeolocating: true,
+              }));
+            }}
+            onDisable={(): void => {
+              setState((prevState) => ({
+                ...prevState,
+                isGeolocating: false,
+                geolocationPosition: null,
+              }));
+            }}
+            onGeolocate={onGeolocate}
+          />
+          {state.geolocationPosition != null && (
+            <Marker
+              offset={[-20, -20]}
+              longitude={state.geolocationPosition[1]}
+              latitude={state.geolocationPosition[0]}
+            >
+              <UserPosition dataTestId="user-marker" />
+            </Marker>
+          )}
+          <Source
+            id="osm-qa-tiles"
+            type="vector"
+            tiles={["https://tile.olmap.org/osm-qa-tiles/{z}/{x}/{y}.pbf"]}
+            minzoom={12}
+            maxzoom={12}
           >
-            <button
-              data-testid="origin-button"
-              type="button"
-              aria-label="Set origin"
-              onClick={(): void =>
+            <Layer
+              source-layer="osm"
+              // eslint-disable-next-line react/jsx-props-no-spreading
+              {...allEntrancesLayer}
+              source="osm-qa-tiles"
+            />
+            <Layer
+              source-layer="osm"
+              // eslint-disable-next-line react/jsx-props-no-spreading
+              {...allEntrancesSymbolLayer}
+              source="osm-qa-tiles"
+            />
+          </Source>
+          <Source id="route" type="geojson" data={state.route}>
+            <Layer
+              // eslint-disable-next-line react/jsx-props-no-spreading
+              {...routeLineLayer}
+              source="route"
+            />
+            <Layer
+              // eslint-disable-next-line react/jsx-props-no-spreading
+              {...routeImaginaryLineLayer}
+              source="route"
+            />
+
+            <Layer
+              // eslint-disable-next-line react/jsx-props-no-spreading
+              {...routePointLayer}
+              source="route"
+            />
+            <Layer
+              // eslint-disable-next-line react/jsx-props-no-spreading
+              {...routePointSymbolLayer}
+              source="route"
+            />
+          </Source>
+          {state.origin && (
+            <Marker
+              className="PinMarker"
+              draggable
+              offset={[0, -22.5]}
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              onDragEnd={(lngLat: any): void => {
                 setState(
-                  (prevState): State => {
-                    // Check this to appease the compiler.
-                    if (prevState.popupCoordinates != null) {
+                  (prevState): State => ({
+                    ...prevState,
+                    origin: [lngLat.lat, lngLat.lng],
+                    isOriginExplicit: true,
+                  })
+                );
+              }}
+              longitude={state.origin[1]}
+              latitude={state.origin[0]}
+            >
+              <Pin
+                dataTestId="origin"
+                style={{ fill: "#00afff", stroke: "#fff" }}
+              />
+            </Marker>
+          )}
+          {state.destination && (
+            <Marker
+              className="PinMarker"
+              draggable
+              offset={[0, -22.5]}
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              onDragEnd={(lngLat: any): void => {
+                setState(
+                  (prevState): State => ({
+                    ...prevState,
+                    destination: latLngToDestination([lngLat.lat, lngLat.lng]),
+                  })
+                );
+              }}
+              longitude={state.destination.lon}
+              latitude={state.destination.lat}
+            >
+              <Pin
+                dataTestId="destination"
+                style={{ fill: "#64be14", stroke: "#fff" }}
+              />
+            </Marker>
+          )}
+          {state.popupCoordinates != null && (
+            <Popup
+              latitude={state.popupCoordinates[0]}
+              longitude={state.popupCoordinates[1]}
+              closeButton={false}
+              closeOnClick
+              onClose={(): void =>
+                setState(
+                  (prevState): State => ({
+                    ...prevState,
+                    popupCoordinates: null,
+                  })
+                )
+              }
+            >
+              <button
+                data-testid="origin-button"
+                type="button"
+                aria-label="Set origin"
+                onClick={(): void =>
+                  setState(
+                    (prevState): State => {
+                      // Check this to appease the compiler.
+                      if (prevState.popupCoordinates != null) {
+                        return {
+                          ...prevState,
+                          origin: prevState.popupCoordinates,
+                          isOriginExplicit: true,
+                          popupCoordinates: null,
+                        };
+                      }
                       return {
                         ...prevState,
-                        origin: prevState.popupCoordinates,
                         isOriginExplicit: true,
                         popupCoordinates: null,
                       };
                     }
-                    return {
-                      ...prevState,
-                      isOriginExplicit: true,
-                      popupCoordinates: null,
-                    };
-                  }
-                )
-              }
-            >
-              Origin
-            </button>
-            <button
-              data-testid="destination-button"
-              type="button"
-              aria-label="Set destination"
-              onClick={(): void =>
-                setState(
-                  (prevState): State => {
-                    // Check this to appease the compiler.
-                    if (prevState.popupCoordinates != null) {
+                  )
+                }
+              >
+                Origin
+              </button>
+              <button
+                data-testid="destination-button"
+                type="button"
+                aria-label="Set destination"
+                onClick={(): void =>
+                  setState(
+                    (prevState): State => {
+                      // Check this to appease the compiler.
+                      if (prevState.popupCoordinates != null) {
+                        return {
+                          ...prevState,
+                          destination: latLngToDestination(
+                            prevState.popupCoordinates
+                          ),
+                          popupCoordinates: null,
+                        };
+                      }
                       return {
                         ...prevState,
-                        destination: latLngToDestination(
-                          prevState.popupCoordinates
-                        ),
                         popupCoordinates: null,
                       };
                     }
-                    return {
-                      ...prevState,
-                      popupCoordinates: null,
-                    };
-                  }
-                )
-              }
-            >
-              Destination
-            </button>
-          </Popup>
-        )}
-      </MapGL>
+                  )
+                }
+              >
+                Destination
+              </button>
+            </Popup>
+          )}
+        </MapGL>
+      </Suspense>
     </div>
   );
 };
