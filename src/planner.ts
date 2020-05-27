@@ -6,7 +6,7 @@ import {
   GeoJsonProperties,
 } from "geojson";
 
-import { Planner } from "./planner-config";
+// "./planner-config" (and PlannerJS) is imported dynamically by calculatePlan
 
 import { ElementWithCoordinates } from "./overpass";
 
@@ -206,11 +206,15 @@ export function geometryToGeoJSON(
   };
 }
 
-export default function calculatePlan(
+export default async function calculatePlan(
   origin: [number, number],
   targets: Array<ElementWithCoordinates>,
   callback: (f: FeatureCollection) => void
-): void {
+): Promise<void> {
+  const { Planner } = await import(
+    /* webpackChunkName: "planner-config" */
+    "./planner-config"
+  );
   targets.forEach((target) => {
     const planner = new Planner();
     // XXX setProfileID requires URL to start with scheme, so guess
