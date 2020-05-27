@@ -2,7 +2,7 @@ import "reflect-metadata";
 
 import { FlexibleRoadPlanner } from "plannerjs";
 
-import { RoutableTileCoordinate } from "plannerjs/lib/entities/tiles/coordinate";
+import TileCoordinate from "plannerjs/lib/entities/tiles/TileCoordinate";
 import TYPES from "plannerjs/lib/types";
 import RoutableTileProviderDefault from "plannerjs/lib/fetcher/tiles/RoutableTileProviderDefault";
 import IRoutableTileProvider from "plannerjs/lib/fetcher/tiles/IRoutableTileProvider";
@@ -16,7 +16,7 @@ const rootUri =
 
 class RoutableTileProviderLocalhost extends RoutableTileProviderDefault {
   // eslint-disable-next-line class-methods-use-this
-  public getIdForTileCoords(coordinate: RoutableTileCoordinate): string {
+  public getIdForTileCoords(coordinate: TileCoordinate): string {
     return `${rootUri}/${coordinate.zoom}/${coordinate.x}/${coordinate.y}`;
   }
 }
