@@ -213,6 +213,7 @@ export default async function calculatePlan(
 ): Promise<void> {
   const { Planner } = await import(
     /* webpackChunkName: "planner-config" */
+    /* webpackPrefetch: true */
     "./planner-config"
   );
   targets.forEach((target) => {
