@@ -614,6 +614,7 @@ const App: React.FC = () => {
         }}
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         onSuggestionSelected={(event: any, { suggestion }: any): any => {
+          geocoder.current.blur();
           const destination: LatLng = [
             suggestion.geometry.coordinates[1],
             suggestion.geometry.coordinates[0],
