@@ -4,7 +4,7 @@ const TILE_SIZE = 256;
 const WEBMERCATOR_R = 6378137.0;
 const DIAMETER = WEBMERCATOR_R * 2 * Math.PI;
 
-function mercatorProject(lonlat) {
+export function mercatorProject(lonlat) {
   var x = (DIAMETER * lonlat[0]) / 360.0;
   var sinlat = Math.sin((lonlat[1] * Math.PI) / 180.0);
   var y = (DIAMETER * Math.log((1 + sinlat) / (1 - sinlat))) / (4 * Math.PI);

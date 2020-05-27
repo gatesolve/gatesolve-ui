@@ -20,12 +20,11 @@ import {
   routePointSymbolLayer,
   routeLineLayer,
   routeImaginaryLineLayer,
-  allEntrancesLayer,
-  allEntrancesSymbolLayer,
   buildingHighlightLayer,
-  routableTilesLayer,
+  allEntrancesLayers,
 } from "./map-style";
 import Pin, { pinAsSVG } from "./components/Pin";
+import { triangleAsSVG } from "./components/Triangle";
 import UserPosition from "./components/UserPosition";
 import GeolocateControl from "./components/GeolocateControl";
 import calculatePlan, { geometryToGeoJSON } from "./planner";
@@ -163,11 +162,19 @@ const App: React.FC = () => {
     // FIXME: Unclear why this passed type checking before.
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mapboxgl?.on("styleimagemissing", ({ id: iconId }: any) => {
-      if (!iconId?.startsWith("icon-pin-")) {
-        return; // We only know how to generate pin icons
+      if (!iconId?.startsWith("icon-svg-")) {
+        return; // We only know how to generate certain svg icons
       }
-      const [, , size, fill, stroke] = iconId.split("-"); // e.g. icon-pin-48-green-#fff
-      const svgData = pinAsSVG(size, `fill: ${fill}; stroke: ${stroke}`);
+      const [, , shape, size, fill, stroke] = iconId.split("-"); // e.g. icon-pin-48-green-#fff
+      let renderSVG;
+      if (shape === "pin") {
+        renderSVG = pinAsSVG;
+      } else if (shape === "triangle") {
+        renderSVG = triangleAsSVG;
+      } else {
+        return; // Unknown shape
+      }
+      const svgData = renderSVG(size, `fill: ${fill}; stroke: ${stroke}`);
       addImageSVG(mapboxgl, iconId, svgData, size);
     });
   }, [map]);
@@ -672,35 +679,18 @@ const App: React.FC = () => {
                 type="geojson"
                 data={tile}
               >
-                <Layer
-                  // eslint-disable-next-line react/jsx-props-no-spreading
-                  {...routableTilesLayer}
-                  id={coords}
-                  source={`source-${coords}`}
-                />
+                {allEntrancesLayers.map((layer) => (
+                  <Layer
+                    // eslint-disable-next-line react/jsx-props-no-spreading
+                    {...layer}
+                    key={`${layer.id}-${coords}`}
+                    id={`${layer.id}-${coords}`}
+                    source={`source-${coords}`}
+                  />
+                ))}
               </Source>
             )
         )}
-        <Source
-          id="osm-qa-tiles"
-          type="vector"
-          tiles={["https://tile.olmap.org/osm-qa-tiles/{z}/{x}/{y}.pbf"]}
-          minzoom={12}
-          maxzoom={12}
-        >
-          <Layer
-            source-layer="osm"
-            // eslint-disable-next-line react/jsx-props-no-spreading
-            {...allEntrancesLayer}
-            source="osm-qa-tiles"
-          />
-          <Layer
-            source-layer="osm"
-            // eslint-disable-next-line react/jsx-props-no-spreading
-            {...allEntrancesSymbolLayer}
-            source="osm-qa-tiles"
-          />
-        </Source>
         <Source id="highlights" type="geojson" data={state.highlights}>
           <Layer
             // eslint-disable-next-line react/jsx-props-no-spreading

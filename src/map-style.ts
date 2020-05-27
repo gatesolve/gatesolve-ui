@@ -30,15 +30,6 @@ export const routeImaginaryLineLayer: LayerProps = {
   },
   filter: ["coalesce", ["get", "imaginary"], false],
 };
-export const routableTilesLayer = {
-  id: "routable-tiles-line",
-  type: "line",
-  paint: {
-    "line-opacity": ["coalesce", ["get", "opacity"], 0.5],
-    "line-width": 2,
-    "line-color": "black",
-  },
-};
 
 export const routePointLayer: LayerProps = {
   id: "route-point",
@@ -60,46 +51,54 @@ export const buildingHighlightLayer: LayerProps = {
   },
 };
 
-export const allEntrancesLayer: LayerProps = {
-  id: "entrance-point",
-  type: "circle",
-  minzoom: 12,
-  paint: {
-    "circle-radius": [
-      "interpolate",
-      ["linear"],
-      ["zoom"],
-      12, // At zoom 12 or less,
-      1, // circle radius is 1.
-      14, // At zoom 14,
-      3, // circle radius is 3.
-      15, // At zoom 15 or more,
-      5, // circle radius is 5.
-    ],
-    "circle-color": "#64be14",
+export const allEntrancesLayers: Array<LayerProps> = [
+  {
+    id: "entrance-point",
+    type: "circle",
+    minzoom: 12,
+    maxzoom: 15.999,
+    paint: {
+      "circle-radius": [
+        "interpolate",
+        ["linear"],
+        ["zoom"],
+        12, // At zoom 12 or less,
+        1, // circle radius is 1.
+        14, // At zoom 14,
+        3, // circle radius is 3.
+        15, // At zoom 15 or more,
+        5, // circle radius is 5.
+      ],
+      "circle-color": "#64be14",
+    },
+    filter: ["has", "entrance"],
   },
-  filter: ["has", "entrance"],
-};
-
-export const allEntrancesSymbolLayer: LayerProps = {
-  id: "entrance-symbol",
-  type: "symbol",
-  minzoom: 16,
-  paint: {
-    "text-halo-color": "#fff",
-    "text-color": "#64be14",
-    "text-halo-width": 3,
+  {
+    id: "entrance-symbol",
+    type: "symbol",
+    minzoom: 16,
+    paint: {
+      "text-halo-color": "#fff",
+      "text-color": "#64be14",
+      "text-halo-width": 1,
+    },
+    layout: {
+      "text-field": ["coalesce", ["get", "ref"], ["get", "addr:unit"]],
+      "text-anchor": "center",
+      "text-font": ["Klokantech Noto Sans Regular"],
+      "text-size": 16,
+      "text-offset": ["get", "offset"],
+      "text-allow-overlap": true,
+      "text-ignore-placement": true,
+      "icon-image": "icon-svg-triangle-14-#64be14-#fff",
+      "icon-anchor": "bottom",
+      "icon-rotate": ["get", "rotate"],
+      "icon-allow-overlap": true,
+      "icon-ignore-placement": true,
+    },
+    filter: ["has", "entrance"],
   },
-  layout: {
-    "text-field": ["coalesce", ["get", "ref"], ["get", "addr:unit"]],
-    "text-anchor": "center",
-    "text-font": ["Klokantech Noto Sans Regular"],
-    "text-size": 24,
-    "text-offset": [0, -0.8],
-    "text-allow-overlap": true,
-  },
-  filter: ["has", "entrance"],
-};
+];
 
 export const routePointSymbolLayer: LayerProps = {
   id: "route-point-symbol",
