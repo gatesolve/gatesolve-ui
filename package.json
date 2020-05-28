@@ -34,7 +34,7 @@
     "typescript": "~3.8.3",
     "viewport-mercator-project": "^7.0.1"
   },
-  "homepage": "https://sproutverse.github.io/gatesolve-ui",
+  "homepage": "https://app.gatesolve.com/",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
