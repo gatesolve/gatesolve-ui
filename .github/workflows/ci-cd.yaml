@@ -277,7 +277,7 @@ jobs:
             ${{ fromJSON(steps.lighthouse-urls.outputs.urls) }}
           uploadArtifacts: true
           temporaryPublicStorage: true
-          runs: 3
+          runs: 15
       - name: Post pull request comment with Lighthouse report link(s)
         uses: actions/github-script@0.9.0
         with:
@@ -287,13 +287,13 @@ jobs:
             const links = JSON.parse(${{ toJSON(steps.lighthouse.outputs.links) }});
             const keys = Object.keys(links);
             const productionIndex = keys.findIndex((key) =>
-              key.startsWith(process.env.PRODUCTION_URL)
+              key.includes(process.env.PRODUCTION_URL)
             );
             const isProductionResultFound = productionIndex !== -1;
             const isProductionDefined =
               process.env.PRODUCTION_URL != null && process.env.PRODUCTION_URL !== "";
             if (isProductionDefined !== isProductionResultFound) {
-              console.error("PRODUCTION_URL is defined but there are no results for it.");
+              console.error("PRODUCTION_URL is defined and not empty but there are no results for it.");
               process.exit(1);
             }
             // draftIndex is 0 unless productionIndex happens to be 0.
@@ -308,6 +308,63 @@ jobs:
             const bodyEnd =
               " might expire after the next 7 days. GitHub Actions workflow artifacts contain more reports that might expire later.";
             const body = `${bodyStart}${bodyMiddle}${bodyEnd}`;
+            await github.issues.createComment({
+              ...context.repo,
+              issue_number: "${{ steps.pull-number.outputs.pull_number }}",
+              body,
+            });
+        env:
+          PRODUCTION_URL: ${{ secrets.PRODUCTION_URL }}
+
+  collect-lighthouse-reports:
+    name: Collect Lighthouse reports together
+    needs: run-lighthouse
+    runs-on: ubuntu-18.04
+    strategy:
+      matrix:
+        node-version: [12.x]
+    steps:
+      - name: Extract pull request number
+        id: pull-number
+        run: echo "::set-output name=pull_number::$(jq --raw-output .pull_request.number "${GITHUB_EVENT_PATH}")"
+      - name: Download Lighthouse reports
+        uses: actions/download-artifact@v1
+        with:
+          name: "lighthouse-results"
+          path: "lighthouse-results/"
+      - name: Combine Lighthouse JSON files
+        id: lighthouse-results
+        run: |
+          echo "Combine JSON files" 1>&2
+          jq -s -c . ./lighthouse-results/*.json > "./lighthouse-results/combined.json"
+      - name: Post median values
+        uses: actions/github-script@v1.1.0
+        with:
+          debug: true
+          script: |
+            const fs = require("fs");
+            const reports = JSON.parse(
+              fs.readFileSync("./lighthouse-results/combined.json", {
+                encoding: "utf8",
+              })
+            );
+            const productionReports = reports.filter((report) =>
+              report.requestedUrl.includes(process.env.PRODUCTION_URL)
+            );
+            const draftReports = reports.filter(
+              (report) => !productionReports.includes(report)
+            );
+            const getMedianFromOdd = (rs) => {
+              const sorted = rs.map((r) => r.audits.metrics.numericValue).sort();
+              const median = sorted[Math.floor(sorted.length / 2)];
+              return median;
+            };
+            const draftMedian = getMedianFromOdd(draftReports);
+            const productionMedian = getMedianFromOdd(productionReports);
+            const diff = (draftMedian - productionMedian) / productionMedian * 100;
+            const body = `**Draft URL** median *Time to Interactive* (TTI) value is ${draftMedian} ms.\n\n**Production URL** median *Time to Interactive* (TTI) value is ${productionMedian} ms.\n\nThe change was ${diff.toFixed(1)} %. ${
+              diff < 0 ? "Possibly statistically insignificant yay!" : "Oh dear."
+            }`;
             await github.issues.createComment({
               ...context.repo,
               issue_number: "${{ steps.pull-number.outputs.pull_number }}",
@@ -349,7 +406,7 @@ jobs:
               // transient_environment: false,
               // production_environment: true,
             });
-            return(result.data.id);
+            return result.data.id;
       - name: Publish to Netlify
         id: publish-netlify
         uses: netlify/actions/cli@0b1104d9197d0ad6ac075a768fc7b76f86459a02
