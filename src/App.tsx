@@ -657,24 +657,26 @@ const App: React.FC = () => {
           closeButton={false}
           closeOnClick={false}
         >
-          {state.popupCoordinates && (
+          {state.popupCoordinates && state.popupCoordinates.tags && (
+            <div>
+              <p>
+                {state.popupCoordinates.tags?.["addr:street"]}{" "}
+                {state.popupCoordinates.tags?.["addr:housenumber"]}{" "}
+                {state.popupCoordinates.tags?.["ref"] ||
+                  state.popupCoordinates.tags?.["addr:unit"]}
+              </p>
+              <p>
+                {state.popupCoordinates.tags &&
+                  JSON.stringify(
+                    Object.entries(state.popupCoordinates.tags).filter(
+                      ([k]) => !k.startsWith("@")
+                    )
+                  )}
+              </p>
+            </div>
+          )}
+          {state.popupCoordinates && !state.popupCoordinates.tags && (
             <>
-              <div>
-                <p>
-                  {state.popupCoordinates.tags?.["addr:street"]}{" "}
-                  {state.popupCoordinates.tags?.["addr:housenumber"]}{" "}
-                  {state.popupCoordinates.tags?.["ref"] ||
-                    state.popupCoordinates.tags?.["addr:unit"]}
-                </p>
-                <p>
-                  {state.popupCoordinates.tags &&
-                    JSON.stringify(
-                      Object.entries(state.popupCoordinates.tags).filter(
-                        ([k]) => !k.startsWith("@")
-                      )
-                    )}
-                </p>
-              </div>
               <button
                 data-testid="origin-button"
                 type="button"
