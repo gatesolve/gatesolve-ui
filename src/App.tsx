@@ -44,7 +44,7 @@ interface State {
   route: FeatureCollection;
   isGeolocating: boolean;
   geolocationPosition: LatLng | null;
-  popupCoordinates: LatLng | null;
+  popupCoordinates: ElementWithCoordinates | null;
   snackbar?: ReactText;
 }
 
@@ -379,21 +379,33 @@ const App: React.FC = () => {
     setState(
       (prevState): State => {
         if (feature?.properties.entrance) {
+          const element = {
+            id: feature.properties["@id"],
+            type: feature.properties["@type"],
+            lat: feature.geometry.coordinates[1],
+            lon: feature.geometry.coordinates[0],
+            tags: feature.properties,
+          };
           // If an entrance was clicked, set it as the destination
           return {
             ...prevState,
-            destination: {
-              id: feature.properties["@id"],
-              type: feature.properties["@type"],
-              lat: feature.geometry.coordinates[1],
-              lon: feature.geometry.coordinates[0],
-            },
+            destination: element,
+            popupCoordinates: element,
           };
         }
-        // As a fallback, open a popup.
+        // As a fallback, toggle popup.
+        if (prevState.popupCoordinates) {
+          return {
+            ...prevState,
+            popupCoordinates: null,
+          };
+        }
         return {
           ...prevState,
-          popupCoordinates: [event.lngLat.lat, event.lngLat.lng],
+          popupCoordinates: latLngToDestination([
+            event.lngLat.lat,
+            event.lngLat.lng,
+          ]),
         };
       }
     );
@@ -638,74 +650,90 @@ const App: React.FC = () => {
             />
           </Marker>
         )}
-        {state.popupCoordinates != null && (
-          <Popup
-            latitude={state.popupCoordinates[0]}
-            longitude={state.popupCoordinates[1]}
-            closeButton={false}
-            closeOnClick
-            onClose={(): void =>
-              setState(
-                (prevState): State => ({ ...prevState, popupCoordinates: null })
-              )
-            }
-          >
-            <button
-              data-testid="origin-button"
-              type="button"
-              aria-label="Set origin"
-              onClick={(): void =>
-                setState(
-                  (prevState): State => {
-                    // Check this to appease the compiler.
-                    if (prevState.popupCoordinates != null) {
+        <Popup
+          open={state.popupCoordinates != null}
+          latitude={state.popupCoordinates?.lat || null}
+          longitude={state.popupCoordinates?.lon || null}
+          closeButton={false}
+          closeOnClick={false}
+        >
+          {state.popupCoordinates && state.popupCoordinates.tags && (
+            <div>
+              <p>
+                {state.popupCoordinates.tags?.["addr:street"]}{" "}
+                {state.popupCoordinates.tags?.["addr:housenumber"]}{" "}
+                {state.popupCoordinates.tags?.["ref"] ||
+                  state.popupCoordinates.tags?.["addr:unit"]}
+              </p>
+              <p>
+                {state.popupCoordinates.tags &&
+                  JSON.stringify(
+                    Object.entries(state.popupCoordinates.tags).filter(
+                      ([k]) => !k.startsWith("@")
+                    )
+                  )}
+              </p>
+            </div>
+          )}
+          {state.popupCoordinates && !state.popupCoordinates.tags && (
+            <>
+              <button
+                data-testid="origin-button"
+                type="button"
+                aria-label="Set origin"
+                onClick={(): void =>
+                  setState(
+                    (prevState): State => {
+                      // Check this to appease the compiler.
+                      if (prevState.popupCoordinates != null) {
+                        return {
+                          ...prevState,
+                          origin: destinationToLatLng(
+                            prevState.popupCoordinates
+                          ),
+                          isOriginExplicit: true,
+                          popupCoordinates: null,
+                        };
+                      }
                       return {
                         ...prevState,
-                        origin: prevState.popupCoordinates,
                         isOriginExplicit: true,
                         popupCoordinates: null,
                       };
                     }
-                    return {
-                      ...prevState,
-                      isOriginExplicit: true,
-                      popupCoordinates: null,
-                    };
-                  }
-                )
-              }
-            >
-              Origin
-            </button>
-            <button
-              data-testid="destination-button"
-              type="button"
-              aria-label="Set destination"
-              onClick={(): void =>
-                setState(
-                  (prevState): State => {
-                    // Check this to appease the compiler.
-                    if (prevState.popupCoordinates != null) {
+                  )
+                }
+              >
+                Origin
+              </button>
+              <button
+                data-testid="destination-button"
+                type="button"
+                aria-label="Set destination"
+                onClick={(): void =>
+                  setState(
+                    (prevState): State => {
+                      // Check this to appease the compiler.
+                      if (prevState.popupCoordinates != null) {
+                        return {
+                          ...prevState,
+                          destination: prevState.popupCoordinates,
+                          popupCoordinates: null,
+                        };
+                      }
                       return {
                         ...prevState,
-                        destination: latLngToDestination(
-                          prevState.popupCoordinates
-                        ),
                         popupCoordinates: null,
                       };
                     }
-                    return {
-                      ...prevState,
-                      popupCoordinates: null,
-                    };
-                  }
-                )
-              }
-            >
-              Destination
-            </button>
-          </Popup>
-        )}
+                  )
+                }
+              >
+                Destination
+              </button>
+            </>
+          )}
+        </Popup>
       </MapGL>
     </div>
   );
