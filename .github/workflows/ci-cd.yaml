@@ -354,17 +354,30 @@ jobs:
             const draftReports = reports.filter(
               (report) => !productionReports.includes(report)
             );
-            const getMedianFromOdd = (rs) => {
-              const sorted = rs.map((r) => r.audits.metrics.numericValue).sort();
-              const median = sorted[Math.floor(sorted.length / 2)];
-              return median;
+            const splitOnMedian = (rs) => {
+              const sorted = rs
+                .map((r) => r.audits.metrics.numericValue)
+                .sort((a, b) => a - b);
+              const medianIndex = Math.floor(sorted.length / 2);
+              const start = sorted.slice(0, Math.max(medianIndex, 0));
+              const median = sorted[medianIndex];
+              const end = sorted.slice(medianIndex + 1);
+              return { start, median, end };
             };
-            const draftMedian = getMedianFromOdd(draftReports);
-            const productionMedian = getMedianFromOdd(productionReports);
-            const diff = (draftMedian - productionMedian) / productionMedian * 100;
-            const body = `**Draft URL** median *Time to Interactive* (TTI) value is ${draftMedian} ms.\n\n**Production URL** median *Time to Interactive* (TTI) value is ${productionMedian} ms.\n\nThe change was ${diff.toFixed(1)} %. ${
-              diff < 0 ? "Possibly statistically insignificant yay!" : "Oh dear."
-            }`;
+            const serializeResults = ({ start, median, end }) =>
+              `${start.join(", ")}${start.length !== 0 ? ", " : ""}**${median}**${
+                end.length !== 0 ? ", " : ""
+              }${end.join(", ")}`;
+            const draftParts = splitOnMedian(draftReports);
+            const draftString = serializeResults(draftParts);
+            const productionParts = splitOnMedian(productionReports);
+            const productionString = serializeResults(productionParts);
+            const draftMedian = draftParts.median;
+            const productionMedian = productionParts.median;
+            const diff = ((draftMedian - productionMedian) / productionMedian) * 100;
+            const body = `**Draft URL** *Time to Interactive* (TTI) values are ${draftString} ms.\n\n**Production URL** *Time to Interactive* (TTI) values are ${productionString} ms.\n\nThe change of median value was ${diff.toFixed(
+              1
+            )} %. ${diff < 0 ? "Possibly statistically insignificant yay!" : "Oh dear."}`;
             await github.issues.createComment({
               ...context.repo,
               issue_number: "${{ steps.pull-number.outputs.pull_number }}",
