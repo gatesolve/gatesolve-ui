@@ -239,7 +239,7 @@ const App: React.FC = () => {
       if (routableTiles.get(key) !== null) return; // We already have the tile
       // Fetch the tile
       const response = await fetch(
-        `https://tile.olmap.org/routable-tiles/${zoom}/${x}/${y}`
+        `https://tile.olmap.org/building-tiles/${zoom}/${x}/${y}`
       );
       const body = await response.json();
       // Convert the tile to GeoJSON
