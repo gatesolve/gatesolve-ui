@@ -11,20 +11,23 @@ if ! which jq >/dev/null; then
     exit 1
 fi
 
+RUNS=30
 REFERENCE_URL="https://app.gatesolve.com/"
 
-DIR="performance-results/$(date --utc '+%Y%m%dT%H%M%SZ')"
-mkdir -p "performance-results"
-mkdir "$DIR"
-cd "$DIR"
+BINDIR="$(dirname "$0")"
+REPOROOT="$(git -C "$BINDIR" rev-parse --show-toplevel)"
 
-BASEDIR="../../$(dirname "$0")"
+RELATIVEDIR="performance-results/$(date --utc '+%Y%m%dT%H%M%SZ')"
+ABSOLUTEDIR="$REPOROOT/$RELATIVEDIR"
+mkdir -p "$REPOROOT/performance-results"
+mkdir "$ABSOLUTEDIR"
 
 run_measurement() {
     name="$1"
     url="$2"
-    yarn run pwmetrics --runs 30 "$url" --json --output-path "$DIR/$name".json
-    echo "Time to Interactive values for ${name}: $("$BASEDIR"/get-metric.sh "interactive" "$name".json)"
+    # pwmetrics cannot deal with an absolute path but needs RELATIVEDIR instead
+    yarn --cwd "$REPOROOT" run pwmetrics --runs "$RUNS" "$url" --json --output-path "$RELATIVEDIR/$name".json
+    echo "Time to Interactive values for ${name}: $("$BINDIR"/get-metric.sh "interactive" "$ABSOLUTEDIR/$name".json)"
 }
 
 while [ "$#" -gt 0 ]; do
