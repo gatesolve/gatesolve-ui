@@ -5,7 +5,13 @@ import { SnackbarProvider } from "notistack";
 import "./index.css";
 import * as serviceWorker from "./serviceWorker";
 
-const App = React.lazy(() => import("./App"));
+const App = React.lazy(() =>
+  import(
+    /* webpackChunkName: "App" */
+    /* webpackPreload: true */
+    "./App"
+  )
+);
 
 ReactDOM.render(
   <React.StrictMode>
