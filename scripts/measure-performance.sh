@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 set -eu
 
 [ "$#" -lt 1 -o "$(($# % 2))" != "0" ] && {
@@ -18,19 +18,13 @@ mkdir -p "performance-results"
 mkdir "$DIR"
 cd "$DIR"
 
+BASEDIR="../../$(dirname "$0")"
+
 run_measurement() {
     name="$1"
     url="$2"
     yarn run pwmetrics --runs 30 "$url" --json --output-path "$DIR/$name".json
-    echo "Time to Interactive values for ${name}: $(
-        <"$name".json jq -r '.runs |
-        map(.timings) |
-        map(map(select(.id == "interactive"))) |
-        map(.[0]) |
-        map(.timing) |
-        map(tostring) |
-        join(" ")
-    ')"
+    echo "Time to Interactive values for ${name}: $("$BASEDIR"/get-metric.sh "interactive" "$name".json)"
 }
 
 while [ "$#" -gt 0 ]; do
