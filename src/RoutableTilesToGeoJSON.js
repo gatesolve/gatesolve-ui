@@ -2,7 +2,11 @@
 
 import { mercatorProject } from "./minimal-xyz-viewer";
 
-import { bearing as turfBearing } from "@turf/turf";
+import {
+  bearing as turfBearing,
+  lineString as turfLineString,
+  booleanClockwise as turfBooleanClockwise,
+} from "@turf/turf";
 
 const offset = 0.5;
 
@@ -22,7 +26,7 @@ var extractWays = function (json, nodes, feats) {
         item["osm:hasNodes"] = [item["osm:hasNodes"]];
       }
       const nodeIds = item["osm:hasNodes"];
-      if (nodeIds.length < 3) {
+      if (nodeIds.length < 4) {
         console.log("not an area", item["@id"]);
         return;
       }
@@ -32,18 +36,29 @@ var extractWays = function (json, nodes, feats) {
       const linestring = item["osm:hasNodes"].map((nodeId, index, nodeIds) => {
         const node = feats.get(nodeId);
         if (node["osm:hasTag"]?.find((tag) => tag.startsWith("entrance="))) {
-          if (index === 0 || index === nodeIds.length - 1) {
-            console.log("entrance at an end", node);
-            return nodes[nodeId];
-          }
+          const isWayClockwise = turfBooleanClockwise(
+            turfLineString(nodeIds.map((id) => nodes[id]))
+          );
           const xy = nodes[nodeId];
-          const xy_prev = nodes[nodeIds[index - 1]];
-          const xy_next = nodes[nodeIds[index + 1]];
+          const xyPrev =
+            index === 0
+              ? nodes[nodeIds[nodeIds.length - 2]]
+              : nodes[nodeIds[index - 1]];
+          const xyNext =
+            index === nodeIds.length - 1
+              ? nodes[nodeIds[1]]
+              : nodes[nodeIds[index + 1]];
 
-          const buildingAngle =
-            180 + (turfBearing(xy_prev, xy) - turfBearing(xy, xy_next));
-          const entranceAngle = turfBearing(xy_prev, xy) + buildingAngle / 2;
-          const angle = entranceAngle + 270;
+          const bearingPrev = turfBearing(xy, xyPrev);
+          const bearingNext = turfBearing(xy, xyNext);
+          const entranceAngle =
+            Math.abs(bearingPrev - bearingNext) / 2 +
+            Math.min(bearingPrev, bearingNext);
+          const adaptedAngle =
+            bearingPrev > bearingNext
+              ? entranceAngle + 270
+              : entranceAngle + 90;
+          const angle = isWayClockwise ? adaptedAngle : adaptedAngle + 180;
           node.properties = {
             entrance: node["osm:hasTag"]
               ?.find((tag) => tag.startsWith("entrance="))
