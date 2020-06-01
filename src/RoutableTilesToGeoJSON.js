@@ -1,7 +1,5 @@
 // Original source: https://github.com/openplannerteam/leaflet-routable-tiles/blob/master/lib/RoutableTilesToGeoJSON.js
 
-import { mercatorProject } from "./minimal-xyz-viewer";
-
 import {
   bearing as turfBearing,
   lineString as turfLineString,
@@ -33,7 +31,7 @@ var extractWays = function (json, nodes, feats) {
       if (nodeIds[0] !== nodeIds[nodeIds.length - 1]) {
         console.log("unclosed", item["@id"]);
       }
-      const linestring = item["osm:hasNodes"].map((nodeId, index, nodeIds) => {
+      item["osm:hasNodes"].map((nodeId, index, nodeIds) => {
         const node = feats.get(nodeId);
         if (node["osm:hasTag"]?.find((tag) => tag.startsWith("entrance="))) {
           const isWayClockwise = turfBooleanClockwise(
@@ -114,10 +112,9 @@ export default function (json) {
       feats.set(feature.id, feature);
     }
   }
-  var ways = extractWays(json, nodes, feats);
+  extractWays(json, nodes, feats);
   return {
     type: "FeatureCollection",
     features: Array.from(feats.values()),
-    //    features: ways,
   };
 }
