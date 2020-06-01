@@ -442,7 +442,7 @@ const App: React.FC = () => {
       </header>
       <div className="App-shadow" />
       <ReactAutosuggestGeocoder
-        url="https://api.digitransit.fi/geocoding/v1/"
+        url="https://api.digitransit.fi/geocoding/v1"
         sources="oa,osm,nlsfi"
         highlightFirstSuggestion
         inputProps={{ placeholder: "Destination name or address" }}
