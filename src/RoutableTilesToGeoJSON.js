@@ -59,6 +59,24 @@ var extractWays = function (json, nodes, feats) {
               ? entranceAngle + 270
               : entranceAngle + 90;
           const angle = isWayClockwise ? adaptedAngle : adaptedAngle + 180;
+
+          const house =
+            node["osm:hasTag"]
+              ?.find((tag) => tag.startsWith("addr:housenumber="))
+              ?.substring(17) || "";
+          const ref = node["osm:hasTag"]
+            ?.find((tag) => tag.startsWith("ref="))
+            ?.substring(4);
+          const unit = node["osm:hasTag"]
+            ?.find((tag) => tag.startsWith("addr:unit="))
+            ?.substring(10);
+          const entrance = ref || unit || "";
+          const separator = house && entrance ? " " : "";
+          const label = `${house}${separator}${entrance}`.replace(
+            / /g,
+            "\u2009"
+          );
+
           node.properties = {
             entrance: node["osm:hasTag"]
               ?.find((tag) => tag.startsWith("entrance="))
@@ -67,13 +85,8 @@ var extractWays = function (json, nodes, feats) {
               Math.cos((angle / 180) * Math.PI) * offset,
               Math.sin((angle / 180) * Math.PI) * offset,
             ],
-            ref: node["osm:hasTag"]
-              ?.find((tag) => tag.startsWith("ref="))
-              ?.substring(4),
-            "addr:unit": node["osm:hasTag"]
-              ?.find((tag) => tag.startsWith("addr:unit="))
-              ?.substring(10),
             rotate: (((angle - 90) % 360) + 360) % 360,
+            ref: label,
           };
         }
         return nodes[nodeId];
