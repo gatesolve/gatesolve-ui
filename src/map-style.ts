@@ -1,4 +1,32 @@
 import type { LayerProps } from "react-map-gl";
+import type { Expression } from "mapbox-gl";
+
+const anglesToAnchors = (): Array<string | number> => {
+  const offset = 0;
+  const angles = [22.5, 67.5, 112.5, 157.5, 202.5, 247.7, 292.5, 337.5];
+
+  const anchors = [
+    "top",
+    "top-right",
+    "right",
+    "bottom-right",
+    "bottom",
+    "bottom-left",
+    "left",
+    "top-left",
+  ];
+
+  const initialStep: Array<string | number> = [anchors[offset]];
+  const ret = initialStep.concat(
+    angles.flatMap((angle, index) => {
+      return [angle, anchors[(offset + index + 1) % anchors.length]] as Array<
+        string | number
+      >;
+    })
+  );
+
+  return ret;
+};
 
 export const routeLineLayer: LayerProps = {
   id: "route-line",
@@ -84,10 +112,12 @@ export const allEntrancesLayers: Array<LayerProps> = [
     },
     layout: {
       "text-field": ["coalesce", ["get", "ref"], ["get", "addr:unit"]],
-      "text-anchor": "center",
       "text-font": ["Klokantech Noto Sans Regular"],
       "text-size": 16,
       "text-offset": ["get", "offset"],
+      "text-anchor": ["step", ["%", ["get", "rotate"], 360]].concat(
+        anglesToAnchors()
+      ) as Expression,
       "text-allow-overlap": true,
       "text-ignore-placement": true,
       "icon-image": "icon-svg-triangle-14-#64be14-#fff",

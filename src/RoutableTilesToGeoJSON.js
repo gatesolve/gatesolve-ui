@@ -8,7 +8,7 @@ import {
   booleanClockwise as turfBooleanClockwise,
 } from "@turf/turf";
 
-const offset = 0.5;
+const offset = 0.2;
 
 var extractWays = function (json, nodes, feats) {
   json["@graph"]
@@ -67,13 +67,13 @@ var extractWays = function (json, nodes, feats) {
               Math.cos((angle / 180) * Math.PI) * offset,
               Math.sin((angle / 180) * Math.PI) * offset,
             ],
-            rotate: angle - 90,
             ref: node["osm:hasTag"]
               ?.find((tag) => tag.startsWith("ref="))
               ?.substring(4),
             "addr:unit": node["osm:hasTag"]
               ?.find((tag) => tag.startsWith("addr:unit="))
               ?.substring(10),
+            rotate: (((angle - 90) % 360) + 360) % 360,
           };
         }
         return nodes[nodeId];
