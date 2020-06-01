@@ -1,25 +1,31 @@
 {
   "files": {
-    "main.css": "/gatesolve-ui/static/css/main.d61d4fad.chunk.css",
-    "main.js": "/gatesolve-ui/static/js/main.4b5681dd.chunk.js",
-    "main.js.map": "/gatesolve-ui/static/js/main.4b5681dd.chunk.js.map",
-    "runtime-main.js": "/gatesolve-ui/static/js/runtime-main.424a3eff.js",
-    "runtime-main.js.map": "/gatesolve-ui/static/js/runtime-main.424a3eff.js.map",
-    "static/css/2.75edc52f.chunk.css": "/gatesolve-ui/static/css/2.75edc52f.chunk.css",
-    "static/js/2.17bc84b5.chunk.js": "/gatesolve-ui/static/js/2.17bc84b5.chunk.js",
-    "static/js/2.17bc84b5.chunk.js.map": "/gatesolve-ui/static/js/2.17bc84b5.chunk.js.map",
+    "App.css": "/gatesolve-ui/static/css/App.e095d5f2.chunk.css",
+    "App.js": "/gatesolve-ui/static/js/App.8e412506.chunk.js",
+    "App.js.map": "/gatesolve-ui/static/js/App.8e412506.chunk.js.map",
+    "main.css": "/gatesolve-ui/static/css/main.34de6062.chunk.css",
+    "main.js": "/gatesolve-ui/static/js/main.1f5de309.chunk.js",
+    "main.js.map": "/gatesolve-ui/static/js/main.1f5de309.chunk.js.map",
+    "runtime-main.js": "/gatesolve-ui/static/js/runtime-main.9a6839cd.js",
+    "runtime-main.js.map": "/gatesolve-ui/static/js/runtime-main.9a6839cd.js.map",
+    "static/css/3.75edc52f.chunk.css": "/gatesolve-ui/static/css/3.75edc52f.chunk.css",
+    "static/js/3.fdbb87da.chunk.js": "/gatesolve-ui/static/js/3.fdbb87da.chunk.js",
+    "static/js/3.fdbb87da.chunk.js.map": "/gatesolve-ui/static/js/3.fdbb87da.chunk.js.map",
+    "static/js/4.c14e133e.chunk.js": "/gatesolve-ui/static/js/4.c14e133e.chunk.js",
+    "static/js/4.c14e133e.chunk.js.map": "/gatesolve-ui/static/js/4.c14e133e.chunk.js.map",
     "index.html": "/gatesolve-ui/index.html",
-    "precache-manifest.b464732d7c321516234bf1912d8eb54b.js": "/gatesolve-ui/precache-manifest.b464732d7c321516234bf1912d8eb54b.js",
+    "precache-manifest.a9ab296e1d9957abd512d1c10414c870.js": "/gatesolve-ui/precache-manifest.a9ab296e1d9957abd512d1c10414c870.js",
     "service-worker.js": "/gatesolve-ui/service-worker.js",
-    "static/css/2.75edc52f.chunk.css.map": "/gatesolve-ui/static/css/2.75edc52f.chunk.css.map",
-    "static/css/main.d61d4fad.chunk.css.map": "/gatesolve-ui/static/css/main.d61d4fad.chunk.css.map",
-    "static/js/2.17bc84b5.chunk.js.LICENSE.txt": "/gatesolve-ui/static/js/2.17bc84b5.chunk.js.LICENSE.txt"
+    "static/css/3.75edc52f.chunk.css.map": "/gatesolve-ui/static/css/3.75edc52f.chunk.css.map",
+    "static/css/App.e095d5f2.chunk.css.map": "/gatesolve-ui/static/css/App.e095d5f2.chunk.css.map",
+    "static/css/main.34de6062.chunk.css.map": "/gatesolve-ui/static/css/main.34de6062.chunk.css.map",
+    "static/js/3.fdbb87da.chunk.js.LICENSE.txt": "/gatesolve-ui/static/js/3.fdbb87da.chunk.js.LICENSE.txt",
+    "static/js/4.c14e133e.chunk.js.LICENSE.txt": "/gatesolve-ui/static/js/4.c14e133e.chunk.js.LICENSE.txt"
   },
   "entrypoints": [
-    "static/js/runtime-main.424a3eff.js",
-    "static/css/2.75edc52f.chunk.css",
-    "static/js/2.17bc84b5.chunk.js",
-    "static/css/main.d61d4fad.chunk.css",
-    "static/js/main.4b5681dd.chunk.js"
+    "static/js/runtime-main.9a6839cd.js",
+    "static/js/4.c14e133e.chunk.js",
+    "static/css/main.34de6062.chunk.css",
+    "static/js/main.1f5de309.chunk.js"
   ]
 }
