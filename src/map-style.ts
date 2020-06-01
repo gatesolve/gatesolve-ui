@@ -93,9 +93,9 @@ export const allEntrancesLayers: Array<LayerProps> = [
         12, // At zoom 12 or less,
         1, // circle radius is 1.
         14, // At zoom 14,
-        3, // circle radius is 3.
+        2, // circle radius is 2.
         15, // At zoom 15 or more,
-        5, // circle radius is 5.
+        3, // circle radius is 3.
       ],
       "circle-color": "#64be14",
     },
