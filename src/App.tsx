@@ -679,7 +679,16 @@ const App: React.FC = () => {
                       }}
                     >
                       {Object.entries(state.popupCoordinates.tags)
-                        .filter(([k]) => !k.startsWith("@"))
+                        .filter(
+                          ([k]) =>
+                            !k.startsWith("@") &&
+                            ![
+                              "addr:street",
+                              "addr:housenumber",
+                              "addr:unit",
+                              "ref",
+                            ].find((censored) => k === censored)
+                        )
                         .map(([k, v]) => (
                           <tr key={`${k}-${v}`}>
                             <td
