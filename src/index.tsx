@@ -25,12 +25,39 @@ ReactDOM.render(
                 width: "100%",
                 height: "100%",
                 position: "fixed",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
+                textAlign: "center",
               }}
             >
-              <CircularProgress />
+              <header
+                style={{
+                  backgroundColor: "#282c34",
+                  display: "flex",
+                  alignItems: "center",
+                  fontSize: "calc(10px + 2vmin)",
+                  color: "white",
+                  height: "10%",
+                }}
+              >
+                <h2
+                  style={{
+                    margin: "1.5vh 2vh",
+                    fontSize: "4vh",
+                  }}
+                >
+                  Gatesolve
+                </h2>
+              </header>
+              <div
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <CircularProgress />
+              </div>
             </div>
           }
         >
