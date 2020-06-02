@@ -664,10 +664,12 @@ const App: React.FC = () => {
             <>
               <div>
                 <p>
-                  {state.popupCoordinates.tags?.["addr:street"]}{" "}
-                  {state.popupCoordinates.tags?.["addr:housenumber"]}{" "}
-                  {state.popupCoordinates.tags?.["ref"] ||
-                    state.popupCoordinates.tags?.["addr:unit"]}
+                  <h3>
+                    {state.popupCoordinates.tags?.["addr:street"]}{" "}
+                    {state.popupCoordinates.tags?.["addr:housenumber"]}{" "}
+                    {state.popupCoordinates.tags?.["ref"] ||
+                      state.popupCoordinates.tags?.["addr:unit"]}
+                  </h3>
                 </p>
                 <p>
                   {state.popupCoordinates.tags && (
