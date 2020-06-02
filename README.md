@@ -23,6 +23,14 @@ yarn
 yarn start
 ```
 
+## Forking
+
+GitHub Actions require a few secrets:
+
+- `NETLIFY_SITE_ID`: The draft and production builds are deployed to Netlify. This variable identifies the site at Netlify.
+- `NETLIFY_AUTH_TOKEN`: The token for deploying to Netlify.
+- `PRODUCTION_URL`: The reference URL to compare with the draft URL in the Lighthouse performance testing of the pull request. This is only a secret because public environment variables would have to go into the CI/CD YAML file. Adding the URL there would hinder forking.
+
 ## Available commands
 
 In the project directory, you can run:
