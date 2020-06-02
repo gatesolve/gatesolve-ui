@@ -12,8 +12,11 @@ var extractWays = function (json, nodes, feats) {
   json["@graph"]
     .filter((item) => {
       return (
-        item["@type"] === "osm:Way" &&
-        item["osm:hasTag"]?.find((tag) => tag.startsWith("building="))
+        item["@type"] === "osm:Way"
+        /* FIXME: Implement proper support for multipolygon outlines
+           and then re-enable the following filter:
+             && item["osm:hasTag"]?.find((tag) => tag.startsWith("building="))
+         */
       );
     })
     .forEach((item) => {
@@ -34,6 +37,7 @@ var extractWays = function (json, nodes, feats) {
       item["osm:hasNodes"].map((nodeId, index, nodeIds) => {
         const node = feats.get(nodeId);
         if (node["osm:hasTag"]?.find((tag) => tag.startsWith("entrance="))) {
+          // FIXME: This logic does not consider inner edges of multipolygons:
           const isWayClockwise = turfBooleanClockwise(
             turfLineString(nodeIds.map((id) => nodes[id]))
           );
