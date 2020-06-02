@@ -42,6 +42,15 @@ export const routePointLayer: LayerProps = {
   filter: ["==", "Point", ["geometry-type"]],
 };
 
+export const buildingHighlightLayer: LayerProps = {
+  id: "building-highlight",
+  type: "fill",
+  paint: {
+    "fill-opacity": 0.3,
+    "fill-color": "#99ff99",
+  },
+};
+
 export const allEntrancesLayer: LayerProps = {
   id: "entrance-point",
   type: "circle",
