@@ -33,7 +33,21 @@ const Pin: React.FC<PinProps> = ({
       viewBox={SVG_VIEWBOX}
       pointerEvents="none"
     >
-      <path d={SVG_PATH} pointerEvents="visiblepainted" cursor="pointer" />
+      <path
+        fill={`url(#gradient-${style.fill})`}
+        d={SVG_PATH}
+        pointerEvents="visiblepainted"
+        cursor="pointer"
+      />
+      <defs>
+        <linearGradient
+          id={`gradient-${style.fill}`}
+          gradientTransform="rotate(90)"
+        >
+          <stop offset="00%" stopColor="#FFFFFF" stopOpacity="0" />
+          <stop offset="100%" stopColor={style.fill} stopOpacity="1" />
+        </linearGradient>
+      </defs>
     </svg>
   );
 };
