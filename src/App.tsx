@@ -653,8 +653,11 @@ const App: React.FC = () => {
               )
             }
           >
-            <button
+            <Button
               data-testid="origin-button"
+              variant="contained"
+              size="small"
+              style={{ backgroundColor: "#00afff", color: "#fff" }}
               type="button"
               aria-label="Set origin"
               onClick={(): void =>
@@ -679,9 +682,13 @@ const App: React.FC = () => {
               }
             >
               Origin
-            </button>
-            <button
+            </Button>
+            <span style={{ padding: "5px" }} />
+            <Button
               data-testid="destination-button"
+              variant="contained"
+              size="small"
+              style={{ backgroundColor: "#64be14", color: "#fff" }}
               type="button"
               aria-label="Set destination"
               onClick={(): void =>
@@ -706,7 +713,7 @@ const App: React.FC = () => {
               }
             >
               Destination
-            </button>
+            </Button>
           </Popup>
         )}
       </MapGL>
