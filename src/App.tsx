@@ -138,6 +138,8 @@ const fitBounds = (
 const App: React.FC = () => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const map = useRef<any>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const geocoder = useRef<any>(null);
 
   // Install a callback to dynamically create pin icons that our map styles use
   useEffect(() => {
@@ -454,6 +456,7 @@ const App: React.FC = () => {
       </header>
       <div className="App-shadow" />
       <ReactAutosuggestGeocoder
+        ref={geocoder}
         url="https://api.digitransit.fi/geocoding/v1"
         sources="oa,osm,nlsfi"
         highlightFirstSuggestion
@@ -634,6 +637,7 @@ const App: React.FC = () => {
             offset={[0, -22.5]}
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             onDragEnd={(lngLat: any): void => {
+              geocoder.current.clear();
               setState(
                 (prevState): State => ({
                   ...prevState,
