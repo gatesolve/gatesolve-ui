@@ -634,7 +634,10 @@ const App: React.FC = () => {
           >
             <Pin
               dataTestId="destination"
-              style={{ fill: "#64be14", stroke: "#fff" }}
+              style={{
+                fill: "#64be14",
+                stroke: "#fff",
+              }}
             />
           </Marker>
         )}
