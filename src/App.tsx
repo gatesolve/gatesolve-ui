@@ -670,12 +670,28 @@ const App: React.FC = () => {
                     state.popupCoordinates.tags?.["addr:unit"]}
                 </p>
                 <p>
-                  {state.popupCoordinates.tags &&
-                    JSON.stringify(
-                      Object.entries(state.popupCoordinates.tags).filter(
-                        ([k]) => !k.startsWith("@")
-                      )
-                    )}
+                  {state.popupCoordinates.tags && (
+                    <table
+                      style={{
+                        textAlign: "left",
+                      }}
+                    >
+                      {Object.entries(state.popupCoordinates.tags)
+                        .filter(([k]) => !k.startsWith("@"))
+                        .map(([k, v]) => (
+                          <tr key={`${k}-${v}`}>
+                            <td
+                              style={{
+                                padding: "0 5px 0 0",
+                              }}
+                            >
+                              {k}
+                            </td>
+                            <td>{v}</td>
+                          </tr>
+                        ))}
+                    </table>
+                  )}
                 </p>
               </div>
               <Button
