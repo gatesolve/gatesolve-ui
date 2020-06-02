@@ -44,7 +44,7 @@ interface State {
   route: FeatureCollection;
   isGeolocating: boolean;
   geolocationPosition: LatLng | null;
-  popupCoordinates: LatLng | null;
+  popupCoordinates: ElementWithCoordinates | null;
   snackbar?: ReactText;
 }
 
@@ -379,21 +379,33 @@ const App: React.FC = () => {
     setState(
       (prevState): State => {
         if (feature?.properties.entrance) {
+          const element = {
+            id: feature.properties["@id"],
+            type: feature.properties["@type"],
+            lat: feature.geometry.coordinates[1],
+            lon: feature.geometry.coordinates[0],
+            tags: feature.properties,
+          };
           // If an entrance was clicked, set it as the destination
           return {
             ...prevState,
-            destination: {
-              id: feature.properties["@id"],
-              type: feature.properties["@type"],
-              lat: feature.geometry.coordinates[1],
-              lon: feature.geometry.coordinates[0],
-            },
+            destination: element,
+            popupCoordinates: element,
           };
         }
-        // As a fallback, open a popup.
+        // As a fallback, toggle popup.
+        if (prevState.popupCoordinates) {
+          return {
+            ...prevState,
+            popupCoordinates: null,
+          };
+        }
         return {
           ...prevState,
-          popupCoordinates: [event.lngLat.lat, event.lngLat.lng],
+          popupCoordinates: latLngToDestination([
+            event.lngLat.lat,
+            event.lngLat.lng,
+          ]),
         };
       }
     );
@@ -641,81 +653,122 @@ const App: React.FC = () => {
             />
           </Marker>
         )}
-        {state.popupCoordinates != null && (
-          <Popup
-            latitude={state.popupCoordinates[0]}
-            longitude={state.popupCoordinates[1]}
-            closeButton={false}
-            closeOnClick
-            onClose={(): void =>
-              setState(
-                (prevState): State => ({ ...prevState, popupCoordinates: null })
-              )
-            }
-          >
-            <Button
-              data-testid="origin-button"
-              variant="contained"
-              size="small"
-              style={{ backgroundColor: "#00afff", color: "#fff" }}
-              type="button"
-              aria-label="Set origin"
-              onClick={(): void =>
-                setState(
-                  (prevState): State => {
-                    // Check this to appease the compiler.
-                    if (prevState.popupCoordinates != null) {
+        <Popup
+          open={state.popupCoordinates != null}
+          latitude={state.popupCoordinates?.lat || null}
+          longitude={state.popupCoordinates?.lon || null}
+          closeButton={false}
+          closeOnClick={false}
+        >
+          {state.popupCoordinates && (
+            <>
+              <div>
+                <p>
+                  <h3>
+                    {state.popupCoordinates.tags?.["addr:street"]}{" "}
+                    {state.popupCoordinates.tags?.["addr:housenumber"]}{" "}
+                    {state.popupCoordinates.tags?.["ref"] ||
+                      state.popupCoordinates.tags?.["addr:unit"]}
+                  </h3>
+                </p>
+                <p>
+                  {state.popupCoordinates.tags && (
+                    <table
+                      style={{
+                        textAlign: "left",
+                      }}
+                    >
+                      {Object.entries(state.popupCoordinates.tags)
+                        .filter(
+                          ([k]) =>
+                            !k.startsWith("@") &&
+                            ![
+                              "addr:street",
+                              "addr:housenumber",
+                              "addr:unit",
+                              "ref",
+                            ].find((censored) => k === censored)
+                        )
+                        .map(([k, v]) => (
+                          <tr key={`${k}-${v}`}>
+                            <td
+                              style={{
+                                padding: "0 5px 0 0",
+                              }}
+                            >
+                              {k}
+                            </td>
+                            <td>{v}</td>
+                          </tr>
+                        ))}
+                    </table>
+                  )}
+                </p>
+              </div>
+              <Button
+                data-testid="origin-button"
+                variant="contained"
+                size="small"
+                style={{ backgroundColor: "#00afff", color: "#fff" }}
+                type="button"
+                aria-label="Set origin"
+                onClick={(): void =>
+                  setState(
+                    (prevState): State => {
+                      // Check this to appease the compiler.
+                      if (prevState.popupCoordinates != null) {
+                        return {
+                          ...prevState,
+                          origin: destinationToLatLng(
+                            prevState.popupCoordinates
+                          ),
+                          isOriginExplicit: true,
+                          popupCoordinates: null,
+                        };
+                      }
                       return {
                         ...prevState,
-                        origin: prevState.popupCoordinates,
                         isOriginExplicit: true,
                         popupCoordinates: null,
                       };
                     }
-                    return {
-                      ...prevState,
-                      isOriginExplicit: true,
-                      popupCoordinates: null,
-                    };
-                  }
-                )
-              }
-            >
-              Origin
-            </Button>
-            <span style={{ padding: "5px" }} />
-            <Button
-              data-testid="destination-button"
-              variant="contained"
-              size="small"
-              style={{ backgroundColor: "#64be14", color: "#fff" }}
-              type="button"
-              aria-label="Set destination"
-              onClick={(): void =>
-                setState(
-                  (prevState): State => {
-                    // Check this to appease the compiler.
-                    if (prevState.popupCoordinates != null) {
+                  )
+                }
+              >
+                Origin
+              </Button>
+              <span style={{ padding: "5px" }} />
+              <Button
+                data-testid="destination-button"
+                variant="contained"
+                size="small"
+                style={{ backgroundColor: "#64be14", color: "#fff" }}
+                type="button"
+                aria-label="Set destination"
+                onClick={(): void =>
+                  setState(
+                    (prevState): State => {
+                      // Check this to appease the compiler.
+                      if (prevState.popupCoordinates != null) {
+                        return {
+                          ...prevState,
+                          destination: prevState.popupCoordinates,
+                          popupCoordinates: null,
+                        };
+                      }
                       return {
                         ...prevState,
-                        destination: latLngToDestination(
-                          prevState.popupCoordinates
-                        ),
                         popupCoordinates: null,
                       };
                     }
-                    return {
-                      ...prevState,
-                      popupCoordinates: null,
-                    };
-                  }
-                )
-              }
-            >
-              Destination
-            </Button>
-          </Popup>
-        )}
+                  )
+                }
+              >
+                Destination
+              </Button>
+            </>
+          )}
+        </Popup>
       </MapGL>
     </div>
   );
