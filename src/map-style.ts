@@ -110,7 +110,7 @@ export const allEntrancesLayers: Array<LayerProps> = [
       "text-halo-width": 1,
     },
     layout: {
-      "text-field": ["coalesce", ["get", "ref"], ["get", "addr:unit"]],
+      "text-field": ["get", "label"],
       "text-font": ["Klokantech Noto Sans Regular"],
       "text-size": 16,
       "text-offset": ["get", "offset"],
