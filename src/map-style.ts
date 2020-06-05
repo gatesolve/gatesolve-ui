@@ -110,18 +110,18 @@ export const allEntrancesLayers: Array<LayerProps> = [
       "text-halo-width": 1,
     },
     layout: {
-      "text-field": ["get", "label"],
+      "text-field": ["get", "@label"],
       "text-font": ["Klokantech Noto Sans Regular"],
       "text-size": 16,
-      "text-offset": ["get", "offset"],
-      "text-anchor": ["step", ["%", ["get", "rotate"], 360]].concat(
+      "text-offset": ["get", "@offset"],
+      "text-anchor": ["step", ["%", ["get", "@rotate"], 360]].concat(
         anglesToAnchors()
       ) as Expression,
       "text-allow-overlap": true,
       "text-ignore-placement": true,
       "icon-image": "icon-svg-triangle-14-#64be14-#fff",
       "icon-anchor": "bottom",
-      "icon-rotate": ["get", "rotate"],
+      "icon-rotate": ["get", "@rotate"],
       "icon-allow-overlap": true,
       "icon-ignore-placement": true,
     },

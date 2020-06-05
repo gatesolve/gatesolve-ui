@@ -64,11 +64,11 @@ var extractWays = function (json, nodes, feats) {
 
           node.properties = {
             ...node.properties,
-            offset: [
+            "@offset": [
               Math.cos((angle / 180) * Math.PI) * offset,
               Math.sin((angle / 180) * Math.PI) * offset,
             ],
-            rotate: (((angle - 90) % 360) + 360) % 360,
+            "@rotate": (((angle - 90) % 360) + 360) % 360,
           };
         }
         return nodes[nodeId];
@@ -113,11 +113,20 @@ export default function (json) {
             coordinates: lngLat,
           },
           properties: {
-            label: entranceToLabel(element),
+            "@id": element["@id"],
+            "@label": entranceToLabel(element),
           },
         };
-        entrance["osm:hasTag"] = element["osm:hasTag"];
-        entrances[entrance.id] = entrance;
+        // Store each OSM tag as a feature property
+        // XXX: Could be computed later on demand
+        element["osm:hasTag"].forEach((tag) => {
+          const splitIndex = tag.indexOf("=");
+          entrance.properties[tag.substring(0, splitIndex)] = tag.substring(
+            splitIndex + 1
+          );
+        });
+
+        entrances[entrance.properties["@id"]] = entrance;
       }
     }
   }
