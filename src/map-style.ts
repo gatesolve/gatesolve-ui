@@ -99,7 +99,6 @@ export const allEntrancesLayers: Array<LayerProps> = [
       ],
       "circle-color": "#64be14",
     },
-    filter: ["has", "entrance"],
   },
   {
     id: "entrance-symbol",
@@ -126,7 +125,6 @@ export const allEntrancesLayers: Array<LayerProps> = [
       "icon-allow-overlap": true,
       "icon-ignore-placement": true,
     },
-    filter: ["has", "entrance"],
   },
 ];
 

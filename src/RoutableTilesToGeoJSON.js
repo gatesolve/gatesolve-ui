@@ -35,8 +35,8 @@ var extractWays = function (json, nodes, feats) {
         console.log("unclosed", item["@id"]);
       }
       item["osm:hasNodes"].map((nodeId, index, nodeIds) => {
-        const node = feats.get(nodeId);
-        if (node["osm:hasTag"]?.find((tag) => tag.startsWith("entrance="))) {
+        const node = feats[nodeId];
+        if (node) {
           // FIXME: This logic does not consider inner edges of multipolygons:
           const isWayClockwise = turfBooleanClockwise(
             turfLineString(nodeIds.map((id) => nodes[id]))
@@ -97,28 +97,33 @@ var extractWays = function (json, nodes, feats) {
 };
 
 export default function (json) {
-  // Normalize feature getters into actual instanced features
-  var feats = new Map();
+  var entrances = {};
   var nodes = {};
   for (var i = 0; i < json["@graph"].length; i++) {
-    let o = json["@graph"][i];
-    if (o["geo:lat"] && o["geo:long"]) {
-      nodes[o["@id"]] = [o["geo:long"], o["geo:lat"]];
-      let feature = {
-        id: o["@id"],
-        type: "Feature",
-        geometry: {
-          type: "Point",
-          coordinates: [o["geo:long"], o["geo:lat"]],
-        },
-      };
-      feature["osm:hasTag"] = o["osm:hasTag"];
-      feats.set(feature.id, feature);
+    let element = json["@graph"][i];
+    if (element["geo:lat"] && element["geo:long"]) {
+      // Store the coordinates of every node for later reference
+      const lngLat = [element["geo:long"], element["geo:lat"]];
+      nodes[element["@id"]] = lngLat;
+
+      if (element["osm:hasTag"]?.find((tag) => tag.startsWith("entrance="))) {
+        // Create a GeoJSON feature for each entrance
+        const entrance = {
+          id: element["@id"],
+          type: "Feature",
+          geometry: {
+            type: "Point",
+            coordinates: lngLat,
+          },
+        };
+        entrance["osm:hasTag"] = element["osm:hasTag"];
+        entrances[entrance.id] = entrance;
+      }
     }
   }
-  extractWays(json, nodes, feats);
+  extractWays(json, nodes, entrances);
   return {
     type: "FeatureCollection",
-    features: Array.from(feats.values()),
+    features: Object.values(entrances),
   };
 }
