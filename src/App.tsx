@@ -29,7 +29,7 @@ import UserPosition from "./components/UserPosition";
 import GeolocateControl from "./components/GeolocateControl";
 import calculatePlan, { geometryToGeoJSON } from "./planner";
 import { queryEntrances, ElementWithCoordinates } from "./overpass";
-import { addImageSVG, getMapSize } from "./mapbox-utils";
+import { addImageSVG, getMapSize, queryFeatures } from "./mapbox-utils";
 import routableTilesToGeoJSON from "./RoutableTilesToGeoJSON";
 import { getVisibleTiles } from "./minimal-xyz-viewer";
 
@@ -315,6 +315,16 @@ const App: React.FC = () => {
 
   useEffect(() => {
     if (!state.destination) return; // Nothing to do yet
+    queryFeatures(destinationToLatLng(state.destination)).then((result) => {
+      setState(
+        (prevState): State => {
+          return {
+            ...prevState,
+            highlights: result,
+          };
+        }
+      );
+    });
     queryEntrances(state.destination).then((result) => {
       setState(
         (prevState): State => {
