@@ -388,6 +388,7 @@ const App: React.FC = () => {
     setState(
       (prevState): State => {
         if (feature?.properties.entrance) {
+          // If an entrance was clicked
           const element = {
             id: feature.properties["@id"],
             type: feature.properties["@type"],
@@ -395,15 +396,28 @@ const App: React.FC = () => {
             lon: feature.geometry.coordinates[0],
             tags: feature.properties,
           };
-          // If an entrance was clicked, set it as the destination
+          if (
+            prevState.origin &&
+            distance(prevState.origin, [
+              feature.geometry.coordinates[1],
+              feature.geometry.coordinates[0],
+            ]) < maxRoutingDistance
+          ) {
+            // If the entrance is close enough for routing, set it as destination
+            return {
+              ...prevState,
+              destination: element,
+              popupCoordinates: element,
+              highlights: {
+                type: "FeatureCollection",
+                features: [],
+              },
+            };
+          }
+          // Otherwise, just open the popup
           return {
             ...prevState,
-            destination: element,
             popupCoordinates: element,
-            highlights: {
-              type: "FeatureCollection",
-              features: [],
-            },
           };
         }
         if (feature?.sourceLayer === "building") {
