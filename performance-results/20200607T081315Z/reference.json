@@ -1,0 +1,1182 @@
+{
+  "runs": [
+    {
+      "timings": [
+        {
+          "title": "First Contentful Paint",
+          "id": "firstContentfulPaint",
+          "timing": 1775,
+          "color": "green"
+        },
+        {
+          "title": "First Meaningful Paint",
+          "id": "firstMeaningfulPaint",
+          "timing": 1775,
+          "color": "green"
+        },
+        {
+          "title": "First CPU Idle",
+          "id": "firstCPUIdle",
+          "timing": 5348,
+          "color": "yellow"
+        },
+        {
+          "title": "Time to Interactive",
+          "id": "interactive",
+          "timing": 5348,
+          "color": "yellow"
+        },
+        {
+          "title": "Speed Index",
+          "id": "speedIndex",
+          "timing": 11547,
+          "color": "blue"
+        }
+      ],
+      "generatedTime": "2020-06-07T08:22:36.424Z",
+      "lighthouseVersion": "5.6.0",
+      "requestedUrl": "https://app.gatesolve.com/",
+      "finalUrl": "https://app.gatesolve.com/"
+    },
+    {
+      "timings": [
+        {
+          "title": "First Contentful Paint",
+          "id": "firstContentfulPaint",
+          "timing": 1548,
+          "color": "green"
+        },
+        {
+          "title": "First Meaningful Paint",
+          "id": "firstMeaningfulPaint",
+          "timing": 3073,
+          "color": "green"
+        },
+        {
+          "title": "First CPU Idle",
+          "id": "firstCPUIdle",
+          "timing": 7771,
+          "color": "yellow"
+        },
+        {
+          "title": "Time to Interactive",
+          "id": "interactive",
+          "timing": 7951,
+          "color": "yellow"
+        },
+        {
+          "title": "Speed Index",
+          "id": "speedIndex",
+          "timing": 6923,
+          "color": "blue"
+        }
+      ],
+      "generatedTime": "2020-06-07T08:22:49.099Z",
+      "lighthouseVersion": "5.6.0",
+      "requestedUrl": "https://app.gatesolve.com/",
+      "finalUrl": "https://app.gatesolve.com/"
+    },
+    {
+      "timings": [
+        {
+          "title": "First Contentful Paint",
+          "id": "firstContentfulPaint",
+          "timing": 1590,
+          "color": "green"
+        },
+        {
+          "title": "First Meaningful Paint",
+          "id": "firstMeaningfulPaint",
+          "timing": 2965,
+          "color": "green"
+        },
+        {
+          "title": "First CPU Idle",
+          "id": "firstCPUIdle",
+          "timing": 6771,
+          "color": "yellow"
+        },
+        {
+          "title": "Time to Interactive",
+          "id": "interactive",
+          "timing": 6927,
+          "color": "yellow"
+        },
+        {
+          "title": "Speed Index",
+          "id": "speedIndex",
+          "timing": 6401,
+          "color": "blue"
+        }
+      ],
+      "generatedTime": "2020-06-07T08:22:56.648Z",
+      "lighthouseVersion": "5.6.0",
+      "requestedUrl": "https://app.gatesolve.com/",
+      "finalUrl": "https://app.gatesolve.com/"
+    },
+    {
+      "timings": [
+        {
+          "title": "First Contentful Paint",
+          "id": "firstContentfulPaint",
+          "timing": 1564,
+          "color": "green"
+        },
+        {
+          "title": "First Meaningful Paint",
+          "id": "firstMeaningfulPaint",
+          "timing": 3047,
+          "color": "green"
+        },
+        {
+          "title": "First CPU Idle",
+          "id": "firstCPUIdle",
+          "timing": 6605,
+          "color": "yellow"
+        },
+        {
+          "title": "Time to Interactive",
+          "id": "interactive",
+          "timing": 6796,
+          "color": "yellow"
+        },
+        {
+          "title": "Speed Index",
+          "id": "speedIndex",
+          "timing": 6359,
+          "color": "blue"
+        }
+      ],
+      "generatedTime": "2020-06-07T08:23:05.874Z",
+      "lighthouseVersion": "5.6.0",
+      "requestedUrl": "https://app.gatesolve.com/",
+      "finalUrl": "https://app.gatesolve.com/"
+    },
+    {
+      "timings": [
+        {
+          "title": "First Contentful Paint",
+          "id": "firstContentfulPaint",
+          "timing": 1556,
+          "color": "green"
+        },
+        {
+          "title": "First Meaningful Paint",
+          "id": "firstMeaningfulPaint",
+          "timing": 3132,
+          "color": "green"
+        },
+        {
+          "title": "First CPU Idle",
+          "id": "firstCPUIdle",
+          "timing": 8780,
+          "color": "yellow"
+        },
+        {
+          "title": "Time to Interactive",
+          "id": "interactive",
+          "timing": 8897,
+          "color": "yellow"
+        },
+        {
+          "title": "Speed Index",
+          "id": "speedIndex",
+          "timing": 7635,
+          "color": "blue"
+        }
+      ],
+      "generatedTime": "2020-06-07T08:23:12.194Z",
+      "lighthouseVersion": "5.6.0",
+      "requestedUrl": "https://app.gatesolve.com/",
+      "finalUrl": "https://app.gatesolve.com/"
+    },
+    {
+      "timings": [
+        {
+          "title": "First Contentful Paint",
+          "id": "firstContentfulPaint",
+          "timing": 1535,
+          "color": "green"
+        },
+        {
+          "title": "First Meaningful Paint",
+          "id": "firstMeaningfulPaint",
+          "timing": 3049,
+          "color": "green"
+        },
+        {
+          "title": "First CPU Idle",
+          "id": "firstCPUIdle",
+          "timing": 7019,
+          "color": "yellow"
+        },
+        {
+          "title": "Time to Interactive",
+          "id": "interactive",
+          "timing": 7236,
+          "color": "yellow"
+        },
+        {
+          "title": "Speed Index",
+          "id": "speedIndex",
+          "timing": 6799,
+          "color": "blue"
+        }
+      ],
+      "generatedTime": "2020-06-07T08:23:23.592Z",
+      "lighthouseVersion": "5.6.0",
+      "requestedUrl": "https://app.gatesolve.com/",
+      "finalUrl": "https://app.gatesolve.com/"
+    },
+    {
+      "timings": [
+        {
+          "title": "First Contentful Paint",
+          "id": "firstContentfulPaint",
+          "timing": 1568,
+          "color": "green"
+        },
+        {
+          "title": "First Meaningful Paint",
+          "id": "firstMeaningfulPaint",
+          "timing": 3061,
+          "color": "green"
+        },
+        {
+          "title": "First CPU Idle",
+          "id": "firstCPUIdle",
+          "timing": 6278,
+          "color": "yellow"
+        },
+        {
+          "title": "Time to Interactive",
+          "id": "interactive",
+          "timing": 6512,
+          "color": "yellow"
+        },
+        {
+          "title": "Speed Index",
+          "id": "speedIndex",
+          "timing": 6483,
+          "color": "blue"
+        }
+      ],
+      "generatedTime": "2020-06-07T08:23:33.161Z",
+      "lighthouseVersion": "5.6.0",
+      "requestedUrl": "https://app.gatesolve.com/",
+      "finalUrl": "https://app.gatesolve.com/"
+    },
+    {
+      "timings": [
+        {
+          "title": "First Contentful Paint",
+          "id": "firstContentfulPaint",
+          "timing": 1505,
+          "color": "green"
+        },
+        {
+          "title": "First Meaningful Paint",
+          "id": "firstMeaningfulPaint",
+          "timing": 3030,
+          "color": "green"
+        },
+        {
+          "title": "First CPU Idle",
+          "id": "firstCPUIdle",
+          "timing": 7412,
+          "color": "yellow"
+        },
+        {
+          "title": "Time to Interactive",
+          "id": "interactive",
+          "timing": 7487,
+          "color": "yellow"
+        },
+        {
+          "title": "Speed Index",
+          "id": "speedIndex",
+          "timing": 6664,
+          "color": "blue"
+        }
+      ],
+      "generatedTime": "2020-06-07T08:23:40.508Z",
+      "lighthouseVersion": "5.6.0",
+      "requestedUrl": "https://app.gatesolve.com/",
+      "finalUrl": "https://app.gatesolve.com/"
+    },
+    {
+      "timings": [
+        {
+          "title": "First Contentful Paint",
+          "id": "firstContentfulPaint",
+          "timing": 1535,
+          "color": "green"
+        },
+        {
+          "title": "First Meaningful Paint",
+          "id": "firstMeaningfulPaint",
+          "timing": 2964,
+          "color": "green"
+        },
+        {
+          "title": "First CPU Idle",
+          "id": "firstCPUIdle",
+          "timing": 7317,
+          "color": "yellow"
+        },
+        {
+          "title": "Time to Interactive",
+          "id": "interactive",
+          "timing": 7447,
+          "color": "yellow"
+        },
+        {
+          "title": "Speed Index",
+          "id": "speedIndex",
+          "timing": 6691,
+          "color": "blue"
+        }
+      ],
+      "generatedTime": "2020-06-07T08:23:49.028Z",
+      "lighthouseVersion": "5.6.0",
+      "requestedUrl": "https://app.gatesolve.com/",
+      "finalUrl": "https://app.gatesolve.com/"
+    },
+    {
+      "timings": [
+        {
+          "title": "First Contentful Paint",
+          "id": "firstContentfulPaint",
+          "timing": 1558,
+          "color": "green"
+        },
+        {
+          "title": "First Meaningful Paint",
+          "id": "firstMeaningfulPaint",
+          "timing": 3254,
+          "color": "green"
+        },
+        {
+          "title": "First CPU Idle",
+          "id": "firstCPUIdle",
+          "timing": 7056,
+          "color": "yellow"
+        },
+        {
+          "title": "Time to Interactive",
+          "id": "interactive",
+          "timing": 7179,
+          "color": "yellow"
+        },
+        {
+          "title": "Speed Index",
+          "id": "speedIndex",
+          "timing": 6878,
+          "color": "blue"
+        }
+      ],
+      "generatedTime": "2020-06-07T08:23:56.903Z",
+      "lighthouseVersion": "5.6.0",
+      "requestedUrl": "https://app.gatesolve.com/",
+      "finalUrl": "https://app.gatesolve.com/"
+    },
+    {
+      "timings": [
+        {
+          "title": "First Contentful Paint",
+          "id": "firstContentfulPaint",
+          "timing": 1575,
+          "color": "green"
+        },
+        {
+          "title": "First Meaningful Paint",
+          "id": "firstMeaningfulPaint",
+          "timing": 3114,
+          "color": "green"
+        },
+        {
+          "title": "First CPU Idle",
+          "id": "firstCPUIdle",
+          "timing": 7129,
+          "color": "yellow"
+        },
+        {
+          "title": "Time to Interactive",
+          "id": "interactive",
+          "timing": 7234,
+          "color": "yellow"
+        },
+        {
+          "title": "Speed Index",
+          "id": "speedIndex",
+          "timing": 6552,
+          "color": "blue"
+        }
+      ],
+      "generatedTime": "2020-06-07T08:24:05.262Z",
+      "lighthouseVersion": "5.6.0",
+      "requestedUrl": "https://app.gatesolve.com/",
+      "finalUrl": "https://app.gatesolve.com/"
+    },
+    {
+      "timings": [
+        {
+          "title": "First Contentful Paint",
+          "id": "firstContentfulPaint",
+          "timing": 1578,
+          "color": "green"
+        },
+        {
+          "title": "First Meaningful Paint",
+          "id": "firstMeaningfulPaint",
+          "timing": 3177,
+          "color": "green"
+        },
+        {
+          "title": "First CPU Idle",
+          "id": "firstCPUIdle",
+          "timing": 6677,
+          "color": "yellow"
+        },
+        {
+          "title": "Time to Interactive",
+          "id": "interactive",
+          "timing": 6820,
+          "color": "yellow"
+        },
+        {
+          "title": "Speed Index",
+          "id": "speedIndex",
+          "timing": 6550,
+          "color": "blue"
+        }
+      ],
+      "generatedTime": "2020-06-07T08:24:12.309Z",
+      "lighthouseVersion": "5.6.0",
+      "requestedUrl": "https://app.gatesolve.com/",
+      "finalUrl": "https://app.gatesolve.com/"
+    },
+    {
+      "timings": [
+        {
+          "title": "First Contentful Paint",
+          "id": "firstContentfulPaint",
+          "timing": 1545,
+          "color": "green"
+        },
+        {
+          "title": "First Meaningful Paint",
+          "id": "firstMeaningfulPaint",
+          "timing": 3106,
+          "color": "green"
+        },
+        {
+          "title": "First CPU Idle",
+          "id": "firstCPUIdle",
+          "timing": 6827,
+          "color": "yellow"
+        },
+        {
+          "title": "Time to Interactive",
+          "id": "interactive",
+          "timing": 6940,
+          "color": "yellow"
+        },
+        {
+          "title": "Speed Index",
+          "id": "speedIndex",
+          "timing": 6470,
+          "color": "blue"
+        }
+      ],
+      "generatedTime": "2020-06-07T08:24:25.941Z",
+      "lighthouseVersion": "5.6.0",
+      "requestedUrl": "https://app.gatesolve.com/",
+      "finalUrl": "https://app.gatesolve.com/"
+    },
+    {
+      "timings": [
+        {
+          "title": "First Contentful Paint",
+          "id": "firstContentfulPaint",
+          "timing": 1567,
+          "color": "green"
+        },
+        {
+          "title": "First Meaningful Paint",
+          "id": "firstMeaningfulPaint",
+          "timing": 3114,
+          "color": "green"
+        },
+        {
+          "title": "First CPU Idle",
+          "id": "firstCPUIdle",
+          "timing": 7348,
+          "color": "yellow"
+        },
+        {
+          "title": "Time to Interactive",
+          "id": "interactive",
+          "timing": 7502,
+          "color": "yellow"
+        },
+        {
+          "title": "Speed Index",
+          "id": "speedIndex",
+          "timing": 6616,
+          "color": "blue"
+        }
+      ],
+      "generatedTime": "2020-06-07T08:24:35.452Z",
+      "lighthouseVersion": "5.6.0",
+      "requestedUrl": "https://app.gatesolve.com/",
+      "finalUrl": "https://app.gatesolve.com/"
+    },
+    {
+      "timings": [
+        {
+          "title": "First Contentful Paint",
+          "id": "firstContentfulPaint",
+          "timing": 1586,
+          "color": "green"
+        },
+        {
+          "title": "First Meaningful Paint",
+          "id": "firstMeaningfulPaint",
+          "timing": 3031,
+          "color": "green"
+        },
+        {
+          "title": "First CPU Idle",
+          "id": "firstCPUIdle",
+          "timing": 6852,
+          "color": "yellow"
+        },
+        {
+          "title": "Time to Interactive",
+          "id": "interactive",
+          "timing": 6975,
+          "color": "yellow"
+        },
+        {
+          "title": "Speed Index",
+          "id": "speedIndex",
+          "timing": 6480,
+          "color": "blue"
+        }
+      ],
+      "generatedTime": "2020-06-07T08:24:51.892Z",
+      "lighthouseVersion": "5.6.0",
+      "requestedUrl": "https://app.gatesolve.com/",
+      "finalUrl": "https://app.gatesolve.com/"
+    },
+    {
+      "timings": [
+        {
+          "title": "First Contentful Paint",
+          "id": "firstContentfulPaint",
+          "timing": 1508,
+          "color": "green"
+        },
+        {
+          "title": "First Meaningful Paint",
+          "id": "firstMeaningfulPaint",
+          "timing": 2545,
+          "color": "green"
+        },
+        {
+          "title": "First CPU Idle",
+          "id": "firstCPUIdle",
+          "timing": 6164,
+          "color": "yellow"
+        },
+        {
+          "title": "Time to Interactive",
+          "id": "interactive",
+          "timing": 6339,
+          "color": "yellow"
+        },
+        {
+          "title": "Speed Index",
+          "id": "speedIndex",
+          "timing": 5456,
+          "color": "blue"
+        }
+      ],
+      "generatedTime": "2020-06-07T08:25:00.957Z",
+      "lighthouseVersion": "5.6.0",
+      "requestedUrl": "https://app.gatesolve.com/",
+      "finalUrl": "https://app.gatesolve.com/"
+    },
+    {
+      "timings": [
+        {
+          "title": "First Contentful Paint",
+          "id": "firstContentfulPaint",
+          "timing": 1570,
+          "color": "green"
+        },
+        {
+          "title": "First Meaningful Paint",
+          "id": "firstMeaningfulPaint",
+          "timing": 3024,
+          "color": "green"
+        },
+        {
+          "title": "First CPU Idle",
+          "id": "firstCPUIdle",
+          "timing": 7273,
+          "color": "yellow"
+        },
+        {
+          "title": "Time to Interactive",
+          "id": "interactive",
+          "timing": 7356,
+          "color": "yellow"
+        },
+        {
+          "title": "Speed Index",
+          "id": "speedIndex",
+          "timing": 6830,
+          "color": "blue"
+        }
+      ],
+      "generatedTime": "2020-06-07T08:25:08.020Z",
+      "lighthouseVersion": "5.6.0",
+      "requestedUrl": "https://app.gatesolve.com/",
+      "finalUrl": "https://app.gatesolve.com/"
+    },
+    {
+      "timings": [
+        {
+          "title": "First Contentful Paint",
+          "id": "firstContentfulPaint",
+          "timing": 1600,
+          "color": "green"
+        },
+        {
+          "title": "First Meaningful Paint",
+          "id": "firstMeaningfulPaint",
+          "timing": 3182,
+          "color": "green"
+        },
+        {
+          "title": "First CPU Idle",
+          "id": "firstCPUIdle",
+          "timing": 8574,
+          "color": "yellow"
+        },
+        {
+          "title": "Time to Interactive",
+          "id": "interactive",
+          "timing": 8731,
+          "color": "yellow"
+        },
+        {
+          "title": "Speed Index",
+          "id": "speedIndex",
+          "timing": 7835,
+          "color": "blue"
+        }
+      ],
+      "generatedTime": "2020-06-07T08:25:16.446Z",
+      "lighthouseVersion": "5.6.0",
+      "requestedUrl": "https://app.gatesolve.com/",
+      "finalUrl": "https://app.gatesolve.com/"
+    },
+    {
+      "timings": [
+        {
+          "title": "First Contentful Paint",
+          "id": "firstContentfulPaint",
+          "timing": 1560,
+          "color": "green"
+        },
+        {
+          "title": "First Meaningful Paint",
+          "id": "firstMeaningfulPaint",
+          "timing": 3120,
+          "color": "green"
+        },
+        {
+          "title": "First CPU Idle",
+          "id": "firstCPUIdle",
+          "timing": 7204,
+          "color": "yellow"
+        },
+        {
+          "title": "Time to Interactive",
+          "id": "interactive",
+          "timing": 7414,
+          "color": "yellow"
+        },
+        {
+          "title": "Speed Index",
+          "id": "speedIndex",
+          "timing": 7084,
+          "color": "blue"
+        }
+      ],
+      "generatedTime": "2020-06-07T08:25:26.316Z",
+      "lighthouseVersion": "5.6.0",
+      "requestedUrl": "https://app.gatesolve.com/",
+      "finalUrl": "https://app.gatesolve.com/"
+    },
+    {
+      "timings": [
+        {
+          "title": "First Contentful Paint",
+          "id": "firstContentfulPaint",
+          "timing": 1586,
+          "color": "green"
+        },
+        {
+          "title": "First Meaningful Paint",
+          "id": "firstMeaningfulPaint",
+          "timing": 3363,
+          "color": "green"
+        },
+        {
+          "title": "First CPU Idle",
+          "id": "firstCPUIdle",
+          "timing": 7522,
+          "color": "yellow"
+        },
+        {
+          "title": "Time to Interactive",
+          "id": "interactive",
+          "timing": 7617,
+          "color": "yellow"
+        },
+        {
+          "title": "Speed Index",
+          "id": "speedIndex",
+          "timing": 7699,
+          "color": "blue"
+        }
+      ],
+      "generatedTime": "2020-06-07T08:25:38.892Z",
+      "lighthouseVersion": "5.6.0",
+      "requestedUrl": "https://app.gatesolve.com/",
+      "finalUrl": "https://app.gatesolve.com/"
+    },
+    {
+      "timings": [
+        {
+          "title": "First Contentful Paint",
+          "id": "firstContentfulPaint",
+          "timing": 1544,
+          "color": "green"
+        },
+        {
+          "title": "First Meaningful Paint",
+          "id": "firstMeaningfulPaint",
+          "timing": 3013,
+          "color": "green"
+        },
+        {
+          "title": "First CPU Idle",
+          "id": "firstCPUIdle",
+          "timing": 7695,
+          "color": "yellow"
+        },
+        {
+          "title": "Time to Interactive",
+          "id": "interactive",
+          "timing": 7858,
+          "color": "yellow"
+        },
+        {
+          "title": "Speed Index",
+          "id": "speedIndex",
+          "timing": 6522,
+          "color": "blue"
+        }
+      ],
+      "generatedTime": "2020-06-07T08:25:49.949Z",
+      "lighthouseVersion": "5.6.0",
+      "requestedUrl": "https://app.gatesolve.com/",
+      "finalUrl": "https://app.gatesolve.com/"
+    },
+    {
+      "timings": [
+        {
+          "title": "First Contentful Paint",
+          "id": "firstContentfulPaint",
+          "timing": 1541,
+          "color": "green"
+        },
+        {
+          "title": "First Meaningful Paint",
+          "id": "firstMeaningfulPaint",
+          "timing": 3238,
+          "color": "green"
+        },
+        {
+          "title": "First CPU Idle",
+          "id": "firstCPUIdle",
+          "timing": 7867,
+          "color": "yellow"
+        },
+        {
+          "title": "Time to Interactive",
+          "id": "interactive",
+          "timing": 8032,
+          "color": "yellow"
+        },
+        {
+          "title": "Speed Index",
+          "id": "speedIndex",
+          "timing": 7130,
+          "color": "blue"
+        }
+      ],
+      "generatedTime": "2020-06-07T08:25:58.958Z",
+      "lighthouseVersion": "5.6.0",
+      "requestedUrl": "https://app.gatesolve.com/",
+      "finalUrl": "https://app.gatesolve.com/"
+    },
+    {
+      "timings": [
+        {
+          "title": "First Contentful Paint",
+          "id": "firstContentfulPaint",
+          "timing": 1543,
+          "color": "green"
+        },
+        {
+          "title": "First Meaningful Paint",
+          "id": "firstMeaningfulPaint",
+          "timing": 2687,
+          "color": "green"
+        },
+        {
+          "title": "First CPU Idle",
+          "id": "firstCPUIdle",
+          "timing": 5628,
+          "color": "yellow"
+        },
+        {
+          "title": "Time to Interactive",
+          "id": "interactive",
+          "timing": 5715,
+          "color": "yellow"
+        },
+        {
+          "title": "Speed Index",
+          "id": "speedIndex",
+          "timing": 6210,
+          "color": "blue"
+        }
+      ],
+      "generatedTime": "2020-06-07T08:26:06.322Z",
+      "lighthouseVersion": "5.6.0",
+      "requestedUrl": "https://app.gatesolve.com/",
+      "finalUrl": "https://app.gatesolve.com/"
+    },
+    {
+      "timings": [
+        {
+          "title": "First Contentful Paint",
+          "id": "firstContentfulPaint",
+          "timing": 1579,
+          "color": "green"
+        },
+        {
+          "title": "First Meaningful Paint",
+          "id": "firstMeaningfulPaint",
+          "timing": 3244,
+          "color": "green"
+        },
+        {
+          "title": "First CPU Idle",
+          "id": "firstCPUIdle",
+          "timing": 7097,
+          "color": "yellow"
+        },
+        {
+          "title": "Time to Interactive",
+          "id": "interactive",
+          "timing": 7195,
+          "color": "yellow"
+        },
+        {
+          "title": "Speed Index",
+          "id": "speedIndex",
+          "timing": 6044,
+          "color": "blue"
+        }
+      ],
+      "generatedTime": "2020-06-07T08:26:17.497Z",
+      "lighthouseVersion": "5.6.0",
+      "requestedUrl": "https://app.gatesolve.com/",
+      "finalUrl": "https://app.gatesolve.com/"
+    },
+    {
+      "timings": [
+        {
+          "title": "First Contentful Paint",
+          "id": "firstContentfulPaint",
+          "timing": 1563,
+          "color": "green"
+        },
+        {
+          "title": "First Meaningful Paint",
+          "id": "firstMeaningfulPaint",
+          "timing": 3292,
+          "color": "green"
+        },
+        {
+          "title": "First CPU Idle",
+          "id": "firstCPUIdle",
+          "timing": 7222,
+          "color": "yellow"
+        },
+        {
+          "title": "Time to Interactive",
+          "id": "interactive",
+          "timing": 7409,
+          "color": "yellow"
+        },
+        {
+          "title": "Speed Index",
+          "id": "speedIndex",
+          "timing": 7041,
+          "color": "blue"
+        }
+      ],
+      "generatedTime": "2020-06-07T08:26:26.795Z",
+      "lighthouseVersion": "5.6.0",
+      "requestedUrl": "https://app.gatesolve.com/",
+      "finalUrl": "https://app.gatesolve.com/"
+    },
+    {
+      "timings": [
+        {
+          "title": "First Contentful Paint",
+          "id": "firstContentfulPaint",
+          "timing": 1574,
+          "color": "green"
+        },
+        {
+          "title": "First Meaningful Paint",
+          "id": "firstMeaningfulPaint",
+          "timing": 3158,
+          "color": "green"
+        },
+        {
+          "title": "First CPU Idle",
+          "id": "firstCPUIdle",
+          "timing": 7514,
+          "color": "yellow"
+        },
+        {
+          "title": "Time to Interactive",
+          "id": "interactive",
+          "timing": 7739,
+          "color": "yellow"
+        },
+        {
+          "title": "Speed Index",
+          "id": "speedIndex",
+          "timing": 6998,
+          "color": "blue"
+        }
+      ],
+      "generatedTime": "2020-06-07T08:26:37.076Z",
+      "lighthouseVersion": "5.6.0",
+      "requestedUrl": "https://app.gatesolve.com/",
+      "finalUrl": "https://app.gatesolve.com/"
+    },
+    {
+      "timings": [
+        {
+          "title": "First Contentful Paint",
+          "id": "firstContentfulPaint",
+          "timing": 1561,
+          "color": "green"
+        },
+        {
+          "title": "First Meaningful Paint",
+          "id": "firstMeaningfulPaint",
+          "timing": 3253,
+          "color": "green"
+        },
+        {
+          "title": "First CPU Idle",
+          "id": "firstCPUIdle",
+          "timing": 7102,
+          "color": "yellow"
+        },
+        {
+          "title": "Time to Interactive",
+          "id": "interactive",
+          "timing": 7320,
+          "color": "yellow"
+        },
+        {
+          "title": "Speed Index",
+          "id": "speedIndex",
+          "timing": 6781,
+          "color": "blue"
+        }
+      ],
+      "generatedTime": "2020-06-07T08:26:45.682Z",
+      "lighthouseVersion": "5.6.0",
+      "requestedUrl": "https://app.gatesolve.com/",
+      "finalUrl": "https://app.gatesolve.com/"
+    },
+    {
+      "timings": [
+        {
+          "title": "First Contentful Paint",
+          "id": "firstContentfulPaint",
+          "timing": 1561,
+          "color": "green"
+        },
+        {
+          "title": "First Meaningful Paint",
+          "id": "firstMeaningfulPaint",
+          "timing": 3024,
+          "color": "green"
+        },
+        {
+          "title": "First CPU Idle",
+          "id": "firstCPUIdle",
+          "timing": 8030,
+          "color": "yellow"
+        },
+        {
+          "title": "Time to Interactive",
+          "id": "interactive",
+          "timing": 8116,
+          "color": "yellow"
+        },
+        {
+          "title": "Speed Index",
+          "id": "speedIndex",
+          "timing": 6899,
+          "color": "blue"
+        }
+      ],
+      "generatedTime": "2020-06-07T08:26:53.860Z",
+      "lighthouseVersion": "5.6.0",
+      "requestedUrl": "https://app.gatesolve.com/",
+      "finalUrl": "https://app.gatesolve.com/"
+    },
+    {
+      "timings": [
+        {
+          "title": "First Contentful Paint",
+          "id": "firstContentfulPaint",
+          "timing": 1569,
+          "color": "green"
+        },
+        {
+          "title": "First Meaningful Paint",
+          "id": "firstMeaningfulPaint",
+          "timing": 3233,
+          "color": "green"
+        },
+        {
+          "title": "First CPU Idle",
+          "id": "firstCPUIdle",
+          "timing": 7535,
+          "color": "yellow"
+        },
+        {
+          "title": "Time to Interactive",
+          "id": "interactive",
+          "timing": 7718,
+          "color": "yellow"
+        },
+        {
+          "title": "Speed Index",
+          "id": "speedIndex",
+          "timing": 6989,
+          "color": "blue"
+        }
+      ],
+      "generatedTime": "2020-06-07T08:27:06.045Z",
+      "lighthouseVersion": "5.6.0",
+      "requestedUrl": "https://app.gatesolve.com/",
+      "finalUrl": "https://app.gatesolve.com/"
+    },
+    {
+      "timings": [
+        {
+          "title": "First Contentful Paint",
+          "id": "firstContentfulPaint",
+          "timing": 1564,
+          "color": "green"
+        },
+        {
+          "title": "First Meaningful Paint",
+          "id": "firstMeaningfulPaint",
+          "timing": 3315,
+          "color": "green"
+        },
+        {
+          "title": "First CPU Idle",
+          "id": "firstCPUIdle",
+          "timing": 7515,
+          "color": "yellow"
+        },
+        {
+          "title": "Time to Interactive",
+          "id": "interactive",
+          "timing": 7629,
+          "color": "yellow"
+        },
+        {
+          "title": "Speed Index",
+          "id": "speedIndex",
+          "timing": 7311,
+          "color": "blue"
+        }
+      ],
+      "generatedTime": "2020-06-07T08:27:16.766Z",
+      "lighthouseVersion": "5.6.0",
+      "requestedUrl": "https://app.gatesolve.com/",
+      "finalUrl": "https://app.gatesolve.com/"
+    }
+  ],
+  "median": {
+    "timings": [
+      {
+        "title": "First Contentful Paint",
+        "id": "firstContentfulPaint",
+        "timing": 1563,
+        "color": "green"
+      },
+      {
+        "title": "First Meaningful Paint",
+        "id": "firstMeaningfulPaint",
+        "timing": 3292,
+        "color": "green"
+      },
+      {
+        "title": "First CPU Idle",
+        "id": "firstCPUIdle",
+        "timing": 7222,
+        "color": "yellow"
+      },
+      {
+        "title": "Time to Interactive",
+        "id": "interactive",
+        "timing": 7409,
+        "color": "yellow"
+      },
+      {
+        "title": "Speed Index",
+        "id": "speedIndex",
+        "timing": 7041,
+        "color": "blue"
+      }
+    ],
+    "generatedTime": "2020-06-07T08:26:26.795Z",
+    "lighthouseVersion": "5.6.0",
+    "requestedUrl": "https://app.gatesolve.com/",
+    "finalUrl": "https://app.gatesolve.com/"
+  }
+}

@@ -1,0 +1,1182 @@
+{
+  "runs": [
+    {
+      "timings": [
+        {
+          "title": "First Contentful Paint",
+          "id": "firstContentfulPaint",
+          "timing": 5142,
+          "color": "green"
+        },
+        {
+          "title": "First Meaningful Paint",
+          "id": "firstMeaningfulPaint",
+          "timing": 5142,
+          "color": "green"
+        },
+        {
+          "title": "First CPU Idle",
+          "id": "firstCPUIdle",
+          "timing": 6908,
+          "color": "yellow"
+        },
+        {
+          "title": "Time to Interactive",
+          "id": "interactive",
+          "timing": 7152,
+          "color": "yellow"
+        },
+        {
+          "title": "Speed Index",
+          "id": "speedIndex",
+          "timing": 32629,
+          "color": "blue"
+        }
+      ],
+      "generatedTime": "2020-06-07T08:18:17.775Z",
+      "lighthouseVersion": "5.6.0",
+      "requestedUrl": "https://5ecf63ea89654a766e25dbd4--boring-ramanujan-de6e24.netlify.app/",
+      "finalUrl": "https://5ecf63ea89654a766e25dbd4--boring-ramanujan-de6e24.netlify.app/"
+    },
+    {
+      "timings": [
+        {
+          "title": "First Contentful Paint",
+          "id": "firstContentfulPaint",
+          "timing": 4890,
+          "color": "green"
+        },
+        {
+          "title": "First Meaningful Paint",
+          "id": "firstMeaningfulPaint",
+          "timing": 4890,
+          "color": "green"
+        },
+        {
+          "title": "First CPU Idle",
+          "id": "firstCPUIdle",
+          "timing": 6579,
+          "color": "yellow"
+        },
+        {
+          "title": "Time to Interactive",
+          "id": "interactive",
+          "timing": 6786,
+          "color": "yellow"
+        },
+        {
+          "title": "Speed Index",
+          "id": "speedIndex",
+          "timing": 9039,
+          "color": "blue"
+        }
+      ],
+      "generatedTime": "2020-06-07T08:18:47.152Z",
+      "lighthouseVersion": "5.6.0",
+      "requestedUrl": "https://5ecf63ea89654a766e25dbd4--boring-ramanujan-de6e24.netlify.app/",
+      "finalUrl": "https://5ecf63ea89654a766e25dbd4--boring-ramanujan-de6e24.netlify.app/"
+    },
+    {
+      "timings": [
+        {
+          "title": "First Contentful Paint",
+          "id": "firstContentfulPaint",
+          "timing": 4865,
+          "color": "green"
+        },
+        {
+          "title": "First Meaningful Paint",
+          "id": "firstMeaningfulPaint",
+          "timing": 4865,
+          "color": "green"
+        },
+        {
+          "title": "First CPU Idle",
+          "id": "firstCPUIdle",
+          "timing": 6275,
+          "color": "yellow"
+        },
+        {
+          "title": "Time to Interactive",
+          "id": "interactive",
+          "timing": 6470,
+          "color": "yellow"
+        },
+        {
+          "title": "Speed Index",
+          "id": "speedIndex",
+          "timing": 6980,
+          "color": "blue"
+        }
+      ],
+      "generatedTime": "2020-06-07T08:18:57.016Z",
+      "lighthouseVersion": "5.6.0",
+      "requestedUrl": "https://5ecf63ea89654a766e25dbd4--boring-ramanujan-de6e24.netlify.app/",
+      "finalUrl": "https://5ecf63ea89654a766e25dbd4--boring-ramanujan-de6e24.netlify.app/"
+    },
+    {
+      "timings": [
+        {
+          "title": "First Contentful Paint",
+          "id": "firstContentfulPaint",
+          "timing": 4866,
+          "color": "green"
+        },
+        {
+          "title": "First Meaningful Paint",
+          "id": "firstMeaningfulPaint",
+          "timing": 4866,
+          "color": "green"
+        },
+        {
+          "title": "First CPU Idle",
+          "id": "firstCPUIdle",
+          "timing": 8146,
+          "color": "yellow"
+        },
+        {
+          "title": "Time to Interactive",
+          "id": "interactive",
+          "timing": 8348,
+          "color": "yellow"
+        },
+        {
+          "title": "Speed Index",
+          "id": "speedIndex",
+          "timing": 7855,
+          "color": "blue"
+        }
+      ],
+      "generatedTime": "2020-06-07T08:19:06.416Z",
+      "lighthouseVersion": "5.6.0",
+      "requestedUrl": "https://5ecf63ea89654a766e25dbd4--boring-ramanujan-de6e24.netlify.app/",
+      "finalUrl": "https://5ecf63ea89654a766e25dbd4--boring-ramanujan-de6e24.netlify.app/"
+    },
+    {
+      "timings": [
+        {
+          "title": "First Contentful Paint",
+          "id": "firstContentfulPaint",
+          "timing": 5063,
+          "color": "green"
+        },
+        {
+          "title": "First Meaningful Paint",
+          "id": "firstMeaningfulPaint",
+          "timing": 5063,
+          "color": "green"
+        },
+        {
+          "title": "First CPU Idle",
+          "id": "firstCPUIdle",
+          "timing": 7159,
+          "color": "yellow"
+        },
+        {
+          "title": "Time to Interactive",
+          "id": "interactive",
+          "timing": 7279,
+          "color": "yellow"
+        },
+        {
+          "title": "Speed Index",
+          "id": "speedIndex",
+          "timing": 8621,
+          "color": "blue"
+        }
+      ],
+      "generatedTime": "2020-06-07T08:19:16.143Z",
+      "lighthouseVersion": "5.6.0",
+      "requestedUrl": "https://5ecf63ea89654a766e25dbd4--boring-ramanujan-de6e24.netlify.app/",
+      "finalUrl": "https://5ecf63ea89654a766e25dbd4--boring-ramanujan-de6e24.netlify.app/"
+    },
+    {
+      "timings": [
+        {
+          "title": "First Contentful Paint",
+          "id": "firstContentfulPaint",
+          "timing": 4856,
+          "color": "green"
+        },
+        {
+          "title": "First Meaningful Paint",
+          "id": "firstMeaningfulPaint",
+          "timing": 4856,
+          "color": "green"
+        },
+        {
+          "title": "First CPU Idle",
+          "id": "firstCPUIdle",
+          "timing": 6789,
+          "color": "yellow"
+        },
+        {
+          "title": "Time to Interactive",
+          "id": "interactive",
+          "timing": 6927,
+          "color": "yellow"
+        },
+        {
+          "title": "Speed Index",
+          "id": "speedIndex",
+          "timing": 6870,
+          "color": "blue"
+        }
+      ],
+      "generatedTime": "2020-06-07T08:19:24.828Z",
+      "lighthouseVersion": "5.6.0",
+      "requestedUrl": "https://5ecf63ea89654a766e25dbd4--boring-ramanujan-de6e24.netlify.app/",
+      "finalUrl": "https://5ecf63ea89654a766e25dbd4--boring-ramanujan-de6e24.netlify.app/"
+    },
+    {
+      "timings": [
+        {
+          "title": "First Contentful Paint",
+          "id": "firstContentfulPaint",
+          "timing": 4985,
+          "color": "green"
+        },
+        {
+          "title": "First Meaningful Paint",
+          "id": "firstMeaningfulPaint",
+          "timing": 4985,
+          "color": "green"
+        },
+        {
+          "title": "First CPU Idle",
+          "id": "firstCPUIdle",
+          "timing": 6947,
+          "color": "yellow"
+        },
+        {
+          "title": "Time to Interactive",
+          "id": "interactive",
+          "timing": 7159,
+          "color": "yellow"
+        },
+        {
+          "title": "Speed Index",
+          "id": "speedIndex",
+          "timing": 7393,
+          "color": "blue"
+        }
+      ],
+      "generatedTime": "2020-06-07T08:19:32.323Z",
+      "lighthouseVersion": "5.6.0",
+      "requestedUrl": "https://5ecf63ea89654a766e25dbd4--boring-ramanujan-de6e24.netlify.app/",
+      "finalUrl": "https://5ecf63ea89654a766e25dbd4--boring-ramanujan-de6e24.netlify.app/"
+    },
+    {
+      "timings": [
+        {
+          "title": "First Contentful Paint",
+          "id": "firstContentfulPaint",
+          "timing": 4855,
+          "color": "green"
+        },
+        {
+          "title": "First Meaningful Paint",
+          "id": "firstMeaningfulPaint",
+          "timing": 4855,
+          "color": "green"
+        },
+        {
+          "title": "First CPU Idle",
+          "id": "firstCPUIdle",
+          "timing": 6891,
+          "color": "yellow"
+        },
+        {
+          "title": "Time to Interactive",
+          "id": "interactive",
+          "timing": 7043,
+          "color": "yellow"
+        },
+        {
+          "title": "Speed Index",
+          "id": "speedIndex",
+          "timing": 6779,
+          "color": "blue"
+        }
+      ],
+      "generatedTime": "2020-06-07T08:19:42.077Z",
+      "lighthouseVersion": "5.6.0",
+      "requestedUrl": "https://5ecf63ea89654a766e25dbd4--boring-ramanujan-de6e24.netlify.app/",
+      "finalUrl": "https://5ecf63ea89654a766e25dbd4--boring-ramanujan-de6e24.netlify.app/"
+    },
+    {
+      "timings": [
+        {
+          "title": "First Contentful Paint",
+          "id": "firstContentfulPaint",
+          "timing": 4801,
+          "color": "green"
+        },
+        {
+          "title": "First Meaningful Paint",
+          "id": "firstMeaningfulPaint",
+          "timing": 4801,
+          "color": "green"
+        },
+        {
+          "title": "First CPU Idle",
+          "id": "firstCPUIdle",
+          "timing": 6724,
+          "color": "yellow"
+        },
+        {
+          "title": "Time to Interactive",
+          "id": "interactive",
+          "timing": 6875,
+          "color": "yellow"
+        },
+        {
+          "title": "Speed Index",
+          "id": "speedIndex",
+          "timing": 6944,
+          "color": "blue"
+        }
+      ],
+      "generatedTime": "2020-06-07T08:19:48.794Z",
+      "lighthouseVersion": "5.6.0",
+      "requestedUrl": "https://5ecf63ea89654a766e25dbd4--boring-ramanujan-de6e24.netlify.app/",
+      "finalUrl": "https://5ecf63ea89654a766e25dbd4--boring-ramanujan-de6e24.netlify.app/"
+    },
+    {
+      "timings": [
+        {
+          "title": "First Contentful Paint",
+          "id": "firstContentfulPaint",
+          "timing": 4778,
+          "color": "green"
+        },
+        {
+          "title": "First Meaningful Paint",
+          "id": "firstMeaningfulPaint",
+          "timing": 4778,
+          "color": "green"
+        },
+        {
+          "title": "First CPU Idle",
+          "id": "firstCPUIdle",
+          "timing": 6683,
+          "color": "yellow"
+        },
+        {
+          "title": "Time to Interactive",
+          "id": "interactive",
+          "timing": 6743,
+          "color": "yellow"
+        },
+        {
+          "title": "Speed Index",
+          "id": "speedIndex",
+          "timing": 7053,
+          "color": "blue"
+        }
+      ],
+      "generatedTime": "2020-06-07T08:19:56.741Z",
+      "lighthouseVersion": "5.6.0",
+      "requestedUrl": "https://5ecf63ea89654a766e25dbd4--boring-ramanujan-de6e24.netlify.app/",
+      "finalUrl": "https://5ecf63ea89654a766e25dbd4--boring-ramanujan-de6e24.netlify.app/"
+    },
+    {
+      "timings": [
+        {
+          "title": "First Contentful Paint",
+          "id": "firstContentfulPaint",
+          "timing": 4797,
+          "color": "green"
+        },
+        {
+          "title": "First Meaningful Paint",
+          "id": "firstMeaningfulPaint",
+          "timing": 4797,
+          "color": "green"
+        },
+        {
+          "title": "First CPU Idle",
+          "id": "firstCPUIdle",
+          "timing": 6700,
+          "color": "yellow"
+        },
+        {
+          "title": "Time to Interactive",
+          "id": "interactive",
+          "timing": 6838,
+          "color": "yellow"
+        },
+        {
+          "title": "Speed Index",
+          "id": "speedIndex",
+          "timing": 7053,
+          "color": "blue"
+        }
+      ],
+      "generatedTime": "2020-06-07T08:20:06.903Z",
+      "lighthouseVersion": "5.6.0",
+      "requestedUrl": "https://5ecf63ea89654a766e25dbd4--boring-ramanujan-de6e24.netlify.app/",
+      "finalUrl": "https://5ecf63ea89654a766e25dbd4--boring-ramanujan-de6e24.netlify.app/"
+    },
+    {
+      "timings": [
+        {
+          "title": "First Contentful Paint",
+          "id": "firstContentfulPaint",
+          "timing": 4935,
+          "color": "green"
+        },
+        {
+          "title": "First Meaningful Paint",
+          "id": "firstMeaningfulPaint",
+          "timing": 4935,
+          "color": "green"
+        },
+        {
+          "title": "First CPU Idle",
+          "id": "firstCPUIdle",
+          "timing": 6688,
+          "color": "yellow"
+        },
+        {
+          "title": "Time to Interactive",
+          "id": "interactive",
+          "timing": 6864,
+          "color": "yellow"
+        },
+        {
+          "title": "Speed Index",
+          "id": "speedIndex",
+          "timing": 7000,
+          "color": "blue"
+        }
+      ],
+      "generatedTime": "2020-06-07T08:20:12.915Z",
+      "lighthouseVersion": "5.6.0",
+      "requestedUrl": "https://5ecf63ea89654a766e25dbd4--boring-ramanujan-de6e24.netlify.app/",
+      "finalUrl": "https://5ecf63ea89654a766e25dbd4--boring-ramanujan-de6e24.netlify.app/"
+    },
+    {
+      "timings": [
+        {
+          "title": "First Contentful Paint",
+          "id": "firstContentfulPaint",
+          "timing": 4830,
+          "color": "green"
+        },
+        {
+          "title": "First Meaningful Paint",
+          "id": "firstMeaningfulPaint",
+          "timing": 4830,
+          "color": "green"
+        },
+        {
+          "title": "First CPU Idle",
+          "id": "firstCPUIdle",
+          "timing": 6394,
+          "color": "yellow"
+        },
+        {
+          "title": "Time to Interactive",
+          "id": "interactive",
+          "timing": 6733,
+          "color": "yellow"
+        },
+        {
+          "title": "Speed Index",
+          "id": "speedIndex",
+          "timing": 6864,
+          "color": "blue"
+        }
+      ],
+      "generatedTime": "2020-06-07T08:20:23.172Z",
+      "lighthouseVersion": "5.6.0",
+      "requestedUrl": "https://5ecf63ea89654a766e25dbd4--boring-ramanujan-de6e24.netlify.app/",
+      "finalUrl": "https://5ecf63ea89654a766e25dbd4--boring-ramanujan-de6e24.netlify.app/"
+    },
+    {
+      "timings": [
+        {
+          "title": "First Contentful Paint",
+          "id": "firstContentfulPaint",
+          "timing": 4823,
+          "color": "green"
+        },
+        {
+          "title": "First Meaningful Paint",
+          "id": "firstMeaningfulPaint",
+          "timing": 4823,
+          "color": "green"
+        },
+        {
+          "title": "First CPU Idle",
+          "id": "firstCPUIdle",
+          "timing": 6715,
+          "color": "yellow"
+        },
+        {
+          "title": "Time to Interactive",
+          "id": "interactive",
+          "timing": 6904,
+          "color": "yellow"
+        },
+        {
+          "title": "Speed Index",
+          "id": "speedIndex",
+          "timing": 6793,
+          "color": "blue"
+        }
+      ],
+      "generatedTime": "2020-06-07T08:20:30.256Z",
+      "lighthouseVersion": "5.6.0",
+      "requestedUrl": "https://5ecf63ea89654a766e25dbd4--boring-ramanujan-de6e24.netlify.app/",
+      "finalUrl": "https://5ecf63ea89654a766e25dbd4--boring-ramanujan-de6e24.netlify.app/"
+    },
+    {
+      "timings": [
+        {
+          "title": "First Contentful Paint",
+          "id": "firstContentfulPaint",
+          "timing": 4771,
+          "color": "green"
+        },
+        {
+          "title": "First Meaningful Paint",
+          "id": "firstMeaningfulPaint",
+          "timing": 4771,
+          "color": "green"
+        },
+        {
+          "title": "First CPU Idle",
+          "id": "firstCPUIdle",
+          "timing": 6819,
+          "color": "yellow"
+        },
+        {
+          "title": "Time to Interactive",
+          "id": "interactive",
+          "timing": 6997,
+          "color": "yellow"
+        },
+        {
+          "title": "Speed Index",
+          "id": "speedIndex",
+          "timing": 6989,
+          "color": "blue"
+        }
+      ],
+      "generatedTime": "2020-06-07T08:20:35.861Z",
+      "lighthouseVersion": "5.6.0",
+      "requestedUrl": "https://5ecf63ea89654a766e25dbd4--boring-ramanujan-de6e24.netlify.app/",
+      "finalUrl": "https://5ecf63ea89654a766e25dbd4--boring-ramanujan-de6e24.netlify.app/"
+    },
+    {
+      "timings": [
+        {
+          "title": "First Contentful Paint",
+          "id": "firstContentfulPaint",
+          "timing": 4944,
+          "color": "green"
+        },
+        {
+          "title": "First Meaningful Paint",
+          "id": "firstMeaningfulPaint",
+          "timing": 4944,
+          "color": "green"
+        },
+        {
+          "title": "First CPU Idle",
+          "id": "firstCPUIdle",
+          "timing": 7069,
+          "color": "yellow"
+        },
+        {
+          "title": "Time to Interactive",
+          "id": "interactive",
+          "timing": 7089,
+          "color": "yellow"
+        },
+        {
+          "title": "Speed Index",
+          "id": "speedIndex",
+          "timing": 6889,
+          "color": "blue"
+        }
+      ],
+      "generatedTime": "2020-06-07T08:20:45.302Z",
+      "lighthouseVersion": "5.6.0",
+      "requestedUrl": "https://5ecf63ea89654a766e25dbd4--boring-ramanujan-de6e24.netlify.app/",
+      "finalUrl": "https://5ecf63ea89654a766e25dbd4--boring-ramanujan-de6e24.netlify.app/"
+    },
+    {
+      "timings": [
+        {
+          "title": "First Contentful Paint",
+          "id": "firstContentfulPaint",
+          "timing": 4793,
+          "color": "green"
+        },
+        {
+          "title": "First Meaningful Paint",
+          "id": "firstMeaningfulPaint",
+          "timing": 4793,
+          "color": "green"
+        },
+        {
+          "title": "First CPU Idle",
+          "id": "firstCPUIdle",
+          "timing": 6708,
+          "color": "yellow"
+        },
+        {
+          "title": "Time to Interactive",
+          "id": "interactive",
+          "timing": 6899,
+          "color": "yellow"
+        },
+        {
+          "title": "Speed Index",
+          "id": "speedIndex",
+          "timing": 7177,
+          "color": "blue"
+        }
+      ],
+      "generatedTime": "2020-06-07T08:20:51.771Z",
+      "lighthouseVersion": "5.6.0",
+      "requestedUrl": "https://5ecf63ea89654a766e25dbd4--boring-ramanujan-de6e24.netlify.app/",
+      "finalUrl": "https://5ecf63ea89654a766e25dbd4--boring-ramanujan-de6e24.netlify.app/"
+    },
+    {
+      "timings": [
+        {
+          "title": "First Contentful Paint",
+          "id": "firstContentfulPaint",
+          "timing": 4776,
+          "color": "green"
+        },
+        {
+          "title": "First Meaningful Paint",
+          "id": "firstMeaningfulPaint",
+          "timing": 4776,
+          "color": "green"
+        },
+        {
+          "title": "First CPU Idle",
+          "id": "firstCPUIdle",
+          "timing": 9460,
+          "color": "yellow"
+        },
+        {
+          "title": "Time to Interactive",
+          "id": "interactive",
+          "timing": 9629,
+          "color": "yellow"
+        },
+        {
+          "title": "Speed Index",
+          "id": "speedIndex",
+          "timing": 7589,
+          "color": "blue"
+        }
+      ],
+      "generatedTime": "2020-06-07T08:20:58.506Z",
+      "lighthouseVersion": "5.6.0",
+      "requestedUrl": "https://5ecf63ea89654a766e25dbd4--boring-ramanujan-de6e24.netlify.app/",
+      "finalUrl": "https://5ecf63ea89654a766e25dbd4--boring-ramanujan-de6e24.netlify.app/"
+    },
+    {
+      "timings": [
+        {
+          "title": "First Contentful Paint",
+          "id": "firstContentfulPaint",
+          "timing": 4776,
+          "color": "green"
+        },
+        {
+          "title": "First Meaningful Paint",
+          "id": "firstMeaningfulPaint",
+          "timing": 4776,
+          "color": "green"
+        },
+        {
+          "title": "First CPU Idle",
+          "id": "firstCPUIdle",
+          "timing": 6868,
+          "color": "yellow"
+        },
+        {
+          "title": "Time to Interactive",
+          "id": "interactive",
+          "timing": 6994,
+          "color": "yellow"
+        },
+        {
+          "title": "Speed Index",
+          "id": "speedIndex",
+          "timing": 7448,
+          "color": "blue"
+        }
+      ],
+      "generatedTime": "2020-06-07T08:21:06.035Z",
+      "lighthouseVersion": "5.6.0",
+      "requestedUrl": "https://5ecf63ea89654a766e25dbd4--boring-ramanujan-de6e24.netlify.app/",
+      "finalUrl": "https://5ecf63ea89654a766e25dbd4--boring-ramanujan-de6e24.netlify.app/"
+    },
+    {
+      "timings": [
+        {
+          "title": "First Contentful Paint",
+          "id": "firstContentfulPaint",
+          "timing": 4877,
+          "color": "green"
+        },
+        {
+          "title": "First Meaningful Paint",
+          "id": "firstMeaningfulPaint",
+          "timing": 4877,
+          "color": "green"
+        },
+        {
+          "title": "First CPU Idle",
+          "id": "firstCPUIdle",
+          "timing": 7307,
+          "color": "yellow"
+        },
+        {
+          "title": "Time to Interactive",
+          "id": "interactive",
+          "timing": 7376,
+          "color": "yellow"
+        },
+        {
+          "title": "Speed Index",
+          "id": "speedIndex",
+          "timing": 6990,
+          "color": "blue"
+        }
+      ],
+      "generatedTime": "2020-06-07T08:21:13.643Z",
+      "lighthouseVersion": "5.6.0",
+      "requestedUrl": "https://5ecf63ea89654a766e25dbd4--boring-ramanujan-de6e24.netlify.app/",
+      "finalUrl": "https://5ecf63ea89654a766e25dbd4--boring-ramanujan-de6e24.netlify.app/"
+    },
+    {
+      "timings": [
+        {
+          "title": "First Contentful Paint",
+          "id": "firstContentfulPaint",
+          "timing": 5044,
+          "color": "green"
+        },
+        {
+          "title": "First Meaningful Paint",
+          "id": "firstMeaningfulPaint",
+          "timing": 5044,
+          "color": "green"
+        },
+        {
+          "title": "First CPU Idle",
+          "id": "firstCPUIdle",
+          "timing": 7642,
+          "color": "yellow"
+        },
+        {
+          "title": "Time to Interactive",
+          "id": "interactive",
+          "timing": 7645,
+          "color": "yellow"
+        },
+        {
+          "title": "Speed Index",
+          "id": "speedIndex",
+          "timing": 7334,
+          "color": "blue"
+        }
+      ],
+      "generatedTime": "2020-06-07T08:21:20.880Z",
+      "lighthouseVersion": "5.6.0",
+      "requestedUrl": "https://5ecf63ea89654a766e25dbd4--boring-ramanujan-de6e24.netlify.app/",
+      "finalUrl": "https://5ecf63ea89654a766e25dbd4--boring-ramanujan-de6e24.netlify.app/"
+    },
+    {
+      "timings": [
+        {
+          "title": "First Contentful Paint",
+          "id": "firstContentfulPaint",
+          "timing": 4798,
+          "color": "green"
+        },
+        {
+          "title": "First Meaningful Paint",
+          "id": "firstMeaningfulPaint",
+          "timing": 4798,
+          "color": "green"
+        },
+        {
+          "title": "First CPU Idle",
+          "id": "firstCPUIdle",
+          "timing": 6782,
+          "color": "yellow"
+        },
+        {
+          "title": "Time to Interactive",
+          "id": "interactive",
+          "timing": 6835,
+          "color": "yellow"
+        },
+        {
+          "title": "Speed Index",
+          "id": "speedIndex",
+          "timing": 7001,
+          "color": "blue"
+        }
+      ],
+      "generatedTime": "2020-06-07T08:21:29.050Z",
+      "lighthouseVersion": "5.6.0",
+      "requestedUrl": "https://5ecf63ea89654a766e25dbd4--boring-ramanujan-de6e24.netlify.app/",
+      "finalUrl": "https://5ecf63ea89654a766e25dbd4--boring-ramanujan-de6e24.netlify.app/"
+    },
+    {
+      "timings": [
+        {
+          "title": "First Contentful Paint",
+          "id": "firstContentfulPaint",
+          "timing": 4866,
+          "color": "green"
+        },
+        {
+          "title": "First Meaningful Paint",
+          "id": "firstMeaningfulPaint",
+          "timing": 4866,
+          "color": "green"
+        },
+        {
+          "title": "First CPU Idle",
+          "id": "firstCPUIdle",
+          "timing": 6569,
+          "color": "yellow"
+        },
+        {
+          "title": "Time to Interactive",
+          "id": "interactive",
+          "timing": 6765,
+          "color": "yellow"
+        },
+        {
+          "title": "Speed Index",
+          "id": "speedIndex",
+          "timing": 6820,
+          "color": "blue"
+        }
+      ],
+      "generatedTime": "2020-06-07T08:21:35.903Z",
+      "lighthouseVersion": "5.6.0",
+      "requestedUrl": "https://5ecf63ea89654a766e25dbd4--boring-ramanujan-de6e24.netlify.app/",
+      "finalUrl": "https://5ecf63ea89654a766e25dbd4--boring-ramanujan-de6e24.netlify.app/"
+    },
+    {
+      "timings": [
+        {
+          "title": "First Contentful Paint",
+          "id": "firstContentfulPaint",
+          "timing": 4837,
+          "color": "green"
+        },
+        {
+          "title": "First Meaningful Paint",
+          "id": "firstMeaningfulPaint",
+          "timing": 4837,
+          "color": "green"
+        },
+        {
+          "title": "First CPU Idle",
+          "id": "firstCPUIdle",
+          "timing": 7896,
+          "color": "yellow"
+        },
+        {
+          "title": "Time to Interactive",
+          "id": "interactive",
+          "timing": 7780,
+          "color": "yellow"
+        },
+        {
+          "title": "Speed Index",
+          "id": "speedIndex",
+          "timing": 7277,
+          "color": "blue"
+        }
+      ],
+      "generatedTime": "2020-06-07T08:21:43.883Z",
+      "lighthouseVersion": "5.6.0",
+      "requestedUrl": "https://5ecf63ea89654a766e25dbd4--boring-ramanujan-de6e24.netlify.app/",
+      "finalUrl": "https://5ecf63ea89654a766e25dbd4--boring-ramanujan-de6e24.netlify.app/"
+    },
+    {
+      "timings": [
+        {
+          "title": "First Contentful Paint",
+          "id": "firstContentfulPaint",
+          "timing": 4858,
+          "color": "green"
+        },
+        {
+          "title": "First Meaningful Paint",
+          "id": "firstMeaningfulPaint",
+          "timing": 4858,
+          "color": "green"
+        },
+        {
+          "title": "First CPU Idle",
+          "id": "firstCPUIdle",
+          "timing": 6831,
+          "color": "yellow"
+        },
+        {
+          "title": "Time to Interactive",
+          "id": "interactive",
+          "timing": 7135,
+          "color": "yellow"
+        },
+        {
+          "title": "Speed Index",
+          "id": "speedIndex",
+          "timing": 6881,
+          "color": "blue"
+        }
+      ],
+      "generatedTime": "2020-06-07T08:21:52.783Z",
+      "lighthouseVersion": "5.6.0",
+      "requestedUrl": "https://5ecf63ea89654a766e25dbd4--boring-ramanujan-de6e24.netlify.app/",
+      "finalUrl": "https://5ecf63ea89654a766e25dbd4--boring-ramanujan-de6e24.netlify.app/"
+    },
+    {
+      "timings": [
+        {
+          "title": "First Contentful Paint",
+          "id": "firstContentfulPaint",
+          "timing": 4822,
+          "color": "green"
+        },
+        {
+          "title": "First Meaningful Paint",
+          "id": "firstMeaningfulPaint",
+          "timing": 4822,
+          "color": "green"
+        },
+        {
+          "title": "First CPU Idle",
+          "id": "firstCPUIdle",
+          "timing": 6644,
+          "color": "yellow"
+        },
+        {
+          "title": "Time to Interactive",
+          "id": "interactive",
+          "timing": 6730,
+          "color": "yellow"
+        },
+        {
+          "title": "Speed Index",
+          "id": "speedIndex",
+          "timing": 6722,
+          "color": "blue"
+        }
+      ],
+      "generatedTime": "2020-06-07T08:22:00.579Z",
+      "lighthouseVersion": "5.6.0",
+      "requestedUrl": "https://5ecf63ea89654a766e25dbd4--boring-ramanujan-de6e24.netlify.app/",
+      "finalUrl": "https://5ecf63ea89654a766e25dbd4--boring-ramanujan-de6e24.netlify.app/"
+    },
+    {
+      "timings": [
+        {
+          "title": "First Contentful Paint",
+          "id": "firstContentfulPaint",
+          "timing": 4944,
+          "color": "green"
+        },
+        {
+          "title": "First Meaningful Paint",
+          "id": "firstMeaningfulPaint",
+          "timing": 4944,
+          "color": "green"
+        },
+        {
+          "title": "First CPU Idle",
+          "id": "firstCPUIdle",
+          "timing": 6394,
+          "color": "yellow"
+        },
+        {
+          "title": "Time to Interactive",
+          "id": "interactive",
+          "timing": 6594,
+          "color": "yellow"
+        },
+        {
+          "title": "Speed Index",
+          "id": "speedIndex",
+          "timing": 7139,
+          "color": "blue"
+        }
+      ],
+      "generatedTime": "2020-06-07T08:22:06.956Z",
+      "lighthouseVersion": "5.6.0",
+      "requestedUrl": "https://5ecf63ea89654a766e25dbd4--boring-ramanujan-de6e24.netlify.app/",
+      "finalUrl": "https://5ecf63ea89654a766e25dbd4--boring-ramanujan-de6e24.netlify.app/"
+    },
+    {
+      "timings": [
+        {
+          "title": "First Contentful Paint",
+          "id": "firstContentfulPaint",
+          "timing": 5149,
+          "color": "green"
+        },
+        {
+          "title": "First Meaningful Paint",
+          "id": "firstMeaningfulPaint",
+          "timing": 5149,
+          "color": "green"
+        },
+        {
+          "title": "First CPU Idle",
+          "id": "firstCPUIdle",
+          "timing": 6911,
+          "color": "yellow"
+        },
+        {
+          "title": "Time to Interactive",
+          "id": "interactive",
+          "timing": 7067,
+          "color": "yellow"
+        },
+        {
+          "title": "Speed Index",
+          "id": "speedIndex",
+          "timing": 7465,
+          "color": "blue"
+        }
+      ],
+      "generatedTime": "2020-06-07T08:22:13.877Z",
+      "lighthouseVersion": "5.6.0",
+      "requestedUrl": "https://5ecf63ea89654a766e25dbd4--boring-ramanujan-de6e24.netlify.app/",
+      "finalUrl": "https://5ecf63ea89654a766e25dbd4--boring-ramanujan-de6e24.netlify.app/"
+    },
+    {
+      "timings": [
+        {
+          "title": "First Contentful Paint",
+          "id": "firstContentfulPaint",
+          "timing": 4938,
+          "color": "green"
+        },
+        {
+          "title": "First Meaningful Paint",
+          "id": "firstMeaningfulPaint",
+          "timing": 4938,
+          "color": "green"
+        },
+        {
+          "title": "First CPU Idle",
+          "id": "firstCPUIdle",
+          "timing": 7373,
+          "color": "yellow"
+        },
+        {
+          "title": "Time to Interactive",
+          "id": "interactive",
+          "timing": 7543,
+          "color": "yellow"
+        },
+        {
+          "title": "Speed Index",
+          "id": "speedIndex",
+          "timing": 7081,
+          "color": "blue"
+        }
+      ],
+      "generatedTime": "2020-06-07T08:22:20.932Z",
+      "lighthouseVersion": "5.6.0",
+      "requestedUrl": "https://5ecf63ea89654a766e25dbd4--boring-ramanujan-de6e24.netlify.app/",
+      "finalUrl": "https://5ecf63ea89654a766e25dbd4--boring-ramanujan-de6e24.netlify.app/"
+    },
+    {
+      "timings": [
+        {
+          "title": "First Contentful Paint",
+          "id": "firstContentfulPaint",
+          "timing": 4913,
+          "color": "green"
+        },
+        {
+          "title": "First Meaningful Paint",
+          "id": "firstMeaningfulPaint",
+          "timing": 4913,
+          "color": "green"
+        },
+        {
+          "title": "First CPU Idle",
+          "id": "firstCPUIdle",
+          "timing": 6963,
+          "color": "yellow"
+        },
+        {
+          "title": "Time to Interactive",
+          "id": "interactive",
+          "timing": 7210,
+          "color": "yellow"
+        },
+        {
+          "title": "Speed Index",
+          "id": "speedIndex",
+          "timing": 6995,
+          "color": "blue"
+        }
+      ],
+      "generatedTime": "2020-06-07T08:22:27.769Z",
+      "lighthouseVersion": "5.6.0",
+      "requestedUrl": "https://5ecf63ea89654a766e25dbd4--boring-ramanujan-de6e24.netlify.app/",
+      "finalUrl": "https://5ecf63ea89654a766e25dbd4--boring-ramanujan-de6e24.netlify.app/"
+    }
+  ],
+  "median": {
+    "timings": [
+      {
+        "title": "First Contentful Paint",
+        "id": "firstContentfulPaint",
+        "timing": 4858,
+        "color": "green"
+      },
+      {
+        "title": "First Meaningful Paint",
+        "id": "firstMeaningfulPaint",
+        "timing": 4858,
+        "color": "green"
+      },
+      {
+        "title": "First CPU Idle",
+        "id": "firstCPUIdle",
+        "timing": 6831,
+        "color": "yellow"
+      },
+      {
+        "title": "Time to Interactive",
+        "id": "interactive",
+        "timing": 7135,
+        "color": "yellow"
+      },
+      {
+        "title": "Speed Index",
+        "id": "speedIndex",
+        "timing": 6881,
+        "color": "blue"
+      }
+    ],
+    "generatedTime": "2020-06-07T08:21:52.783Z",
+    "lighthouseVersion": "5.6.0",
+    "requestedUrl": "https://5ecf63ea89654a766e25dbd4--boring-ramanujan-de6e24.netlify.app/",
+    "finalUrl": "https://5ecf63ea89654a766e25dbd4--boring-ramanujan-de6e24.netlify.app/"
+  }
+}
