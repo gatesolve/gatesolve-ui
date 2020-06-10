@@ -20,16 +20,19 @@ import {
   routePointSymbolLayer,
   routeLineLayer,
   routeImaginaryLineLayer,
-  allEntrancesLayer,
-  allEntrancesSymbolLayer,
   buildingHighlightLayer,
+  allEntrancesLayers,
 } from "./map-style";
 import Pin, { pinAsSVG } from "./components/Pin";
+import { triangleAsSVG } from "./components/Triangle";
 import UserPosition from "./components/UserPosition";
 import GeolocateControl from "./components/GeolocateControl";
 import calculatePlan, { geometryToGeoJSON } from "./planner";
 import { queryEntrances, ElementWithCoordinates } from "./overpass";
 import { addImageSVG, getMapSize } from "./mapbox-utils";
+import routableTilesToGeoJSON from "./RoutableTilesToGeoJSON";
+import { getVisibleTiles } from "./minimal-xyz-viewer";
+
 import "./App.css";
 import "./components/PinMarker.css";
 
@@ -49,6 +52,7 @@ interface State {
   geolocationPosition: LatLng | null;
   popupCoordinates: ElementWithCoordinates | null;
   snackbar?: ReactText;
+  routableTiles: Map<string, FeatureCollection | null>;
 }
 
 const latLngToDestination = (latLng: LatLng): ElementWithCoordinates => ({
@@ -81,6 +85,7 @@ const initialState: State = {
   isGeolocating: false,
   geolocationPosition: null,
   popupCoordinates: null,
+  routableTiles: new Map(),
 };
 
 const metropolitanAreaCenter = [60.17066815612902, 24.941510260105133];
@@ -157,11 +162,19 @@ const App: React.FC = () => {
     // FIXME: Unclear why this passed type checking before.
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mapboxgl?.on("styleimagemissing", ({ id: iconId }: any) => {
-      if (!iconId?.startsWith("icon-pin-")) {
-        return; // We only know how to generate pin icons
+      if (!iconId?.startsWith("icon-svg-")) {
+        return; // We only know how to generate certain svg icons
       }
-      const [, , size, fill, stroke] = iconId.split("-"); // e.g. icon-pin-48-green-#fff
-      const svgData = pinAsSVG(size, `fill: ${fill}; stroke: ${stroke}`);
+      const [, , shape, size, fill, stroke] = iconId.split("-"); // e.g. icon-pin-48-green-#fff
+      let renderSVG;
+      if (shape === "pin") {
+        renderSVG = pinAsSVG;
+      } else if (shape === "triangle") {
+        renderSVG = triangleAsSVG;
+      } else {
+        return; // Unknown shape
+      }
+      const svgData = renderSVG(size, `fill: ${fill}; stroke: ${stroke}`);
       addImageSVG(mapboxgl, iconId, svgData, size);
     });
   }, [map]);
@@ -181,6 +194,73 @@ const App: React.FC = () => {
       latLngs
     );
   };
+
+  useEffect(() => {
+    if (!map.current || !state.viewport.zoom) {
+      return; // Nothing to do yet
+    }
+    if (state.viewport.zoom < 12) return; // minzoom
+
+    const { width: mapWidth, height: mapHeight } = getMapSize(
+      map.current.getMap()
+    );
+
+    // Calculate multiplier for under- or over-zoom
+    const tilesetZoomLevel = 14;
+    const zoomOffset = 1; // tiles are 512px (double the standard size)
+    const zoomMultiplier =
+      2 ** (tilesetZoomLevel - zoomOffset - state.viewport.zoom);
+
+    const visibleTiles = getVisibleTiles(
+      zoomMultiplier * mapWidth,
+      zoomMultiplier * mapHeight,
+      [state.viewport.longitude, state.viewport.latitude],
+      tilesetZoomLevel
+    );
+
+    // Initialise the new Map with nulls and available tiles from previous
+    const routableTiles = new Map();
+    visibleTiles.forEach(({ zoom, x, y }) => {
+      const key = `${zoom}/${x}/${y}`;
+      routableTiles.set(key, state.routableTiles.get(key) || null);
+    });
+
+    setState(
+      (prevState: State): State => {
+        return {
+          ...prevState,
+          routableTiles,
+        };
+      }
+    );
+
+    visibleTiles.map(async ({ zoom, x, y }) => {
+      const key = `${zoom}/${x}/${y}`;
+      if (routableTiles.get(key) !== null) return; // We already have the tile
+      // Fetch the tile
+      const response = await fetch(
+        `https://tile.olmap.org/building-tiles/${zoom}/${x}/${y}`
+      );
+      const body = await response.json();
+      // Convert the tile to GeoJSON
+      const geoJSON = routableTilesToGeoJSON(body) as FeatureCollection;
+      // Add the tile if still needed based on latest state
+      setState(
+        (prevState: State): State => {
+          if (prevState.routableTiles.get(key) !== null) {
+            return prevState; // This tile is not needed anymore
+          }
+          const newRoutableTiles = new Map(prevState.routableTiles);
+          newRoutableTiles.set(key, geoJSON);
+          return {
+            ...prevState,
+            routableTiles: newRoutableTiles,
+          };
+        }
+      );
+    });
+  }, [map.current, state.viewport]); // eslint-disable-line react-hooks/exhaustive-deps
+  // XXX: state.routableTiles is missing above as we only use it as a cache here
 
   useEffect(() => {
     /**
@@ -603,26 +683,28 @@ const App: React.FC = () => {
             <UserPosition dataTestId="user-marker" />
           </Marker>
         )}
-        <Source
-          id="osm-qa-tiles"
-          type="vector"
-          tiles={["https://tile.olmap.org/osm-qa-tiles/{z}/{x}/{y}.pbf"]}
-          minzoom={12}
-          maxzoom={12}
-        >
-          <Layer
-            source-layer="osm"
-            // eslint-disable-next-line react/jsx-props-no-spreading
-            {...allEntrancesLayer}
-            source="osm-qa-tiles"
-          />
-          <Layer
-            source-layer="osm"
-            // eslint-disable-next-line react/jsx-props-no-spreading
-            {...allEntrancesSymbolLayer}
-            source="osm-qa-tiles"
-          />
-        </Source>
+        {Array.from(
+          state.routableTiles.entries(),
+          ([coords, tile]) =>
+            tile && (
+              <Source
+                key={coords}
+                id={`source-${coords}`}
+                type="geojson"
+                data={tile}
+              >
+                {allEntrancesLayers.map((layer) => (
+                  <Layer
+                    // eslint-disable-next-line react/jsx-props-no-spreading
+                    {...layer}
+                    key={`${layer.id}-${coords}`}
+                    id={`${layer.id}-${coords}`}
+                    source={`source-${coords}`}
+                  />
+                ))}
+              </Source>
+            )
+        )}
         <Source id="highlights" type="geojson" data={state.highlights}>
           <Layer
             // eslint-disable-next-line react/jsx-props-no-spreading

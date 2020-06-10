@@ -11,3 +11,7 @@ src/serviceWorker.ts
 
 # Copied from @urbica/react-map-gl
 src/__mocks__/mapbox-gl.js
+
+# Modules from external sources
+src/minimal-xyz-viewer.js
+src/RoutableTilesToGeoJSON.js
