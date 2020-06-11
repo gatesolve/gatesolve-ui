@@ -3308,10 +3308,10 @@
     semver "^6.3.0"
     tsutils "^3.17.1"
 
-"@urbica/react-map-gl@^1.13.0":
-  version "1.13.0"
-  resolved "https://registry.yarnpkg.com/@urbica/react-map-gl/-/react-map-gl-1.13.0.tgz#b3d0020c32bb7017112d9f184da4ccbd8f63f80e"
-  integrity sha512-wBZLJBHeMOSsl1UTGQWhb81ZJhwgmp/7qav/PwZJ/wcxLbckoeRhAOtj4Pl9dC4i3LudS50ZiPCZolmtFpvw1w==
+"@urbica/react-map-gl@^1.13.1":
+  version "1.13.1"
+  resolved "https://registry.yarnpkg.com/@urbica/react-map-gl/-/react-map-gl-1.13.1.tgz#4aba488a48dea3e06aadfe9877871d7b3b0a91f6"
+  integrity sha512-74amWbHpE14rB5B6OnIl/ML8n9tJQFN7B50Nf5/380FTvbm4c+NUZX+K+lhlDWaatu00RcD4F94BWG6z/XJDCg==
   optionalDependencies:
     "@mapbox/mapbox-gl-language" "^0.10.0"
     "@mapbox/mapbox-gl-traffic" "^1.0.2"
