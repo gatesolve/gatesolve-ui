@@ -820,7 +820,7 @@ const App: React.FC = () => {
                                 "addr:housenumber",
                                 "addr:unit",
                                 "ref",
-                              ].find((censored) => k === censored)
+                              ].includes(k)
                           )
                           .map(([k, v]) => (
                             <tr key={`${k}-${v}`}>
