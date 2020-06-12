@@ -797,14 +797,12 @@ const App: React.FC = () => {
           {state.popupCoordinates && (
             <>
               <div>
-                <p>
-                  <h3>
-                    {state.popupCoordinates.tags?.["addr:street"]}{" "}
-                    {state.popupCoordinates.tags?.["addr:housenumber"]}{" "}
-                    {state.popupCoordinates.tags?.["ref"] ||
-                      state.popupCoordinates.tags?.["addr:unit"]}
-                  </h3>
-                </p>
+                <h3>
+                  {state.popupCoordinates.tags?.["addr:street"]}{" "}
+                  {state.popupCoordinates.tags?.["addr:housenumber"]}{" "}
+                  {state.popupCoordinates.tags?.["ref"] ||
+                    state.popupCoordinates.tags?.["addr:unit"]}
+                </h3>
                 <p>
                   {state.popupCoordinates.tags && (
                     <table
@@ -812,29 +810,31 @@ const App: React.FC = () => {
                         textAlign: "left",
                       }}
                     >
-                      {Object.entries(state.popupCoordinates.tags)
-                        .filter(
-                          ([k]) =>
-                            !k.startsWith("@") &&
-                            ![
-                              "addr:street",
-                              "addr:housenumber",
-                              "addr:unit",
-                              "ref",
-                            ].find((censored) => k === censored)
-                        )
-                        .map(([k, v]) => (
-                          <tr key={`${k}-${v}`}>
-                            <td
-                              style={{
-                                padding: "0 5px 0 0",
-                              }}
-                            >
-                              {k}
-                            </td>
-                            <td>{v}</td>
-                          </tr>
-                        ))}
+                      <tbody>
+                        {Object.entries(state.popupCoordinates.tags)
+                          .filter(
+                            ([k]) =>
+                              !k.startsWith("@") &&
+                              ![
+                                "addr:street",
+                                "addr:housenumber",
+                                "addr:unit",
+                                "ref",
+                              ].includes(k)
+                          )
+                          .map(([k, v]) => (
+                            <tr key={`${k}-${v}`}>
+                              <td
+                                style={{
+                                  padding: "0 5px 0 0",
+                                }}
+                              >
+                                {k}
+                              </td>
+                              <td>{v}</td>
+                            </tr>
+                          ))}
+                      </tbody>
                     </table>
                   )}
                 </p>
