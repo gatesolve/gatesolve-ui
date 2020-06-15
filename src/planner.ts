@@ -1,10 +1,9 @@
-// eslint-disable-next-line import/no-extraneous-dependencies
-import {
+import type {
   Feature,
   FeatureCollection,
   Geometry,
   GeoJsonProperties,
-} from "geojson";
+} from "geojson"; // eslint-disable-line import/no-extraneous-dependencies
 
 // "./planner-config" (and PlannerJS) is imported dynamically by calculatePlan
 

@@ -1,4 +1,4 @@
-import type { LayerProps } from "react-map-gl";
+import type { LayerProps } from "react-map-gl"; // eslint-disable-line import/no-extraneous-dependencies
 import type { Expression } from "mapbox-gl";
 
 const anglesToAnchors = (): Array<string | number> => {
