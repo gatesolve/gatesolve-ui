@@ -315,22 +315,32 @@ const App: React.FC = () => {
 
   useEffect(() => {
     if (!state.destination) return; // Nothing to do yet
-    queryEntrances(state.destination).then((result) => {
-      setState(
-        (prevState): State => {
-          if (!state.destination) return prevState; // XXX Typescript needs this
-          if (prevState.destination !== state.destination) {
-            return prevState;
-          }
-          const entrances = result.length ? result : [state.destination];
+    queryEntrances(state.destination)
+      .catch((error) => {
+        // eslint-disable-next-line no-console
+        console.error("Error while fetching building entrances:", error);
+        return []; // Proceed as if there was no entrance data
+      })
+      .then((result) => {
+        setState(
+          (prevState): State => {
+            if (!state.destination) return prevState; // XXX Typescript needs this
+            if (prevState.destination !== state.destination) {
+              return prevState;
+            }
+            const entrances = result.length ? result : [state.destination];
 
-          return {
-            ...prevState,
-            entrances,
-          };
-        }
-      );
-    });
+            return {
+              ...prevState,
+              entrances,
+            };
+          }
+        );
+      })
+      .catch((error) => {
+        // eslint-disable-next-line no-console
+        console.error("Error while handling entrances:", error);
+      });
   }, [state.destination]);
 
   // Set off routing calculation when inputs change; collect results in state.route
@@ -457,6 +467,9 @@ const App: React.FC = () => {
           };
         }
       );
+    }).catch((error) => {
+      // eslint-disable-next-line no-console
+      console.error("Error while starting route planning:", error);
     });
   }, [state.origin, state.entrances]); // eslint-disable-line react-hooks/exhaustive-deps
   // XXX: state.destination is missing above as we need to wait for state.entrances to change as well
