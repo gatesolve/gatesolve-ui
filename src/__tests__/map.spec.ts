@@ -26,9 +26,9 @@ describe("Basic map functionality", () => {
     });
   });
 
-  afterAll(() => {
+  afterAll(async () => {
     if (!page.isClosed()) {
-      browser.close();
+      await browser.close();
     }
   });
 
