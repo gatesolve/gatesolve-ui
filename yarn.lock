@@ -3139,10 +3139,10 @@
   dependencies:
     "@types/react" "*"
 
-"@types/react-map-gl@^5.2.4":
-  version "5.2.4"
-  resolved "https://registry.yarnpkg.com/@types/react-map-gl/-/react-map-gl-5.2.4.tgz#8cd8683aee22a6cf418420faf134ee0a089c115e"
-  integrity sha512-SxSETKaDaLw7+G41/z0WRlY3DqjS+cEEpX4nxWNSWLHFc3QtEe1czv8CBKfAMBUiYFir5URSaTyn0Smvxq4JEQ==
+"@types/react-map-gl@^5.2.5":
+  version "5.2.5"
+  resolved "https://registry.yarnpkg.com/@types/react-map-gl/-/react-map-gl-5.2.5.tgz#4ec00ce8eeb126690d62948e2177427025d6b8d1"
+  integrity sha512-TgSsl5Wkk50VsvypRT2qq0jmfVzBuvHPLXALHkTERRyPgXb0AYJrWP885+xmFcrKi8ZsaWubvP7Fs0U7f9V/uw==
   dependencies:
     "@types/geojson" "*"
     "@types/mapbox-gl" "*"
