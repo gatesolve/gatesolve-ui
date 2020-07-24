@@ -3138,10 +3138,10 @@
   dependencies:
     "@types/react" "*"
 
-"@types/react-map-gl@^5.2.5":
-  version "5.2.5"
-  resolved "https://registry.yarnpkg.com/@types/react-map-gl/-/react-map-gl-5.2.5.tgz#4ec00ce8eeb126690d62948e2177427025d6b8d1"
-  integrity sha512-TgSsl5Wkk50VsvypRT2qq0jmfVzBuvHPLXALHkTERRyPgXb0AYJrWP885+xmFcrKi8ZsaWubvP7Fs0U7f9V/uw==
+"@types/react-map-gl@^5.2.6":
+  version "5.2.6"
+  resolved "https://registry.yarnpkg.com/@types/react-map-gl/-/react-map-gl-5.2.6.tgz#7d4c7f93fe1a845c3bfaa27deca2cc77c569034c"
+  integrity sha512-UWWViRaJ07mN/frqHzJbhwxhatLrpZ7HhUak7pD5+YbEAW8pUghYYN8Cy7od9d1V32zE1Jdro11xxtDquMoEMg==
   dependencies:
     "@types/geojson" "*"
     "@types/mapbox-gl" "*"
