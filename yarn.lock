@@ -3328,10 +3328,10 @@
   dependencies:
     eslint-visitor-keys "^1.1.0"
 
-"@urbica/react-map-gl@^1.14.0":
-  version "1.14.0"
-  resolved "https://registry.yarnpkg.com/@urbica/react-map-gl/-/react-map-gl-1.14.0.tgz#22730cd5f73c9d3902e50252036649b25970560b"
-  integrity sha512-/tN9SpRxFj6R9VbeyRGivlkRaY1obY4t3siwuVxfUP3HDLewF+ZJTE3VBDYRUCZ19k4MBK01v6cz3XbLXkpqfw==
+"@urbica/react-map-gl@^1.14.1":
+  version "1.14.1"
+  resolved "https://registry.yarnpkg.com/@urbica/react-map-gl/-/react-map-gl-1.14.1.tgz#d5d099958505e1687121a9759c6c3f30aa5ccb9b"
+  integrity sha512-fGINSZ7Dag7WdRwhevHrAOjcXsoGwMgYG4Ec5Y5H7dLEP3FjsEsoyCSFwD/M/qzKLi01GL4S3ffcbiXJLkpErw==
   optionalDependencies:
     "@mapbox/mapbox-gl-language" "^0.10.0"
     "@mapbox/mapbox-gl-traffic" "^1.0.2"
