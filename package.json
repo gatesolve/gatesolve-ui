@@ -19,7 +19,7 @@
     "@types/react-map-gl": "^5.2.7",
     "@types/react-router": "^5.1.8",
     "@types/react-router-dom": "^5.1.5",
-    "@types/viewport-mercator-project": "^6.1.0",
+    "@types/viewport-mercator-project": "^6.1.1",
     "@urbica/react-map-gl": "^1.14.1",
     "mapbox-gl": "^1.11.1",
     "notistack": "^0.9.17",
