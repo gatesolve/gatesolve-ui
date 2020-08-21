@@ -9,7 +9,7 @@ import MapGL, { Popup, Source, Layer, Marker } from "@urbica/react-map-gl";
 import { WebMercatorViewport } from "viewport-mercator-project";
 import type { WebMercatorViewportOptions } from "viewport-mercator-project";
 import { distance as turfDistance } from "@turf/turf";
-import { MapboxGeoJSONFeature } from "mapbox-gl";
+import { MapboxGeoJSONFeature, Style } from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { FeatureCollection } from "geojson";
@@ -53,6 +53,7 @@ interface State {
   popupCoordinates: ElementWithCoordinates | null;
   snackbar?: ReactText;
   routableTiles: Map<string, FeatureCollection | null>;
+  basemapStyle: string | Style;
 }
 
 const latLngToDestination = (latLng: LatLng): ElementWithCoordinates => ({
@@ -86,6 +87,16 @@ const initialState: State = {
   geolocationPosition: null,
   popupCoordinates: null,
   routableTiles: new Map(),
+  basemapStyle: {
+    layers: [],
+    sources: {},
+    version: 8,
+    // The following are copied from hsl-map-style/simple-style.json
+    // to avoid the warning "Unable to perform style diff":
+    glyphs: "https://static.hsldev.com/mapfonts/{fontstack}/{range}.pbf",
+    sprite:
+      "https://raw.githubusercontent.com/HSLdevcom/hsl-map-style/master/sprite",
+  },
 };
 
 const metropolitanAreaCenter = [60.17066815612902, 24.941510260105133];
@@ -194,6 +205,33 @@ const App: React.FC = () => {
       latLngs
     );
   };
+
+  // Download and patch the basemap style
+  useEffect(() => {
+    const asyncAction = async (): Promise<void> => {
+      const response = await fetch(
+        "https://raw.githubusercontent.com/HSLdevcom/hsl-map-style/master/simple-style.json"
+      );
+      const style = (await response.json()) as mapboxgl.Style;
+      setState((prevState) => ({
+        ...prevState,
+        basemapStyle: {
+          ...style,
+          // Hide housenumbers (we draw our own)
+          layers: style.layers?.filter(
+            (layer) => layer.id !== "housenum_label"
+          ),
+        },
+      }));
+    };
+    asyncAction().catch((error) => {
+      // eslint-disable-next-line no-console
+      console.error(
+        "Error while downloading and patching the basemap style:",
+        error
+      );
+    });
+  }, []);
 
   useEffect(() => {
     if (!map.current || !state.viewport.zoom) {
@@ -644,7 +682,7 @@ const App: React.FC = () => {
         // eslint-disable-next-line react/jsx-props-no-spreading
         {...state.viewport}
         style={{ width: "100%", height: "90%" }}
-        mapStyle="https://raw.githubusercontent.com/HSLdevcom/hsl-map-style/master/simple-style.json"
+        mapStyle={state.basemapStyle}
         transformRequest={transformRequest}
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         onViewportChange={(viewport: any): void => {
