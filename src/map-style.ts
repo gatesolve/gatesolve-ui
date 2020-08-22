@@ -117,11 +117,13 @@ export const allEntrancesLayers: Array<LayerProps> = [
       "text-anchor": ["step", ["%", ["get", "@rotate"], 360]].concat(
         anglesToAnchors()
       ) as Expression,
+      "text-rotation-alignment": "map",
       "text-allow-overlap": true,
       "text-ignore-placement": true,
       "icon-image": "icon-svg-triangle-14-#64be14-#fff",
       "icon-anchor": "bottom",
       "icon-rotate": ["get", "@rotate"],
+      "icon-rotation-alignment": "map",
       "icon-allow-overlap": true,
       "icon-ignore-placement": true,
     },
