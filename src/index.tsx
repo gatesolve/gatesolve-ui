@@ -6,12 +6,13 @@ import { CircularProgress } from "@material-ui/core";
 import "./index.css";
 import * as serviceWorker from "./serviceWorker";
 
-const App = React.lazy(() =>
-  import(
-    /* webpackChunkName: "App" */
-    /* webpackPreload: true */
-    "./App"
-  )
+const App = React.lazy(
+  () =>
+    import(
+      /* webpackChunkName: "App" */
+      /* webpackPreload: true */
+      "./App"
+    )
 );
 
 ReactDOM.render(
