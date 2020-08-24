@@ -110,7 +110,28 @@ export const allEntrancesLayers: Array<LayerProps> = [
       "text-halo-width": 1,
     },
     layout: {
-      "text-field": ["get", "@label"],
+      "text-field": [
+        "format",
+        // First, the housenumber, without special formatting
+        ["get", "@house-label"],
+        {},
+        // Next, a separator in the case that there are two labels
+        [
+          "case",
+          // If we have both labels,
+          ["all", ["has", "@house-label"], ["has", "@entrance-label"]],
+          // then separate by a thin space.
+          "\u2009",
+          // Otherwise, no separator.
+          "",
+        ],
+        {},
+        // Last, the entrance letter, in bold font
+        ["get", "@entrance-label"],
+        {
+          "text-font": ["literal", ["Klokantech Noto Sans Bold"]],
+        },
+      ],
       "text-font": ["Klokantech Noto Sans Regular"],
       "text-size": 16,
       "text-offset": ["get", "@offset"],

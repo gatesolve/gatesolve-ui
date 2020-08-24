@@ -88,9 +88,10 @@ const entranceToLabel = function (node) {
     ?.find((tag) => tag.startsWith("addr:unit="))
     ?.substring(10);
   const entrance = ref || unit || "";
-  const separator = house && entrance ? " " : "";
-  const label = `${house}${separator}${entrance}`.replace(/ /g, "\u2009");
-  return label;
+  return {
+    house: house.replace(/ /g, "\u2009"),
+    entrance: entrance.replace(/ /g, "\u2009"),
+  };
 };
 
 export default function (json) {
@@ -105,6 +106,7 @@ export default function (json) {
 
       if (element["osm:hasTag"]?.find((tag) => tag.startsWith("entrance="))) {
         // Create a GeoJSON feature for each entrance
+        const entranceLabel = entranceToLabel(element);
         const entrance = {
           id: element["@id"],
           type: "Feature",
@@ -114,7 +116,8 @@ export default function (json) {
           },
           properties: {
             "@id": element["@id"],
-            "@label": entranceToLabel(element),
+            "@entrance-label": entranceLabel.entrance,
+            "@house-label": entranceLabel.house,
           },
         };
         // Store each OSM tag as a feature property
