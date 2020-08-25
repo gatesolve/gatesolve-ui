@@ -418,6 +418,7 @@ const App: React.FC = () => {
                   (prevState): State => ({
                     ...prevState,
                     destination: undefined,
+                    entrances: [],
                     viewport: fitMap(prevState.viewport, [prevState.origin]),
                   })
                 );
