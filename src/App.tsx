@@ -429,7 +429,7 @@ const App: React.FC = () => {
             <Button
               target="_blank"
               rel="noreferrer"
-              href={`https://www.google.com/maps/dir/?api=1&origin=${state.origin[0]},${state.origin[1]}&destination=${state.destination.lat},${state.destination.lon}`}
+              href={`https://www.google.com/maps/dir/?api=1&origin=${state.origin[0]},${state.origin[1]}&destination=${state.destination.lat},${state.destination.lon}&travelmode=driving`}
             >
               Google Maps
             </Button>
