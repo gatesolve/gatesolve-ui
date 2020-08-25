@@ -382,10 +382,10 @@ const App: React.FC = () => {
       maxRoutingDistance
     ) {
       const message = state.isOriginExplicit
-        ? "Distance too long!"
-        : "Routing starts when distance is shorter";
+        ? "Origin is too far for showing routes."
+        : "Routes show when distance is shorter.";
       const snackbar = enqueueSnackbar(message, {
-        variant: "warning",
+        variant: "info",
         persist: true,
         anchorOrigin: {
           vertical: "bottom",
@@ -395,6 +395,7 @@ const App: React.FC = () => {
           <>
             {state.isOriginExplicit && (
               <Button
+                color="inherit"
                 onClick={(): void => {
                   setState(
                     (prevState): State => ({
@@ -409,10 +410,11 @@ const App: React.FC = () => {
                   );
                 }}
               >
-                Discard origin
+                Undo origin
               </Button>
             )}
             <Button
+              color="inherit"
               onClick={(): void => {
                 setState(
                   (prevState): State => ({
@@ -424,9 +426,10 @@ const App: React.FC = () => {
                 );
               }}
             >
-              Discard destination
+              Undo destination
             </Button>
             <Button
+              color="inherit"
               target="_blank"
               rel="noreferrer"
               href={`https://www.google.com/maps/dir/?api=1&origin=${state.origin[0]},${state.origin[1]}&destination=${state.destination.lat},${state.destination.lon}&travelmode=driving`}
