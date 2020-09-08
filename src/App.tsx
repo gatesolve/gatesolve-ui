@@ -567,6 +567,18 @@ const App: React.FC = () => {
             popupCoordinates: element,
           };
         }
+        if (feature?.properties.barrier) {
+          return {
+            ...prevState,
+            popupCoordinates: {
+              id: feature.properties["@id"],
+              type: feature.properties["@type"],
+              lat: feature.geometry.coordinates[1],
+              lon: feature.geometry.coordinates[0],
+              tags: feature.properties,
+            },
+          };
+        }
         if (feature?.sourceLayer === "building") {
           // If a building was clicked, highlight it and set as destination
           return {

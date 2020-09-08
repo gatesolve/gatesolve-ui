@@ -81,7 +81,7 @@ export const routePointLayer: LayerProps = {
   paint: {
     "circle-opacity": ["coalesce", ["get", "opacity"], 1],
     "circle-radius": 5,
-    "circle-color": ["get", "color"],
+    "circle-color": ["get", "@color"],
   },
   filter: ["==", "Point", ["geometry-type"]],
 };
@@ -383,7 +383,7 @@ export const routePointSymbolLayer: LayerProps = {
     "text-halo-width": 3,
   },
   layout: {
-    "text-field": ["get", "ref"],
+    "text-field": ["get", "@label"],
     "text-anchor": "center",
     "text-font": ["Klokantech Noto Sans Regular"],
     "text-size": 24,

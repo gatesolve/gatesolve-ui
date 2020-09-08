@@ -11,7 +11,7 @@ import { ElementWithCoordinates } from "./overpass";
 
 interface RouteGeometries {
   coordinates: Array<[number, number]>;
-  obstacles: Array<[number, number]>;
+  obstacles: Array<ElementWithCoordinates>;
   obstacleWays: Array<Array<[number, number]>>;
   imaginaryWays: Array<Array<[number, number]>>;
 }
@@ -21,7 +21,7 @@ function extractGeometry(
   path: any
 ): RouteGeometries {
   const coordinates = [] as Array<[number, number]>;
-  const obstacles = [] as Array<[number, number]>;
+  const obstacles = [] as Array<ElementWithCoordinates>;
   const obstacleWays = new Map();
   const imaginaryWays = [] as Array<Array<[number, number]>>;
 
@@ -70,17 +70,34 @@ function extractGeometry(
         );
     }
     if (node.definedTags?.["https://w3id.org/openstreetmap/terms#barrier"]) {
+      const barrier = node.definedTags[
+        "https://w3id.org/openstreetmap/terms#barrier"
+      ].replace(/^.*#/, "");
+
       // eslint-disable-next-line no-console
       console.log(
         step.through,
-        node.definedTags[
-          "https://w3id.org/openstreetmap/terms#barrier"
-        ].replace(/^.*#/, ""),
+        barrier,
         node.id,
         node.definedTags,
         node.freeformTags
       );
-      obstacles.push([node.longitude as number, node.latitude as number]);
+
+      // Convert OSM tags to key value pairs
+      const tags = Object();
+      tags.barrier = barrier;
+      node.freeformTags.forEach((tag: string) => {
+        const splitIndex = tag.indexOf("=");
+        tags[tag.substring(0, splitIndex)] = tag.substring(splitIndex + 1);
+      });
+
+      obstacles.push({
+        type: node.id,
+        id: node.id,
+        lon: node.longitude as number,
+        lat: node.latitude as number,
+        tags,
+      });
     }
     coordinates.push([
       step.startLocation.longitude as number,
@@ -114,7 +131,7 @@ export function geometryToGeoJSON(
         coordinates: [origin[1], origin[0]],
       },
       properties: {
-        color: "#00afff",
+        "@color": "#00afff",
       },
     });
   }
@@ -127,7 +144,7 @@ export function geometryToGeoJSON(
           coordinates: [target.lon, target.lat],
         },
         properties: {
-          color: "#64be14",
+          "@color": "#64be14",
         },
       });
     });
@@ -141,8 +158,8 @@ export function geometryToGeoJSON(
           coordinates: [entrance.lon, entrance.lat],
         },
         properties: {
-          color: "#00ffff",
-          ref: entrance.tags?.["ref"] || entrance.tags?.["addr:unit"],
+          "@color": "#00ffff",
+          "@label": entrance.tags?.["ref"] || entrance.tags?.["addr:unit"],
           opacity: 0,
         },
       });
@@ -186,19 +203,20 @@ export function geometryToGeoJSON(
       },
     });
   }
-  if (routeGeometries?.obstacles) {
+  routeGeometries?.obstacles.forEach((obstacle) => {
     features.push({
       type: "Feature",
       geometry: {
-        type: "MultiPoint",
-        coordinates: routeGeometries.obstacles,
+        type: "Point",
+        coordinates: [obstacle.lon, obstacle.lat],
       },
       properties: {
-        color: "#dc0451",
-        ref: "!",
+        ...obstacle.tags,
+        "@color": "#dc0451",
+        "@label": "!",
       },
     });
-  }
+  });
   return {
     type: "FeatureCollection",
     features,
