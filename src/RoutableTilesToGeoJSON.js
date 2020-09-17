@@ -34,7 +34,7 @@ var extractWays = function (json, nodes, feats) {
       if (nodeIds[0] !== nodeIds[nodeIds.length - 1]) {
         console.log("unclosed", item["@id"]);
       }
-      item["osm:hasNodes"].map((nodeId, index, nodeIds) => {
+      item["osm:hasNodes"].forEach((nodeId, index, nodeIds) => {
         const node = feats[nodeId];
         if (node) {
           // FIXME: This logic does not consider inner edges of multipolygons:
@@ -71,7 +71,6 @@ var extractWays = function (json, nodes, feats) {
             "@rotate": (((angle - 90) % 360) + 360) % 360,
           };
         }
-        return nodes[nodeId];
       });
     });
 };
