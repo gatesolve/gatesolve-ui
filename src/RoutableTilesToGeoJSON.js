@@ -34,13 +34,17 @@ var extractWays = function (json, nodes, feats) {
       if (nodeIds[0] !== nodeIds[nodeIds.length - 1]) {
         console.log("unclosed", item["@id"]);
       }
+      let isWayClockwise = null;
       item["osm:hasNodes"].forEach((nodeId, index, nodeIds) => {
         const node = feats[nodeId];
         if (node) {
           // FIXME: This logic does not consider inner edges of multipolygons:
-          const isWayClockwise = turfBooleanClockwise(
-            turfLineString(nodeIds.map((id) => nodes[id]))
-          );
+          // Calculate clockwiseness only when first entrance is hit
+          if (isWayClockwise === null) {
+            isWayClockwise = turfBooleanClockwise(
+              turfLineString(nodeIds.map((id) => nodes[id]))
+            );
+          }
           const xy = nodes[nodeId];
           const xyPrev =
             index === 0
