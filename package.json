@@ -20,7 +20,7 @@
     "@types/react-router": "^5.1.8",
     "@types/react-router-dom": "^5.1.5",
     "@types/viewport-mercator-project": "^6.1.1",
-    "@urbica/react-map-gl": "^1.14.1",
+    "@urbica/react-map-gl": "^1.14.2",
     "mapbox-gl": "^1.12.0",
     "notistack": "^1.0.0",
     "plannerjs": "https://github.com/gatesolve/planner.js#build-for-gatesolve",

@@ -3427,10 +3427,10 @@
     "@typescript-eslint/types" "4.0.1"
     eslint-visitor-keys "^2.0.0"
 
-"@urbica/react-map-gl@^1.14.1":
-  version "1.14.1"
-  resolved "https://registry.yarnpkg.com/@urbica/react-map-gl/-/react-map-gl-1.14.1.tgz#d5d099958505e1687121a9759c6c3f30aa5ccb9b"
-  integrity sha512-fGINSZ7Dag7WdRwhevHrAOjcXsoGwMgYG4Ec5Y5H7dLEP3FjsEsoyCSFwD/M/qzKLi01GL4S3ffcbiXJLkpErw==
+"@urbica/react-map-gl@^1.14.2":
+  version "1.14.2"
+  resolved "https://registry.yarnpkg.com/@urbica/react-map-gl/-/react-map-gl-1.14.2.tgz#973a0fb83d211f651f10fabb874183a552dccf43"
+  integrity sha512-E3r5mkVz98iTqLlJ/OPcF15yAQ/aSvhC6CZNOQzdSmTmCbnUaF0GexccM+QlF4SGHEKP3rTQSjuGKrNMjfEOHw==
   optionalDependencies:
     "@mapbox/mapbox-gl-language" "^0.10.0"
     "@mapbox/mapbox-gl-traffic" "^1.0.2"
