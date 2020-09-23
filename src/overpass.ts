@@ -43,9 +43,15 @@ const buildEntranceQuery = (lat: number, lon: number): string => `
     way(r);
     way(around:10, ${lat}, ${lon})[building];
   )->.b;
+  (
+    relation(around.b:10)["building:part"];
+    way(r);
+    way(around.b:10)["building:part"];
+  )->.p;
   // gather results
   (
     node(w.b)[entrance];
+    node(w.p)[entrance];
   );
   // print results
   out body;
