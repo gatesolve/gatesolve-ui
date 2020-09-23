@@ -8,15 +8,33 @@ import {
 
 const offset = 0.2;
 
-var processWays = function (json, nodes, feats) {
-  json["@graph"]
+var processRelations = function (relations, ways, nodes, feats) {
+  Object.values(relations)
     .filter((item) => {
-      return (
-        item["@type"] === "osm:Way"
-        /* FIXME: Implement proper support for multipolygon outlines
-           and then re-enable the following filter:
-             && item["osm:hasTag"]?.find((tag) => tag.startsWith("building="))
-         */
+      return item["osm:hasTag"]?.find(
+        (tag) => tag.startsWith("building=") || tag.startsWith("building:part=")
+      );
+    })
+    .forEach((item) => {
+      item["osm:hasMembers"].forEach((member) => {
+        // Process the member way if it's included in the tile
+        if (ways[member["@id"]]) {
+          processWay(
+            ways[member["@id"]],
+            nodes,
+            feats,
+            member.role === "inner"
+          );
+        }
+      });
+    });
+};
+
+var processWays = function (ways, nodes, feats) {
+  Object.values(ways)
+    .filter((item) => {
+      return item["osm:hasTag"]?.find(
+        (tag) => tag.startsWith("building=") || tag.startsWith("building:part=")
       );
     })
     .forEach((item) => {
@@ -24,7 +42,7 @@ var processWays = function (json, nodes, feats) {
     });
 };
 
-var processWay = function (item, nodes, feats) {
+var processWay = function (item, nodes, feats, isInnerRole) {
   //Transform osm:hasNodes to a linestring style thing
   if (!item["osm:hasNodes"]) {
     item["osm:hasNodes"] = [];
@@ -43,7 +61,6 @@ var processWay = function (item, nodes, feats) {
   item["osm:hasNodes"].forEach((nodeId, index, nodeIds) => {
     const node = feats[nodeId];
     if (node) {
-      // FIXME: This logic does not consider inner edges of multipolygons:
       // Calculate clockwiseness only when first entrance is hit
       if (isWayClockwise === null) {
         isWayClockwise = turfBooleanClockwise(
@@ -67,7 +84,8 @@ var processWay = function (item, nodes, feats) {
         Math.min(bearingPrev, bearingNext);
       const adaptedAngle =
         bearingPrev > bearingNext ? entranceAngle + 270 : entranceAngle + 90;
-      const angle = isWayClockwise ? adaptedAngle : adaptedAngle + 180;
+      const angle =
+        isWayClockwise !== !!isInnerRole ? adaptedAngle : adaptedAngle + 180;
 
       node.properties = {
         ...node.properties,
@@ -102,9 +120,15 @@ const entranceToLabel = function (node) {
 export default function (json) {
   var entrances = {};
   var nodes = {};
+  var ways = {};
+  var relations = {};
   for (var i = 0; i < json["@graph"].length; i++) {
     let element = json["@graph"][i];
-    if (element["geo:lat"] && element["geo:long"]) {
+    if (element["@type"] === "osm:Relation") {
+      relations[element["@id"]] = element;
+    } else if (element["@type"] === "osm:Way") {
+      ways[element["@id"]] = element;
+    } else if (element["geo:lat"] && element["geo:long"]) {
       // Store the coordinates of every node for later reference
       const lngLat = [element["geo:long"], element["geo:lat"]];
       nodes[element["@id"]] = lngLat;
@@ -138,7 +162,8 @@ export default function (json) {
       }
     }
   }
-  processWays(json, nodes, entrances);
+  processRelations(relations, ways, nodes, entrances);
+  processWays(ways, nodes, entrances);
   return {
     type: "FeatureCollection",
     features: Object.values(entrances),
