@@ -8,59 +8,55 @@ import {
 
 const offset = 0.2;
 
-var processRelations = function (relations, ways, nodes, feats) {
+var processRelations = function (relations, ways, nodes, entrances) {
   Object.values(relations)
-    .filter((item) => {
-      return item["osm:hasTag"]?.find(
+    .filter((relation) => {
+      return relation["osm:hasTag"]?.find(
         (tag) => tag.startsWith("building=") || tag.startsWith("building:part=")
       );
     })
-    .forEach((item) => {
-      item["osm:hasMembers"].forEach((member) => {
+    .forEach((relation) => {
+      relation["osm:hasMembers"].forEach((member) => {
         // Process the member way if it's included in the tile
-        if (ways[member["@id"]]) {
-          processWay(
-            ways[member["@id"]],
-            nodes,
-            feats,
-            member.role === "inner"
-          );
+        const way = ways[member["@id"]];
+        if (way) {
+          processWay(way, nodes, entrances, member.role === "inner");
         }
       });
     });
 };
 
-var processWays = function (ways, nodes, feats) {
+var processWays = function (ways, nodes, entrances) {
   Object.values(ways)
-    .filter((item) => {
-      return item["osm:hasTag"]?.find(
+    .filter((way) => {
+      return way["osm:hasTag"]?.find(
         (tag) => tag.startsWith("building=") || tag.startsWith("building:part=")
       );
     })
-    .forEach((item) => {
-      processWay(item, nodes, feats);
+    .forEach((way) => {
+      processWay(way, nodes, entrances);
     });
 };
 
-var processWay = function (item, nodes, feats, isInnerRole) {
-  //Transform osm:hasNodes to a linestring style thing
-  if (!item["osm:hasNodes"]) {
-    item["osm:hasNodes"] = [];
-  } else if (typeof item["osm:hasNodes"] === "string") {
-    item["osm:hasNodes"] = [item["osm:hasNodes"]];
+var processWay = function (way, nodes, entrances, isInnerRole) {
+  if (!way["osm:hasNodes"]) {
+    return; // no nodes to process
+  } else if (typeof way["osm:hasNodes"] === "string") {
+    return; // a single node cannot be processed as a way
   }
-  const nodeIds = item["osm:hasNodes"];
+
+  const nodeIds = way["osm:hasNodes"];
   if (nodeIds.length < 4) {
-    console.log("not an area", item["@id"]);
+    console.log("not an area", way["@id"]);
     return;
   }
   if (nodeIds[0] !== nodeIds[nodeIds.length - 1]) {
-    console.log("unclosed", item["@id"]);
+    console.log("unclosed", way["@id"]);
   }
   let isWayClockwise = null;
-  item["osm:hasNodes"].forEach((nodeId, index, nodeIds) => {
-    const node = feats[nodeId];
-    if (node) {
+  nodeIds.forEach((nodeId, index, nodeIds) => {
+    const entrance = entrances[nodeId];
+    if (entrance) {
       // Calculate clockwiseness only when first entrance is hit
       if (isWayClockwise === null) {
         isWayClockwise = turfBooleanClockwise(
@@ -87,8 +83,8 @@ var processWay = function (item, nodes, feats, isInnerRole) {
       const angle =
         isWayClockwise !== !!isInnerRole ? adaptedAngle : adaptedAngle + 180;
 
-      node.properties = {
-        ...node.properties,
+      entrance.properties = {
+        ...entrance.properties,
         "@offset": [
           Math.cos((angle / 180) * Math.PI) * offset,
           Math.sin((angle / 180) * Math.PI) * offset,
@@ -99,7 +95,7 @@ var processWay = function (item, nodes, feats, isInnerRole) {
   });
 };
 
-const entranceToLabel = function (node) {
+const entranceNodeToLabel = function (node) {
   const house =
     node["osm:hasTag"]
       ?.find((tag) => tag.startsWith("addr:housenumber="))
@@ -135,7 +131,7 @@ export default function (json) {
 
       if (element["osm:hasTag"]?.find((tag) => tag.startsWith("entrance="))) {
         // Create a GeoJSON feature for each entrance
-        const entranceLabel = entranceToLabel(element);
+        const entranceLabel = entranceNodeToLabel(element);
         const entrance = {
           id: element["@id"],
           type: "Feature",
