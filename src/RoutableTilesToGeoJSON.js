@@ -8,72 +8,95 @@ import {
 
 const offset = 0.2;
 
-var extractWays = function (json, nodes, feats) {
-  json["@graph"]
+var processRelations = function (relations, ways, nodes, feats) {
+  Object.values(relations)
     .filter((item) => {
-      return (
-        item["@type"] === "osm:Way"
-        /* FIXME: Implement proper support for multipolygon outlines
-           and then re-enable the following filter:
-             && item["osm:hasTag"]?.find((tag) => tag.startsWith("building="))
-         */
+      return item["osm:hasTag"]?.find(
+        (tag) => tag.startsWith("building=") || tag.startsWith("building:part=")
       );
     })
     .forEach((item) => {
-      //Transform osm:hasNodes to a linestring style thing
-      if (!item["osm:hasNodes"]) {
-        item["osm:hasNodes"] = [];
-      } else if (typeof item["osm:hasNodes"] === "string") {
-        item["osm:hasNodes"] = [item["osm:hasNodes"]];
-      }
-      const nodeIds = item["osm:hasNodes"];
-      if (nodeIds.length < 4) {
-        console.log("not an area", item["@id"]);
-        return;
-      }
-      if (nodeIds[0] !== nodeIds[nodeIds.length - 1]) {
-        console.log("unclosed", item["@id"]);
-      }
-      item["osm:hasNodes"].map((nodeId, index, nodeIds) => {
-        const node = feats[nodeId];
-        if (node) {
-          // FIXME: This logic does not consider inner edges of multipolygons:
-          const isWayClockwise = turfBooleanClockwise(
-            turfLineString(nodeIds.map((id) => nodes[id]))
+      item["osm:hasMembers"].forEach((member) => {
+        // Process the member way if it's included in the tile
+        if (ways[member["@id"]]) {
+          processWay(
+            ways[member["@id"]],
+            nodes,
+            feats,
+            member.role === "inner"
           );
-          const xy = nodes[nodeId];
-          const xyPrev =
-            index === 0
-              ? nodes[nodeIds[nodeIds.length - 2]]
-              : nodes[nodeIds[index - 1]];
-          const xyNext =
-            index === nodeIds.length - 1
-              ? nodes[nodeIds[1]]
-              : nodes[nodeIds[index + 1]];
-
-          const bearingPrev = turfBearing(xy, xyPrev);
-          const bearingNext = turfBearing(xy, xyNext);
-          const entranceAngle =
-            Math.abs(bearingPrev - bearingNext) / 2 +
-            Math.min(bearingPrev, bearingNext);
-          const adaptedAngle =
-            bearingPrev > bearingNext
-              ? entranceAngle + 270
-              : entranceAngle + 90;
-          const angle = isWayClockwise ? adaptedAngle : adaptedAngle + 180;
-
-          node.properties = {
-            ...node.properties,
-            "@offset": [
-              Math.cos((angle / 180) * Math.PI) * offset,
-              Math.sin((angle / 180) * Math.PI) * offset,
-            ],
-            "@rotate": (((angle - 90) % 360) + 360) % 360,
-          };
         }
-        return nodes[nodeId];
       });
     });
+};
+
+var processWays = function (ways, nodes, feats) {
+  Object.values(ways)
+    .filter((item) => {
+      return item["osm:hasTag"]?.find(
+        (tag) => tag.startsWith("building=") || tag.startsWith("building:part=")
+      );
+    })
+    .forEach((item) => {
+      processWay(item, nodes, feats);
+    });
+};
+
+var processWay = function (item, nodes, feats, isInnerRole) {
+  //Transform osm:hasNodes to a linestring style thing
+  if (!item["osm:hasNodes"]) {
+    item["osm:hasNodes"] = [];
+  } else if (typeof item["osm:hasNodes"] === "string") {
+    item["osm:hasNodes"] = [item["osm:hasNodes"]];
+  }
+  const nodeIds = item["osm:hasNodes"];
+  if (nodeIds.length < 4) {
+    console.log("not an area", item["@id"]);
+    return;
+  }
+  if (nodeIds[0] !== nodeIds[nodeIds.length - 1]) {
+    console.log("unclosed", item["@id"]);
+  }
+  let isWayClockwise = null;
+  item["osm:hasNodes"].forEach((nodeId, index, nodeIds) => {
+    const node = feats[nodeId];
+    if (node) {
+      // Calculate clockwiseness only when first entrance is hit
+      if (isWayClockwise === null) {
+        isWayClockwise = turfBooleanClockwise(
+          turfLineString(nodeIds.map((id) => nodes[id]))
+        );
+      }
+      const xy = nodes[nodeId];
+      const xyPrev =
+        index === 0
+          ? nodes[nodeIds[nodeIds.length - 2]]
+          : nodes[nodeIds[index - 1]];
+      const xyNext =
+        index === nodeIds.length - 1
+          ? nodes[nodeIds[1]]
+          : nodes[nodeIds[index + 1]];
+
+      const bearingPrev = turfBearing(xy, xyPrev);
+      const bearingNext = turfBearing(xy, xyNext);
+      const entranceAngle =
+        Math.abs(bearingPrev - bearingNext) / 2 +
+        Math.min(bearingPrev, bearingNext);
+      const adaptedAngle =
+        bearingPrev > bearingNext ? entranceAngle + 270 : entranceAngle + 90;
+      const angle =
+        isWayClockwise !== !!isInnerRole ? adaptedAngle : adaptedAngle + 180;
+
+      node.properties = {
+        ...node.properties,
+        "@offset": [
+          Math.cos((angle / 180) * Math.PI) * offset,
+          Math.sin((angle / 180) * Math.PI) * offset,
+        ],
+        "@rotate": (((angle - 90) % 360) + 360) % 360,
+      };
+    }
+  });
 };
 
 const entranceToLabel = function (node) {
@@ -97,9 +120,15 @@ const entranceToLabel = function (node) {
 export default function (json) {
   var entrances = {};
   var nodes = {};
+  var ways = {};
+  var relations = {};
   for (var i = 0; i < json["@graph"].length; i++) {
     let element = json["@graph"][i];
-    if (element["geo:lat"] && element["geo:long"]) {
+    if (element["@type"] === "osm:Relation") {
+      relations[element["@id"]] = element;
+    } else if (element["@type"] === "osm:Way") {
+      ways[element["@id"]] = element;
+    } else if (element["geo:lat"] && element["geo:long"]) {
       // Store the coordinates of every node for later reference
       const lngLat = [element["geo:long"], element["geo:lat"]];
       nodes[element["@id"]] = lngLat;
@@ -133,7 +162,8 @@ export default function (json) {
       }
     }
   }
-  extractWays(json, nodes, entrances);
+  processRelations(relations, ways, nodes, entrances);
+  processWays(ways, nodes, entrances);
   return {
     type: "FeatureCollection",
     features: Object.values(entrances),
