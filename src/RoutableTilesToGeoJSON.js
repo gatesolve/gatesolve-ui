@@ -8,7 +8,7 @@ import {
 
 const offset = 0.2;
 
-var extractWays = function (json, nodes, feats) {
+var processWays = function (json, nodes, feats) {
   json["@graph"]
     .filter((item) => {
       return (
@@ -20,63 +20,65 @@ var extractWays = function (json, nodes, feats) {
       );
     })
     .forEach((item) => {
-      //Transform osm:hasNodes to a linestring style thing
-      if (!item["osm:hasNodes"]) {
-        item["osm:hasNodes"] = [];
-      } else if (typeof item["osm:hasNodes"] === "string") {
-        item["osm:hasNodes"] = [item["osm:hasNodes"]];
-      }
-      const nodeIds = item["osm:hasNodes"];
-      if (nodeIds.length < 4) {
-        console.log("not an area", item["@id"]);
-        return;
-      }
-      if (nodeIds[0] !== nodeIds[nodeIds.length - 1]) {
-        console.log("unclosed", item["@id"]);
-      }
-      let isWayClockwise = null;
-      item["osm:hasNodes"].forEach((nodeId, index, nodeIds) => {
-        const node = feats[nodeId];
-        if (node) {
-          // FIXME: This logic does not consider inner edges of multipolygons:
-          // Calculate clockwiseness only when first entrance is hit
-          if (isWayClockwise === null) {
-            isWayClockwise = turfBooleanClockwise(
-              turfLineString(nodeIds.map((id) => nodes[id]))
-            );
-          }
-          const xy = nodes[nodeId];
-          const xyPrev =
-            index === 0
-              ? nodes[nodeIds[nodeIds.length - 2]]
-              : nodes[nodeIds[index - 1]];
-          const xyNext =
-            index === nodeIds.length - 1
-              ? nodes[nodeIds[1]]
-              : nodes[nodeIds[index + 1]];
-
-          const bearingPrev = turfBearing(xy, xyPrev);
-          const bearingNext = turfBearing(xy, xyNext);
-          const entranceAngle =
-            Math.abs(bearingPrev - bearingNext) / 2 +
-            Math.min(bearingPrev, bearingNext);
-          const adaptedAngle =
-            bearingPrev > bearingNext
-              ? entranceAngle + 270
-              : entranceAngle + 90;
-          const angle = isWayClockwise ? adaptedAngle : adaptedAngle + 180;
-
-          node.properties = {
-            ...node.properties,
-            "@offset": [
-              Math.cos((angle / 180) * Math.PI) * offset,
-              Math.sin((angle / 180) * Math.PI) * offset,
-            ],
-            "@rotate": (((angle - 90) % 360) + 360) % 360,
-          };
-        }
-      });
+      processWay(item, nodes, feats);
     });
+};
+
+var processWay = function (item, nodes, feats) {
+  //Transform osm:hasNodes to a linestring style thing
+  if (!item["osm:hasNodes"]) {
+    item["osm:hasNodes"] = [];
+  } else if (typeof item["osm:hasNodes"] === "string") {
+    item["osm:hasNodes"] = [item["osm:hasNodes"]];
+  }
+  const nodeIds = item["osm:hasNodes"];
+  if (nodeIds.length < 4) {
+    console.log("not an area", item["@id"]);
+    return;
+  }
+  if (nodeIds[0] !== nodeIds[nodeIds.length - 1]) {
+    console.log("unclosed", item["@id"]);
+  }
+  let isWayClockwise = null;
+  item["osm:hasNodes"].forEach((nodeId, index, nodeIds) => {
+    const node = feats[nodeId];
+    if (node) {
+      // FIXME: This logic does not consider inner edges of multipolygons:
+      // Calculate clockwiseness only when first entrance is hit
+      if (isWayClockwise === null) {
+        isWayClockwise = turfBooleanClockwise(
+          turfLineString(nodeIds.map((id) => nodes[id]))
+        );
+      }
+      const xy = nodes[nodeId];
+      const xyPrev =
+        index === 0
+          ? nodes[nodeIds[nodeIds.length - 2]]
+          : nodes[nodeIds[index - 1]];
+      const xyNext =
+        index === nodeIds.length - 1
+          ? nodes[nodeIds[1]]
+          : nodes[nodeIds[index + 1]];
+
+      const bearingPrev = turfBearing(xy, xyPrev);
+      const bearingNext = turfBearing(xy, xyNext);
+      const entranceAngle =
+        Math.abs(bearingPrev - bearingNext) / 2 +
+        Math.min(bearingPrev, bearingNext);
+      const adaptedAngle =
+        bearingPrev > bearingNext ? entranceAngle + 270 : entranceAngle + 90;
+      const angle = isWayClockwise ? adaptedAngle : adaptedAngle + 180;
+
+      node.properties = {
+        ...node.properties,
+        "@offset": [
+          Math.cos((angle / 180) * Math.PI) * offset,
+          Math.sin((angle / 180) * Math.PI) * offset,
+        ],
+        "@rotate": (((angle - 90) % 360) + 360) % 360,
+      };
+    }
+  });
 };
 
 const entranceToLabel = function (node) {
@@ -136,7 +138,7 @@ export default function (json) {
       }
     }
   }
-  extractWays(json, nodes, entrances);
+  processWays(json, nodes, entrances);
   return {
     type: "FeatureCollection",
     features: Object.values(entrances),
