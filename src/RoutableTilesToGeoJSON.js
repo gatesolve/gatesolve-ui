@@ -20,7 +20,7 @@ var processRelations = function (relations, ways, nodes, entrances) {
         // Process the member way if it's included in the tile
         const way = ways[member["@id"]];
         if (way) {
-          processWay(way, nodes, entrances, member.role === "inner");
+          processWay(way, nodes, entrances, member.role === "inner", relation);
         }
       });
     });
@@ -38,7 +38,7 @@ var processWays = function (ways, nodes, entrances) {
     });
 };
 
-var processWay = function (way, nodes, entrances, isInnerRole) {
+var processWay = function (way, nodes, entrances, isInnerRole, relation) {
   if (!way["osm:hasNodes"]) {
     return; // no nodes to process
   } else if (typeof way["osm:hasNodes"] === "string") {
@@ -83,6 +83,20 @@ var processWay = function (way, nodes, entrances, isInnerRole) {
       const angle =
         isWayClockwise !== !!isInnerRole ? adaptedAngle : adaptedAngle + 180;
 
+      let entranceLabel = entrance.properties["@entrance-label"];
+      let houseLabel = entrance.properties["@house-label"];
+      // Inherit information from the building, but only
+      // if there is no building information at the entrance
+      // XXX: Inherit from building as well if this way is a building part
+      if (!entrance.properties["addr:housenumber"]) {
+        if (!entrance.properties["ref"] && !entrance.properties["addr:unit"]) {
+          const label = entranceNodeToLabel(relation || way); // XXX: merge?
+          entranceLabel = entranceLabel || label.entrance;
+          // XXX: Inherit street and housenumber only if they are not ambiguous
+          // houseLabel = label.house;
+        }
+      }
+
       entrance.properties = {
         ...entrance.properties,
         "@offset": [
@@ -90,6 +104,8 @@ var processWay = function (way, nodes, entrances, isInnerRole) {
           Math.sin((angle / 180) * Math.PI) * offset,
         ],
         "@rotate": (((angle - 90) % 360) + 360) % 360,
+        "@entrance-label": entranceLabel,
+        "@house-label": houseLabel,
       };
     }
   });
