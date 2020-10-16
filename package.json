@@ -26,7 +26,7 @@
     "plannerjs": "https://github.com/gatesolve/planner.js#build-for-gatesolve",
     "react": "^16.14.0",
     "react-autosuggest-geocoder": "https://github.com/gatesolve/react-autosuggest-geocoder#fix/modify-for-gatesolve",
-    "react-dom": "^16.13.1",
+    "react-dom": "^16.14.0",
     "react-router": "^5.2.0",
     "react-router-dom": "^5.2.0",
     "react-scripts": "3.4.3",
