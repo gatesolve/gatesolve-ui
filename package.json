@@ -11,7 +11,7 @@
     "@testing-library/user-event": "^12.1.9",
     "@turf/turf": "^5.1.6",
     "@types/geojson": "^7946.0.7",
-    "@types/jest": "^26.0.14",
+    "@types/jest": "^26.0.15",
     "@types/mapbox-gl": "^1.12.5",
     "@types/node": "^14.14.0",
     "@types/react": "^16.9.53",
