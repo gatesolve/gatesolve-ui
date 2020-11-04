@@ -3181,10 +3181,10 @@
   dependencies:
     "@types/react" "*"
 
-"@types/react-map-gl@^5.2.8":
-  version "5.2.8"
-  resolved "https://registry.yarnpkg.com/@types/react-map-gl/-/react-map-gl-5.2.8.tgz#66b65a5ad2ab81998f88978eeece8cacda2104dd"
-  integrity sha512-D0zIb6hzYCZ0DyIkrV/C0wxAP1S1YZb83HNNtvLFOP6q+k284WUo8cOCvOBQCzwndtK5CGBOXlqzigouU5X/7w==
+"@types/react-map-gl@^5.2.9":
+  version "5.2.9"
+  resolved "https://registry.yarnpkg.com/@types/react-map-gl/-/react-map-gl-5.2.9.tgz#67e00d96e3035d792f55a4266b08dbee11d06dd2"
+  integrity sha512-DbN7irrx9OEfDTK9TNOyTjWgz4/TOJXyY9EDDmHQC1Ne7KW6QCbOt6vKD+StMYjdO1CfkayjM1n4/CeyTHw0BA==
   dependencies:
     "@types/geojson" "*"
     "@types/mapbox-gl" "*"
