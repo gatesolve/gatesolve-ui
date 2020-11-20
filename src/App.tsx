@@ -555,7 +555,7 @@ const App: React.FC = () => {
    * - update geolocation position into state
    * - change origin if deemed appropriate
    */
-  const onGeolocate = (position: Position): void =>
+  const onGeolocate = (position: GeolocationPosition): void =>
     setState(
       (prevState): State => {
         if (prevState.isGeolocating) {
