@@ -226,6 +226,74 @@ const zoomDependentEntranceLabel: Expression = [
   ],
 ];
 
+const entranceOpacity: Expression = [
+  "step",
+  ["zoom"],
+  // lowZoomLabel
+  cond(
+    [
+      all(
+        not(
+          // housenumber visible
+          all(
+            toBoolean(get("@house-label")),
+            not(toBoolean(get("@secondary"))),
+            not(gt(length(get("@house-label")), 3))
+          )
+        ),
+        not(
+          // entrance label visible
+          all(
+            toBoolean(get("@entrance-label")),
+            not(toBoolean(get("@secondary")))
+          )
+        )
+      ),
+      0.5,
+    ],
+    [1]
+  ),
+  17, // At zoom 17 or more,
+  // midZoomLabel
+  cond(
+    [
+      all(
+        not(
+          // housenumber visible
+          all(
+            toBoolean(get("@house-label")),
+            not(toBoolean(get("@secondary"))),
+            not(gt(length(get("@house-label")), 3))
+          )
+        ),
+        not(
+          // entrance label visible
+          all(
+            toBoolean(get("@entrance-label")),
+            any(
+              not(toBoolean(get("@secondary"))),
+              not(gt(length(get("@entrance-label")), 1))
+            )
+          )
+        )
+      ),
+      0.5,
+    ],
+    [1]
+  ),
+  18, // At zoom 18 or more,
+  // highZoomLabel
+  cond(
+    [
+      not(
+        any(toBoolean(get("@house-label")), toBoolean(get("@entrance-label")))
+      ),
+      0.5,
+    ],
+    [1]
+  ),
+];
+
 const entranceSymbols: LayerProps = {
   id: "entrance-symbol",
   type: "symbol",
@@ -234,6 +302,8 @@ const entranceSymbols: LayerProps = {
     "text-halo-color": "#fff",
     "text-color": "#64be14",
     "text-halo-width": 1,
+    "icon-opacity": entranceOpacity,
+    "text-opacity": entranceOpacity,
   },
   layout: {
     "text-field": zoomDependentEntranceLabel,
