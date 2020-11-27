@@ -1,6 +1,7 @@
 import type { LayerProps } from "react-map-gl"; // eslint-disable-line import/no-extraneous-dependencies
 import type { Expression } from "mapbox-gl";
 import {
+  literal,
   has,
   get,
   getVar,
@@ -98,7 +99,7 @@ const entrancePoints: LayerProps = {
   id: "entrance-point",
   type: "circle",
   minzoom: 12,
-  maxzoom: 15.999,
+  maxzoom: 16,
   paint: {
     "circle-radius": [
       "interpolate",
@@ -226,11 +227,25 @@ const zoomDependentEntranceLabel: Expression = [
   ],
 ];
 
-const entranceOpacity: Expression = [
+const caseEntranceLabel = ({
+  missing,
+  visible,
+  hidden,
+}: {
+  missing: Expression;
+  visible: Expression;
+  hidden: Expression;
+}): Expression => [
   "step",
   ["zoom"],
   // lowZoomLabel
   cond(
+    [
+      not(
+        any(toBoolean(get("@house-label")), toBoolean(get("@entrance-label")))
+      ),
+      missing,
+    ],
     [
       all(
         not(
@@ -249,13 +264,19 @@ const entranceOpacity: Expression = [
           )
         )
       ),
-      0.5,
+      hidden,
     ],
-    [1]
+    [visible]
   ),
   17, // At zoom 17 or more,
   // midZoomLabel
   cond(
+    [
+      not(
+        any(toBoolean(get("@house-label")), toBoolean(get("@entrance-label")))
+      ),
+      missing,
+    ],
     [
       all(
         not(
@@ -277,9 +298,9 @@ const entranceOpacity: Expression = [
           )
         )
       ),
-      0.5,
+      hidden,
     ],
-    [1]
+    [visible]
   ),
   18, // At zoom 18 or more,
   // highZoomLabel
@@ -288,11 +309,31 @@ const entranceOpacity: Expression = [
       not(
         any(toBoolean(get("@house-label")), toBoolean(get("@entrance-label")))
       ),
-      0.5,
+      missing,
     ],
-    [1]
+    [visible]
   ),
 ];
+
+const ifEntranceLabelHiddenElse = (
+  hidden: Expression,
+  notHidden: Expression
+): Expression =>
+  caseEntranceLabel({
+    missing: notHidden,
+    visible: notHidden,
+    hidden,
+  });
+
+const ifEntranceLabelVisibleElse = (
+  visible: Expression,
+  invisible: Expression
+): Expression =>
+  caseEntranceLabel({
+    missing: invisible,
+    visible,
+    hidden: invisible,
+  });
 
 const entranceSymbols: LayerProps = {
   id: "entrance-symbol",
@@ -302,8 +343,8 @@ const entranceSymbols: LayerProps = {
     "text-halo-color": "#fff",
     "text-color": "#64be14",
     "text-halo-width": 1,
-    "icon-opacity": entranceOpacity,
-    "text-opacity": entranceOpacity,
+    "icon-opacity": ifEntranceLabelVisibleElse(literal(1), literal(0.5)),
+    "text-opacity": ifEntranceLabelVisibleElse(literal(1), literal(0)),
   },
   layout: {
     "text-field": zoomDependentEntranceLabel,
@@ -316,7 +357,10 @@ const entranceSymbols: LayerProps = {
     "text-rotation-alignment": "map",
     "text-allow-overlap": true,
     "text-ignore-placement": true,
-    "icon-image": "icon-svg-triangle-14-#64be14-#fff",
+    "icon-image": ifEntranceLabelHiddenElse(
+      literal("icon-svg-triangleDot-28-#64be14-#fff"),
+      literal("icon-svg-triangle-28-#64be14-#fff")
+    ),
     "icon-anchor": "center",
     "icon-rotate": ["get", "@rotate"],
     "icon-rotation-alignment": "map",
