@@ -24,7 +24,7 @@
     "mapbox-gl": "^1.13.0",
     "notistack": "^1.0.2",
     "plannerjs": "https://github.com/gatesolve/planner.js#build-for-gatesolve",
-    "react": "^16.14.0",
+    "react": "^17.0.1",
     "react-autosuggest-geocoder": "https://github.com/gatesolve/react-autosuggest-geocoder#fix/modify-for-gatesolve",
     "react-dom": "^16.14.0",
     "react-router": "^5.2.0",
