@@ -487,9 +487,10 @@ const App: React.FC = () => {
     setState(
       (prevState): State => {
         if (feature?.properties.entrance) {
+          const id = feature.properties["@id"].split("/").reverse()[0];
           // If an entrance was clicked
           const element = {
-            id: feature.properties["@id"],
+            id,
             type: feature.properties["@type"],
             lat: feature.geometry.coordinates[1],
             lon: feature.geometry.coordinates[0],
@@ -550,6 +551,26 @@ const App: React.FC = () => {
         };
       }
     );
+  };
+
+  const findOlmapUrl = async (
+    popupCoordinates: ElementWithCoordinates
+  ): Promise<string> => {
+    const olmapUrl = `https://app.olmap.org/#/Notes/@${popupCoordinates.lat},${popupCoordinates.lon}`;
+    if (popupCoordinates.id === -1) {
+      return olmapUrl;
+    }
+    const apiUrl = new URL(
+      `https://api.olmap.org/rest/osm_features/${popupCoordinates.id}/`
+    );
+    try {
+      const response = await fetch(apiUrl.toString());
+      const data = await response.json();
+      const noteId = data.image_notes[0].id;
+      return `https://app.olmap.org/#/Notes/${noteId}/`;
+    } catch {
+      return olmapUrl;
+    }
   };
 
   /**
@@ -813,6 +834,7 @@ const App: React.FC = () => {
           longitude={state.popupCoordinates?.lon || null}
           closeButton={false}
           closeOnClick={false}
+          maxWidth="300px"
         >
           {state.popupCoordinates && (
             <>
@@ -859,67 +881,88 @@ const App: React.FC = () => {
                   )}
                 </p>
               </div>
-              <Button
-                data-testid="origin-button"
-                variant="contained"
-                size="small"
-                style={{ backgroundColor: "#00afff", color: "#fff" }}
-                type="button"
-                aria-label="Set origin"
-                onClick={(): void =>
-                  setState(
-                    (prevState): State => {
-                      // Check this to appease the compiler.
-                      if (prevState.popupCoordinates != null) {
+              <div style={{ whiteSpace: "nowrap" }}>
+                <Button
+                  data-testid="origin-button"
+                  variant="contained"
+                  size="small"
+                  style={{ backgroundColor: "#00afff", color: "#fff" }}
+                  type="button"
+                  aria-label="Set origin"
+                  onClick={(): void =>
+                    setState(
+                      (prevState): State => {
+                        // Check this to appease the compiler.
+                        if (prevState.popupCoordinates != null) {
+                          return {
+                            ...prevState,
+                            origin: destinationToLatLng(
+                              prevState.popupCoordinates
+                            ),
+                            isOriginExplicit: true,
+                            popupCoordinates: null,
+                          };
+                        }
                         return {
                           ...prevState,
-                          origin: destinationToLatLng(
-                            prevState.popupCoordinates
-                          ),
                           isOriginExplicit: true,
                           popupCoordinates: null,
                         };
                       }
-                      return {
-                        ...prevState,
-                        isOriginExplicit: true,
-                        popupCoordinates: null,
-                      };
-                    }
-                  )
-                }
-              >
-                Origin
-              </Button>
-              <span style={{ padding: "5px" }} />
-              <Button
-                data-testid="destination-button"
-                variant="contained"
-                size="small"
-                style={{ backgroundColor: "#64be14", color: "#fff" }}
-                type="button"
-                aria-label="Set destination"
-                onClick={(): void =>
-                  setState(
-                    (prevState): State => {
-                      // Check this to appease the compiler.
-                      if (prevState.popupCoordinates != null) {
+                    )
+                  }
+                >
+                  Origin
+                </Button>
+                <span style={{ padding: "5px" }} />
+                <Button
+                  data-testid="destination-button"
+                  variant="contained"
+                  size="small"
+                  style={{ backgroundColor: "#64be14", color: "#fff" }}
+                  type="button"
+                  aria-label="Set destination"
+                  onClick={(): void =>
+                    setState(
+                      (prevState): State => {
+                        // Check this to appease the compiler.
+                        if (prevState.popupCoordinates != null) {
+                          return {
+                            ...prevState,
+                            destination: prevState.popupCoordinates,
+                            popupCoordinates: null,
+                          };
+                        }
                         return {
                           ...prevState,
-                          destination: prevState.popupCoordinates,
                           popupCoordinates: null,
                         };
                       }
-                      return {
-                        ...prevState,
-                        popupCoordinates: null,
-                      };
+                    )
+                  }
+                >
+                  Destination
+                </Button>
+                <span style={{ padding: "5px" }} />
+                <Button
+                  data-testid="origin-button"
+                  variant="contained"
+                  size="small"
+                  style={{ backgroundColor: "#ff5000", color: "#fff" }}
+                  type="button"
+                  aria-label="Fix data"
+                  onClick={async () => {
+                    if (state.popupCoordinates) {
+                      const olmapUrl = await findOlmapUrl(
+                        state.popupCoordinates
+                      );
+                      window.location.href = olmapUrl;
                     }
-                  )
-                }
-              >
-                Destination
-              </Button>
+                  }}
+                >
+                  Fix data
+                </Button>
+              </div>
             </>
           )}
         </Popup>
