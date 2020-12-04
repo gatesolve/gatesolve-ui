@@ -25,6 +25,7 @@ import {
 } from "./map-style";
 import Pin, { pinAsSVG } from "./components/Pin";
 import { triangleAsSVG, triangleDotAsSVG } from "./components/Triangle";
+import OLMapImages from "./components/OLMapImages";
 import UserPosition from "./components/UserPosition";
 import GeolocateControl from "./components/GeolocateControl";
 import calculatePlan, { geometryToGeoJSON } from "./planner";
@@ -32,7 +33,13 @@ import { queryEntrances, ElementWithCoordinates } from "./overpass";
 import { addImageSVG, getMapSize } from "./mapbox-utils";
 import routableTilesToGeoJSON from "./RoutableTilesToGeoJSON";
 import { getVisibleTiles } from "./minimal-xyz-viewer";
-import { fetchOlmapData, OlmapResponse, NetworkState } from "./olmap";
+import {
+  fetchOlmapData,
+  olmapCoordinateURL,
+  olmapNoteURL,
+  OlmapResponse,
+  NetworkState,
+} from "./olmap";
 
 import "./App.css";
 import "./components/PinMarker.css";
@@ -602,9 +609,9 @@ const App: React.FC = () => {
       noteId = olmapData.response.image_notes?.[0]?.id;
     }
     if (!noteId) {
-      return `https://app.olmap.org/#/Notes/@${popupCoordinates.lat},${popupCoordinates.lon}`;
+      return olmapCoordinateURL(popupCoordinates);
     }
-    return `https://app.olmap.org/#/Notes/${noteId}/`;
+    return olmapNoteURL(noteId);
   };
 
   /**
@@ -879,6 +886,7 @@ const App: React.FC = () => {
                   {state.popupCoordinates.tags?.["ref"] ||
                     state.popupCoordinates.tags?.["addr:unit"]}
                 </h3>
+                <OLMapImages olmapData={state.olmapData} />
                 <p>
                   {state.popupCoordinates.tags && (
                     <table
@@ -982,13 +990,21 @@ const App: React.FC = () => {
                   data-testid="origin-button"
                   variant="contained"
                   size="small"
-                  style={{ backgroundColor: "#ff5000", color: "#fff" }}
+                  style={{
+                    backgroundColor: "#ff5000",
+                    color: "#fff",
+                    visibility:
+                      state.olmapData?.state === "loading"
+                        ? "hidden"
+                        : undefined,
+                  }}
                   type="button"
                   aria-label="Fix data"
                   href={
-                    getOlmapUrl(state.popupCoordinates, state.olmapData) ||
-                    undefined
+                    getOlmapUrl(state.popupCoordinates, state.olmapData) || "#"
                   }
+                  target="_blank"
+                  rel="noreferrer"
                 >
                   Fix data
                 </Button>

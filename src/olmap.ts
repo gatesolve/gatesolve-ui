@@ -29,6 +29,15 @@ export interface OlmapNote {
   image: string;
 }
 
+export const olmapNoteURL = (noteId: number): string =>
+  `https://app.olmap.org/#/Notes/${noteId}/`;
+
+export const olmapCoordinateURL = (coordinates: {
+  lat: number;
+  lon: number;
+}): string =>
+  `https://app.olmap.org/#/Notes/@${coordinates.lat},${coordinates.lon}`;
+
 export const fetchOlmapData = async (
   osmId: number
 ): Promise<NetworkState<OlmapResponse> | undefined> => {
