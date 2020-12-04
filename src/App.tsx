@@ -32,6 +32,7 @@ import { queryEntrances, ElementWithCoordinates } from "./overpass";
 import { addImageSVG, getMapSize } from "./mapbox-utils";
 import routableTilesToGeoJSON from "./RoutableTilesToGeoJSON";
 import { getVisibleTiles } from "./minimal-xyz-viewer";
+import { fetchOlmapData, OlmapResponse, NetworkState } from "./olmap";
 
 import "./App.css";
 import "./components/PinMarker.css";
@@ -53,6 +54,7 @@ interface State {
   popupCoordinates: ElementWithCoordinates | null;
   snackbar?: ReactText;
   routableTiles: Map<string, FeatureCollection | null>;
+  olmapData?: NetworkState<OlmapResponse>;
 }
 
 const latLngToDestination = (latLng: LatLng): ElementWithCoordinates => ({
@@ -480,6 +482,41 @@ const App: React.FC = () => {
   }, [state.origin, state.entrances]); // eslint-disable-line react-hooks/exhaustive-deps
   // XXX: state.destination is missing above as we need to wait for state.entrances to change as well
 
+  // When popup opens, try to fetch data for it from OLMap's API
+  useEffect(() => {
+    (async () => {
+      if (!state.popupCoordinates) return;
+      // Clear previous data
+      setState(
+        (prevState: State): State => {
+          if (prevState.popupCoordinates !== state.popupCoordinates) {
+            return prevState;
+          }
+          return {
+            ...prevState,
+            olmapData: { state: "loading" },
+          };
+        }
+      );
+      // Fetch new data
+      const olmapData = await fetchOlmapData(state.popupCoordinates.id);
+      setState(
+        (prevState: State): State => {
+          if (prevState.popupCoordinates !== state.popupCoordinates) {
+            return prevState;
+          }
+          return {
+            ...prevState,
+            olmapData,
+          };
+        }
+      );
+    })().catch((error) => {
+      // eslint-disable-next-line no-console
+      console.error("Error while fetching OLMap notes:", error);
+    });
+  }, [state.popupCoordinates]);
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleMapClick = (event: any): void => {
     // Inspect the topmost feature under click
@@ -553,24 +590,21 @@ const App: React.FC = () => {
     );
   };
 
-  const findOlmapUrl = async (
-    popupCoordinates: ElementWithCoordinates
-  ): Promise<string> => {
-    const olmapUrl = `https://app.olmap.org/#/Notes/@${popupCoordinates.lat},${popupCoordinates.lon}`;
-    if (popupCoordinates.id === -1) {
-      return olmapUrl;
+  const getOlmapUrl = (
+    popupCoordinates: ElementWithCoordinates,
+    olmapData?: NetworkState<OlmapResponse>
+  ): string | null => {
+    if (olmapData?.state === "loading") {
+      return null;
     }
-    const apiUrl = new URL(
-      `https://api.olmap.org/rest/osm_features/${popupCoordinates.id}/`
-    );
-    try {
-      const response = await fetch(apiUrl.toString());
-      const data = await response.json();
-      const noteId = data.image_notes[0].id;
-      return `https://app.olmap.org/#/Notes/${noteId}/`;
-    } catch {
-      return olmapUrl;
+    let noteId;
+    if (olmapData?.state === "success") {
+      noteId = olmapData.response.image_notes?.[0]?.id;
     }
+    if (!noteId) {
+      return `https://app.olmap.org/#/Notes/@${popupCoordinates.lat},${popupCoordinates.lon}`;
+    }
+    return `https://app.olmap.org/#/Notes/${noteId}/`;
   };
 
   /**
@@ -951,14 +985,10 @@ const App: React.FC = () => {
                   style={{ backgroundColor: "#ff5000", color: "#fff" }}
                   type="button"
                   aria-label="Fix data"
-                  onClick={async () => {
-                    if (state.popupCoordinates) {
-                      const olmapUrl = await findOlmapUrl(
-                        state.popupCoordinates
-                      );
-                      window.location.href = olmapUrl;
-                    }
-                  }}
+                  href={
+                    getOlmapUrl(state.popupCoordinates, state.olmapData) ||
+                    undefined
+                  }
                 >
                   Fix data
                 </Button>
