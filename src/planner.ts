@@ -5,6 +5,8 @@ import type {
   GeoJsonProperties,
 } from "geojson"; // eslint-disable-line import/no-extraneous-dependencies
 
+import { triplesToTags } from "./routable-tiles";
+
 // "./planner-config" (and PlannerJS) is imported dynamically by calculatePlan
 
 import { ElementWithCoordinates } from "./overpass";
@@ -70,29 +72,7 @@ function extractGeometry(
         );
     }
     if (node.definedTags?.["https://w3id.org/openstreetmap/terms#barrier"]) {
-      const barrier = node.definedTags[
-        "https://w3id.org/openstreetmap/terms#barrier"
-      ].replace(/^.*#/, "");
-
-      // eslint-disable-next-line no-console
-      console.log(
-        step.through,
-        barrier,
-        node.id,
-        node.definedTags,
-        node.freeformTags
-      );
-
-      // Convert OSM tags to key value pairs
-      const tags = Object();
-      tags.barrier = barrier;
-      node.freeformTags.forEach((tag: string) => {
-        const splitIndex = tag.indexOf("=");
-        tags[tag.substring(0, splitIndex)] = tag.substring(splitIndex + 1);
-      });
-
-      tags["@id"] = node.id;
-
+      const tags = triplesToTags(node.id, node.definedTags, node.freeformTags);
       obstacles.push({
         type: node.id,
         id: node.id,
