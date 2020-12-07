@@ -568,10 +568,11 @@ const App: React.FC = () => {
           };
         }
         if (feature?.properties.barrier) {
+          const id = feature.properties["@id"].split("/").reverse()[0];
           return {
             ...prevState,
             popupCoordinates: {
-              id: feature.properties["@id"],
+              id,
               type: feature.properties["@type"],
               lat: feature.geometry.coordinates[1],
               lon: feature.geometry.coordinates[0],

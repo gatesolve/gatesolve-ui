@@ -91,6 +91,8 @@ function extractGeometry(
         tags[tag.substring(0, splitIndex)] = tag.substring(splitIndex + 1);
       });
 
+      tags["@id"] = node.id;
+
       obstacles.push({
         type: node.id,
         id: node.id,
