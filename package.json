@@ -12,7 +12,7 @@
     "@turf/turf": "^5.1.6",
     "@types/geojson": "^7946.0.7",
     "@types/jest": "^26.0.16",
-    "@types/mapbox-gl": "^1.12.8",
+    "@types/mapbox-gl": "^1.12.9",
     "@types/node": "^14.14.10",
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
