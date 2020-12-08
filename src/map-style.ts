@@ -1,5 +1,20 @@
 import type { LayerProps } from "react-map-gl"; // eslint-disable-line import/no-extraneous-dependencies
 import type { Expression } from "mapbox-gl";
+import {
+  has,
+  get,
+  getVar,
+  toBoolean,
+  not,
+  length,
+  gt,
+  any,
+  all,
+  concat,
+  coalesce,
+  format,
+  cond,
+} from "./mapbox-style-typescript";
 
 const anglesToAnchors = (): Array<string | number> => {
   const offset = 0;
@@ -79,76 +94,170 @@ export const buildingHighlightLayer: LayerProps = {
   },
 };
 
-export const allEntrancesLayers: Array<LayerProps> = [
-  {
-    id: "entrance-point",
-    type: "circle",
-    minzoom: 12,
-    maxzoom: 15.999,
-    paint: {
-      "circle-radius": [
-        "interpolate",
-        ["linear"],
-        ["zoom"],
-        12, // At zoom 12 or less,
-        1, // circle radius is 1.
-        14, // At zoom 14,
-        2, // circle radius is 2.
-        15, // At zoom 15 or more,
-        3, // circle radius is 3.
-      ],
-      "circle-color": "#64be14",
-    },
+const entrancePoints: LayerProps = {
+  id: "entrance-point",
+  type: "circle",
+  minzoom: 12,
+  maxzoom: 15.999,
+  paint: {
+    "circle-radius": [
+      "interpolate",
+      ["linear"],
+      ["zoom"],
+      12, // At zoom 12 or less,
+      1, // circle radius is 1.
+      14, // At zoom 14,
+      2, // circle radius is 2.
+      15, // At zoom 15 or more,
+      3, // circle radius is 3.
+    ],
+    "circle-color": "#64be14",
   },
-  {
-    id: "entrance-symbol",
-    type: "symbol",
-    minzoom: 16,
-    paint: {
-      "text-halo-color": "#fff",
-      "text-color": "#64be14",
-      "text-halo-width": 1,
-    },
-    layout: {
-      "text-field": [
-        "format",
-        // First, the housenumber, without special formatting
-        ["get", "@house-label"],
-        {},
-        // Next, a separator in the case that there are two labels
+};
+
+const lowZoomLabel = (maybeSpace: Expression): Expression =>
+  format(
+    [
+      cond(
+        [not(toBoolean(get("@house-label"))), ""], // No housenumber
         [
-          "case",
-          // If we have both labels,
-          ["all", ["has", "@house-label"], ["has", "@entrance-label"]],
-          // then separate by a thin space.
-          "\u2009",
-          // Otherwise, no separator.
-          "",
-        ],
-        {},
-        // Last, the entrance letter, in bold font
-        ["get", "@entrance-label"],
-        {
-          "text-font": ["literal", ["Klokantech Noto Sans Bold"]],
-        },
-      ],
-      "text-font": ["Klokantech Noto Sans Regular"],
-      "text-size": 16,
-      "text-offset": ["get", "@offset"],
-      "text-anchor": ["step", ["%", ["get", "@rotate"], 360]].concat(
-        anglesToAnchors()
-      ) as Expression,
-      "text-rotation-alignment": "map",
-      "text-allow-overlap": true,
-      "text-ignore-placement": true,
-      "icon-image": "icon-svg-triangle-14-#64be14-#fff",
-      "icon-anchor": "bottom",
-      "icon-rotate": ["get", "@rotate"],
-      "icon-rotation-alignment": "map",
-      "icon-allow-overlap": true,
-      "icon-ignore-placement": true,
-    },
+          any(
+            coalesce(get("@secondary"), false),
+            gt(length(get("@house-label")), 3)
+          ),
+          "·",
+        ], // Hide housenumber.
+        [get("@house-label")] // Full housenumber
+      ),
+      {},
+    ],
+    [maybeSpace, {}],
+    // Last, the entrance letter, in bold font
+    [
+      cond(
+        [not(toBoolean(get("@entrance-label"))), ""], // No housenumber
+        [all(coalesce(get("@secondary"), false)), "·"], // Hide letter.
+        [get("@entrance-label")] // Full entrance letter
+      ),
+      {
+        "text-font": ["literal", ["Klokantech Noto Sans Bold"]],
+      },
+    ]
+  );
+
+const hasNoLabel = (labelName: string): Expression =>
+  not(toBoolean(get(labelName)));
+
+const midZoomLabel = (maybeSpace: Expression): Expression =>
+  format(
+    [
+      cond(
+        [hasNoLabel("@house-label"), ""], // No housenumber
+        [
+          any(
+            coalesce(get("@secondary"), false),
+            gt(length(get("@house-label")), 3)
+          ),
+          "·",
+        ], // Hide housenumber.
+        [get("@house-label")] // Full housenumber
+      ),
+      {},
+    ],
+    [maybeSpace, {}],
+    // Last, the entrance letter, in bold font
+    [
+      cond(
+        [not(toBoolean(get("@entrance-label"))), ""], // No housenumber
+        [
+          all(
+            coalesce(get("@secondary"), false),
+            gt(length(get("@entrance-label")), 1)
+          ),
+          "·",
+        ], // Hide letter.
+        [get("@entrance-label")] // Full entrance letter
+      ),
+      {
+        "text-font": ["literal", ["Klokantech Noto Sans Bold"]],
+      },
+    ]
+  );
+
+// always show the housenumber followed by the bolded entrance letter
+const highZoomLabel = (houseLabelMaybeSpace: Expression): Expression =>
+  format(
+    // First, the housenumber, without special formatting
+    [houseLabelMaybeSpace, {}],
+    // Last, the entrance letter, in bold font
+    [
+      get("@entrance-label"),
+      {
+        "text-font": ["literal", ["Klokantech Noto Sans Bold"]],
+      },
+    ]
+  );
+
+const zoomDependentEntranceLabel: Expression = [
+  "let",
+  "maybe_space",
+  cond(
+    // If we have both labels, then separate by a thin space.
+    [all(has("@house-label"), has("@entrance-label")), "\u2009"],
+    [""] // Otherwise, no separator.
+  ),
+  "house_label_maybe_space",
+  concat(
+    get("@house-label"),
+    cond(
+      // If we have both labels, then separate by a thin space.
+      [all(has("@house-label"), has("@entrance-label")), "\u2009"],
+      [""] // Otherwise, no separator.
+    )
+  ),
+  [
+    "step",
+    ["zoom"],
+    lowZoomLabel(getVar("maybe_space")),
+    17, // At zoom 17 or more,
+    midZoomLabel(getVar("maybe_space")),
+    18, // At zoom 18 or more,
+    highZoomLabel(getVar("house_label_maybe_space")),
+  ],
+];
+
+const entranceSymbols: LayerProps = {
+  id: "entrance-symbol",
+  type: "symbol",
+  minzoom: 16,
+  paint: {
+    "text-halo-color": "#fff",
+    "text-color": "#64be14",
+    "text-halo-width": 1,
   },
+  layout: {
+    "text-field": zoomDependentEntranceLabel,
+    "text-font": ["Klokantech Noto Sans Regular"],
+    "text-size": 16,
+    "text-offset": ["get", "@offset"],
+    "text-anchor": ["step", ["%", ["get", "@rotate"], 360]].concat(
+      anglesToAnchors()
+    ) as Expression,
+    "text-rotation-alignment": "map",
+    "text-allow-overlap": true,
+    "text-ignore-placement": true,
+    "icon-image": "icon-svg-triangle-14-#64be14-#fff",
+    "icon-anchor": "bottom",
+    "icon-rotate": ["get", "@rotate"],
+    "icon-rotation-alignment": "map",
+    "icon-allow-overlap": true,
+    "icon-ignore-placement": true,
+  },
+};
+
+export const allEntrancesLayers: Array<LayerProps> = [
+  entrancePoints, // smaller zoom levels
+  entranceSymbols, // larger zoom levels
 ];
 
 export const routePointSymbolLayer: LayerProps = {
