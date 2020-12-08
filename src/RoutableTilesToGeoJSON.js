@@ -16,13 +16,21 @@ var processRelations = function (relations, ways, nodes, entrances) {
       );
     })
     .forEach((relation) => {
-      relation["osm:hasMembers"].forEach((member) => {
+      const relationEntrances = relation["osm:hasMembers"].flatMap((member) => {
         // Process the member way if it's included in the tile
         const way = ways[member["@id"]];
         if (way) {
-          processWay(way, nodes, entrances, member.role === "inner", relation);
+          return processWay(
+            way,
+            nodes,
+            entrances,
+            member.role === "inner",
+            relation
+          );
         }
+        return [];
       });
+      processBuildingEntrances(relationEntrances);
     });
 };
 
@@ -34,26 +42,43 @@ var processWays = function (ways, nodes, entrances) {
       );
     })
     .forEach((way) => {
-      processWay(way, nodes, entrances);
+      processBuildingEntrances(processWay(way, nodes, entrances));
     });
+};
+
+var processBuildingEntrances = function (buildingEntrances) {
+  // If the building has a staircase or a main entrance,
+  // mark other entrances as secondary
+  if (
+    buildingEntrances.some((entrance) =>
+      ["staircase", "main"].includes(entrance.properties["entrance"])
+    )
+  ) {
+    buildingEntrances.forEach((entrance) => {
+      if (!["staircase", "main"].includes(entrance.properties["entrance"])) {
+        entrance.properties["@secondary"] = true;
+      }
+    });
+  }
 };
 
 var processWay = function (way, nodes, entrances, isInnerRole, relation) {
   if (!way["osm:hasNodes"]) {
-    return; // no nodes to process
+    return []; // no nodes to process
   } else if (typeof way["osm:hasNodes"] === "string") {
-    return; // a single node cannot be processed as a way
+    return []; // a single node cannot be processed as a way
   }
 
   const nodeIds = way["osm:hasNodes"];
   if (nodeIds.length < 4) {
     console.log("not an area", way["@id"]);
-    return;
+    return [];
   }
   if (nodeIds[0] !== nodeIds[nodeIds.length - 1]) {
     console.log("unclosed", way["@id"]);
   }
   let isWayClockwise = null;
+  let wayEntrances = [];
   nodeIds.forEach((nodeId, index, nodeIds) => {
     const entrance = entrances[nodeId];
     if (entrance) {
@@ -107,8 +132,10 @@ var processWay = function (way, nodes, entrances, isInnerRole, relation) {
         "@entrance-label": entranceLabel,
         "@house-label": houseLabel,
       };
+      wayEntrances.push(entrance);
     }
   });
+  return wayEntrances;
 };
 
 const entranceNodeToLabel = function (node) {

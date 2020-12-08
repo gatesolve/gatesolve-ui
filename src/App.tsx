@@ -24,7 +24,7 @@ import {
   allEntrancesLayers,
 } from "./map-style";
 import Pin, { pinAsSVG } from "./components/Pin";
-import { triangleAsSVG } from "./components/Triangle";
+import { triangleAsSVG, triangleDotAsSVG } from "./components/Triangle";
 import UserPosition from "./components/UserPosition";
 import GeolocateControl from "./components/GeolocateControl";
 import calculatePlan, { geometryToGeoJSON } from "./planner";
@@ -171,6 +171,8 @@ const App: React.FC = () => {
         renderSVG = pinAsSVG;
       } else if (shape === "triangle") {
         renderSVG = triangleAsSVG;
+      } else if (shape === "triangleDot") {
+        renderSVG = triangleDotAsSVG;
       } else {
         return; // Unknown shape
       }
