@@ -317,7 +317,7 @@ const entranceSymbols: LayerProps = {
     "text-allow-overlap": true,
     "text-ignore-placement": true,
     "icon-image": "icon-svg-triangle-14-#64be14-#fff",
-    "icon-anchor": "bottom",
+    "icon-anchor": "center",
     "icon-rotate": ["get", "@rotate"],
     "icon-rotation-alignment": "map",
     "icon-allow-overlap": true,
