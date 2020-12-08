@@ -9,12 +9,12 @@ import { triplesToTags } from "./routable-tiles";
 
 // "./planner-config" (and PlannerJS) is imported dynamically by calculatePlan
 
-import { ElementWithCoordinates } from "./overpass";
+import { ElementWithCoordinates, Tags } from "./overpass";
 
 interface RouteGeometries {
   coordinates: Array<[number, number]>;
   obstacles: Array<ElementWithCoordinates>;
-  obstacleWays: Array<Array<[number, number]>>;
+  obstacleWays: Array<[Tags, Array<[number, number]>]>;
   imaginaryWays: Array<Array<[number, number]>>;
 }
 
@@ -24,7 +24,7 @@ function extractGeometry(
 ): RouteGeometries {
   const coordinates = [] as Array<[number, number]>;
   const obstacles = [] as Array<ElementWithCoordinates>;
-  const obstacleWays = new Map();
+  const obstacleWays = new Map<string, [Tags, Array<[number, number]>]>();
   const imaginaryWays = [] as Array<Array<[number, number]>>;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -56,10 +56,16 @@ function extractGeometry(
       ] === "https://w3id.org/openstreetmap/terms#Steps"
     ) {
       if (!obstacleWays.has(step.through)) {
-        obstacleWays.set(step.through, []);
+        const wayContext = path.context[step.through];
+        const tags = triplesToTags(
+          step.through,
+          wayContext.definedTags,
+          wayContext.freeformTags
+        );
+        obstacleWays.set(step.through, [tags, []]);
       }
       obstacleWays
-        .get(step.through)
+        .get(step.through)?.[1]
         .push(
           [
             step.startLocation.longitude as number,
@@ -159,19 +165,20 @@ export function geometryToGeoJSON(
       },
     });
   }
-  if (routeGeometries?.obstacleWays) {
+  routeGeometries?.obstacleWays.forEach(([tags, geometry]) => {
     features.push({
       type: "Feature",
       geometry: {
-        type: "MultiLineString",
-        coordinates: routeGeometries.obstacleWays,
+        type: "LineString",
+        coordinates: geometry,
       },
       properties: {
+        ...tags,
         "@color": "#dc0451",
         "@opacity": 1,
       },
     });
-  }
+  });
   if (routeGeometries?.imaginaryWays) {
     features.push({
       type: "Feature",

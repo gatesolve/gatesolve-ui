@@ -11,7 +11,10 @@ import { useSnackbar } from "notistack";
 import MapGL, { Popup, Source, Layer, Marker } from "@urbica/react-map-gl";
 import { WebMercatorViewport } from "viewport-mercator-project";
 import type { WebMercatorViewportOptions } from "viewport-mercator-project";
-import { distance as turfDistance } from "@turf/turf";
+import {
+  distance as turfDistance,
+  nearestPointOnLine as turfNearestPointOnLine,
+} from "@turf/turf";
 import { MapboxGeoJSONFeature } from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 // eslint-disable-next-line import/no-extraneous-dependencies
@@ -567,15 +570,24 @@ const App: React.FC = () => {
             popupCoordinates: element,
           };
         }
-        if (feature?.properties.barrier) {
+        if (
+          feature?.properties.barrier ||
+          feature?.properties.highway === "steps"
+        ) {
           const id = feature.properties["@id"].split("/").reverse()[0];
+          const [lon, lat] =
+            feature.geometry.type === "Point"
+              ? feature.geometry.coordinates
+              : // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- bug in turf < 6.2
+                turfNearestPointOnLine(feature, event.lngLat.toArray())
+                  .geometry!.coordinates;
           return {
             ...prevState,
             popupCoordinates: {
               id,
               type: feature.properties["@type"],
-              lat: feature.geometry.coordinates[1],
-              lon: feature.geometry.coordinates[0],
+              lat,
+              lon,
               tags: feature.properties,
             },
           };
