@@ -52,11 +52,11 @@ export const routeLineLayer: LayerProps = {
     "line-join": "round",
   },
   paint: {
-    "line-opacity": ["coalesce", ["get", "opacity"], 0.8],
+    "line-opacity": ["coalesce", ["get", "@opacity"], 0.8],
     "line-width": 2,
-    "line-color": ["get", "color"],
+    "line-color": ["get", "@color"],
   },
-  filter: ["!", ["coalesce", ["get", "imaginary"], false]],
+  filter: ["!", ["coalesce", ["get", "@imaginary"], false]],
 };
 
 export const routeImaginaryLineLayer: LayerProps = {
@@ -67,19 +67,19 @@ export const routeImaginaryLineLayer: LayerProps = {
     "line-join": "round",
   },
   paint: {
-    "line-opacity": ["coalesce", ["get", "opacity"], 0.5],
+    "line-opacity": ["coalesce", ["get", "@opacity"], 0.5],
     "line-width": 5,
-    "line-color": ["get", "color"],
+    "line-color": ["get", "@color"],
     "line-dasharray": [0, 2],
   },
-  filter: ["coalesce", ["get", "imaginary"], false],
+  filter: ["coalesce", ["get", "@imaginary"], false],
 };
 
 export const routePointLayer: LayerProps = {
   id: "route-point",
   type: "circle",
   paint: {
-    "circle-opacity": ["coalesce", ["get", "opacity"], 1],
+    "circle-opacity": ["coalesce", ["get", "@opacity"], 1],
     "circle-radius": 5,
     "circle-color": ["get", "@color"],
   },

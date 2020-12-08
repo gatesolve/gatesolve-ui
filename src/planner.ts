@@ -142,7 +142,7 @@ export function geometryToGeoJSON(
         properties: {
           "@color": "#00ffff",
           "@label": entrance.tags?.["ref"] || entrance.tags?.["addr:unit"],
-          opacity: 0,
+          "@opacity": 0,
         },
       });
     });
@@ -155,7 +155,7 @@ export function geometryToGeoJSON(
         coordinates: routeGeometries.coordinates,
       },
       properties: {
-        color: "#000",
+        "@color": "#000",
       },
     });
   }
@@ -167,8 +167,8 @@ export function geometryToGeoJSON(
         coordinates: routeGeometries.obstacleWays,
       },
       properties: {
-        color: "#dc0451",
-        opacity: 1,
+        "@color": "#dc0451",
+        "@opacity": 1,
       },
     });
   }
@@ -180,8 +180,8 @@ export function geometryToGeoJSON(
         coordinates: routeGeometries.imaginaryWays,
       },
       properties: {
-        color: "#000",
-        imaginary: true,
+        "@color": "#000",
+        "@imaginary": true,
       },
     });
   }
