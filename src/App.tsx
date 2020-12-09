@@ -3,7 +3,10 @@ import { useRouteMatch, useHistory } from "react-router-dom";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { match } from "react-router-dom";
 import { Button, IconButton } from "@material-ui/core";
-import { Close as CloseIcon } from "@material-ui/icons";
+import {
+  Close as CloseIcon,
+  AddComment as AddCommentIcon,
+} from "@material-ui/icons";
 import { useSnackbar } from "notistack";
 import MapGL, { Popup, Source, Layer, Marker } from "@urbica/react-map-gl";
 import { WebMercatorViewport } from "viewport-mercator-project";
@@ -885,6 +888,23 @@ const App: React.FC = () => {
                   {state.popupCoordinates.tags?.["addr:housenumber"]}{" "}
                   {state.popupCoordinates.tags?.["ref"] ||
                     state.popupCoordinates.tags?.["addr:unit"]}
+                  <a
+                    aria-label="Comment"
+                    href={
+                      getOlmapUrl(state.popupCoordinates, state.olmapData) ||
+                      "#"
+                    }
+                    target="_blank"
+                    style={{ display: "inline-block", float: "right" }}
+                    rel="noopener noreferrer"
+                  >
+                    <AddCommentIcon
+                      style={{
+                        color: "#ff5000",
+                        backgroundColor: "#fff",
+                      }}
+                    />
+                  </a>
                 </h3>
                 <OLMapImages olmapData={state.olmapData} />
                 <p>
@@ -984,29 +1004,6 @@ const App: React.FC = () => {
                   }
                 >
                   Destination
-                </Button>
-                <span style={{ padding: "5px" }} />
-                <Button
-                  data-testid="origin-button"
-                  variant="contained"
-                  size="small"
-                  style={{
-                    backgroundColor: "#ff5000",
-                    color: "#fff",
-                    visibility:
-                      state.olmapData?.state === "loading"
-                        ? "hidden"
-                        : undefined,
-                  }}
-                  type="button"
-                  aria-label="Fix data"
-                  href={
-                    getOlmapUrl(state.popupCoordinates, state.olmapData) || "#"
-                  }
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  Fix data
                 </Button>
               </div>
             </>
