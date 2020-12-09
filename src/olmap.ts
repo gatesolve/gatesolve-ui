@@ -30,7 +30,7 @@ export interface OlmapNote {
 }
 
 export const olmapNoteURL = (noteId: number): string =>
-  `https://app.olmap.org/#/Notes/${noteId}/`;
+  `https://app.olmap.org/#/note/${noteId}`;
 
 export const olmapCoordinateURL = (coordinates: {
   lat: number;
