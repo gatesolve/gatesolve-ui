@@ -872,143 +872,162 @@ const App: React.FC = () => {
             />
           </Marker>
         )}
-        <Popup
-          open={state.popupCoordinates != null}
-          latitude={state.popupCoordinates?.lat || null}
-          longitude={state.popupCoordinates?.lon || null}
-          closeButton={false}
-          closeOnClick={false}
-          maxWidth="300px"
-        >
-          {state.popupCoordinates && (
-            <>
-              <div>
-                <h3>
-                  {state.popupCoordinates.tags?.["addr:street"]}{" "}
-                  {state.popupCoordinates.tags?.["addr:housenumber"]}{" "}
-                  {state.popupCoordinates.tags?.["ref"] ||
-                    state.popupCoordinates.tags?.["addr:unit"]}
-                  <a
-                    aria-label="Comment"
-                    href={
-                      getOlmapUrl(state.popupCoordinates, state.olmapData) ||
-                      "#"
-                    }
-                    target="_blank"
-                    style={{ display: "inline-block", float: "right" }}
-                    rel="noopener noreferrer"
-                  >
-                    <AddCommentIcon
-                      style={{
-                        color: "#ff5000",
-                        backgroundColor: "#fff",
-                      }}
-                    />
-                  </a>
-                </h3>
-                <OLMapImages olmapData={state.olmapData} />
-                <p>
-                  {state.popupCoordinates.tags && (
-                    <table
-                      style={{
-                        textAlign: "left",
-                      }}
-                    >
-                      <tbody>
-                        {Object.entries(state.popupCoordinates.tags)
-                          .filter(
-                            ([k]) =>
-                              !k.startsWith("@") &&
-                              ![
-                                "addr:street",
-                                "addr:housenumber",
-                                "addr:unit",
-                                "ref",
-                              ].includes(k)
-                          )
-                          .map(([k, v]) => (
-                            <tr key={`${k}-${v}`}>
-                              <td
-                                style={{
-                                  padding: "0 5px 0 0",
-                                }}
-                              >
-                                {k}
-                              </td>
-                              <td>{v}</td>
-                            </tr>
-                          ))}
-                      </tbody>
-                    </table>
-                  )}
-                </p>
+        {state.popupCoordinates && (
+          <Popup
+            open={state.popupCoordinates != null}
+            latitude={state.popupCoordinates?.lat || null}
+            longitude={state.popupCoordinates?.lon || null}
+            closeButton={false}
+            closeOnClick={false}
+          >
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "30px 1fr 30px",
+              }}
+            >
+              <div />
+              <div
+                style={{
+                  fontSize: "14px",
+                  fontWeight: "bold",
+                }}
+              >
+                {state.popupCoordinates.tags?.["addr:street"]}{" "}
+                {state.popupCoordinates.tags?.["addr:housenumber"]}{" "}
+                {state.popupCoordinates.tags?.["ref"] ||
+                  state.popupCoordinates.tags?.["addr:unit"]}
               </div>
-              <div style={{ whiteSpace: "nowrap" }}>
-                <Button
-                  data-testid="origin-button"
-                  variant="contained"
-                  size="small"
-                  style={{ backgroundColor: "#00afff", color: "#fff" }}
-                  type="button"
-                  aria-label="Set origin"
-                  onClick={(): void =>
-                    setState(
-                      (prevState): State => {
-                        // Check this to appease the compiler.
-                        if (prevState.popupCoordinates != null) {
-                          return {
-                            ...prevState,
-                            origin: destinationToLatLng(
-                              prevState.popupCoordinates
-                            ),
-                            isOriginExplicit: true,
-                            popupCoordinates: null,
-                          };
-                        }
+              <div
+                style={{
+                  textAlign: "right",
+                }}
+              >
+                <a
+                  aria-label="Comment"
+                  href={
+                    getOlmapUrl(state.popupCoordinates, state.olmapData) || "#"
+                  }
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ display: "inline-flex" }}
+                >
+                  <AddCommentIcon
+                    style={{
+                      color: "#ff5000",
+                      backgroundColor: "#fff",
+                    }}
+                  />
+                </a>
+              </div>
+            </div>
+            <OLMapImages olmapData={state.olmapData} />
+            {state.popupCoordinates.tags && (
+              <table
+                style={{
+                  marginTop: "10px",
+                  marginBottom: "10px",
+                  textAlign: "left",
+                }}
+              >
+                <tbody>
+                  {Object.entries(state.popupCoordinates.tags)
+                    .filter(
+                      ([k]) =>
+                        !k.startsWith("@") &&
+                        ![
+                          "addr:street",
+                          "addr:housenumber",
+                          "addr:unit",
+                          "ref",
+                        ].includes(k)
+                    )
+                    .map(([k, v]) => (
+                      <tr key={`${k}-${v}`}>
+                        <td
+                          style={{
+                            padding: "0 5px 0 0",
+                            textAlign: "right",
+                          }}
+                        >
+                          {k}
+                        </td>
+                        <td>{v}</td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            )}
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+              }}
+            >
+              <Button
+                data-testid="origin-button"
+                variant="contained"
+                size="small"
+                style={{ backgroundColor: "#00afff", color: "#fff" }}
+                type="button"
+                aria-label="Set origin"
+                onClick={(): void =>
+                  setState(
+                    (prevState): State => {
+                      // Check this to appease the compiler.
+                      if (prevState.popupCoordinates != null) {
                         return {
                           ...prevState,
+                          origin: destinationToLatLng(
+                            prevState.popupCoordinates
+                          ),
                           isOriginExplicit: true,
                           popupCoordinates: null,
                         };
                       }
-                    )
-                  }
-                >
-                  Origin
-                </Button>
-                <span style={{ padding: "5px" }} />
-                <Button
-                  data-testid="destination-button"
-                  variant="contained"
-                  size="small"
-                  style={{ backgroundColor: "#64be14", color: "#fff" }}
-                  type="button"
-                  aria-label="Set destination"
-                  onClick={(): void =>
-                    setState(
-                      (prevState): State => {
-                        // Check this to appease the compiler.
-                        if (prevState.popupCoordinates != null) {
-                          return {
-                            ...prevState,
-                            destination: prevState.popupCoordinates,
-                            popupCoordinates: null,
-                          };
-                        }
+                      return {
+                        ...prevState,
+                        isOriginExplicit: true,
+                        popupCoordinates: null,
+                      };
+                    }
+                  )
+                }
+              >
+                Origin
+              </Button>
+              <span style={{ padding: "5px" }} />
+              <Button
+                data-testid="destination-button"
+                variant="contained"
+                size="small"
+                style={{ backgroundColor: "#64be14", color: "#fff" }}
+                type="button"
+                aria-label="Set destination"
+                onClick={(): void =>
+                  setState(
+                    (prevState): State => {
+                      // Check this to appease the compiler.
+                      if (prevState.popupCoordinates != null) {
                         return {
                           ...prevState,
+                          destination: prevState.popupCoordinates,
                           popupCoordinates: null,
                         };
                       }
-                    )
-                  }
-                >
-                  Destination
-                </Button>
-              </div>
-            </>
-          )}
-        </Popup>
+                      return {
+                        ...prevState,
+                        popupCoordinates: null,
+                      };
+                    }
+                  )
+                }
+              >
+                Destination
+              </Button>
+            </div>
+          </Popup>
+        )}
       </MapGL>
     </div>
   );

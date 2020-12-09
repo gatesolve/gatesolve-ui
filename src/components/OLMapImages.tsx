@@ -18,10 +18,11 @@ const OLMapImages: React.FC<OLMapImagesProps> = ({ olmapData }) => {
           href={olmapNoteURL(note.id)}
           target="_blank"
           rel="noopener noreferrer"
+          style={{ display: "inline-flex" }}
         >
           {/* eslint-disable-next-line jsx-a11y/img-redundant-alt */}
           <img
-            style={{ maxWidth: "250px", maxHeight: "150px" }}
+            style={{ maxWidth: "100%", maxHeight: "150px" }}
             src={note.image}
             alt="A photo of the entrance"
           />
