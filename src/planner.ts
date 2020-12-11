@@ -176,6 +176,7 @@ export function geometryToGeoJSON(
         ...tags,
         "@color": "#dc0451",
         "@opacity": 1,
+        "@interactive": true,
       },
     });
   });

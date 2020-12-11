@@ -24,7 +24,7 @@ import { ReactAutosuggestGeocoder } from "react-autosuggest-geocoder";
 import {
   routePointLayer,
   routePointSymbolLayer,
-  routeLineLayer,
+  routeLineLayers,
   routeImaginaryLineLayer,
   buildingHighlightLayer,
   allEntrancesLayers,
@@ -824,11 +824,15 @@ const App: React.FC = () => {
         </Source>
 
         <Source id="route" type="geojson" data={state.route}>
-          <Layer
-            // eslint-disable-next-line react/jsx-props-no-spreading
-            {...routeLineLayer}
-            source="route"
-          />
+          {routeLineLayers.map((layer) => (
+            <Layer
+              // eslint-disable-next-line react/jsx-props-no-spreading
+              {...layer}
+              key={layer.id}
+              source="route"
+              before="building-highlight"
+            />
+          ))}
           <Layer
             // eslint-disable-next-line react/jsx-props-no-spreading
             {...routeImaginaryLineLayer}

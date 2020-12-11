@@ -44,7 +44,7 @@ const anglesToAnchors = (): Array<string | number> => {
   return ret;
 };
 
-export const routeLineLayer: LayerProps = {
+const routeLineLayer: LayerProps = {
   id: "route-line",
   type: "line",
   layout: {
@@ -58,6 +58,21 @@ export const routeLineLayer: LayerProps = {
   },
   filter: ["!", ["coalesce", ["get", "@imaginary"], false]],
 };
+
+const routeLineInteractive: LayerProps = {
+  id: "route-line-interactive",
+  type: "line",
+  paint: {
+    "line-width": 16,
+    "line-opacity": 0,
+  },
+  filter: ["coalesce", ["get", "@interactive"]],
+};
+
+export const routeLineLayers: Array<LayerProps> = [
+  routeLineLayer,
+  routeLineInteractive,
+];
 
 export const routeImaginaryLineLayer: LayerProps = {
   id: "route-imaginary-line",
