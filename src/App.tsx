@@ -31,6 +31,7 @@ import {
 } from "./map-style";
 import Pin, { pinAsSVG } from "./components/Pin";
 import { triangleAsSVG, triangleDotAsSVG } from "./components/Triangle";
+import OLMapDialog from "./components/OLMapDialog";
 import OLMapImages from "./components/OLMapImages";
 import UserPosition from "./components/UserPosition";
 import GeolocateControl from "./components/GeolocateControl";
@@ -68,6 +69,7 @@ interface State {
   snackbar?: ReactText;
   routableTiles: Map<string, FeatureCollection | null>;
   olmapData?: NetworkState<OlmapResponse>;
+  editingNote?: number;
 }
 
 const latLngToDestination = (latLng: LatLng): ElementWithCoordinates => ({
@@ -625,6 +627,11 @@ const App: React.FC = () => {
     );
   };
 
+  const getOlmapId = (
+    olmapData?: NetworkState<OlmapResponse>
+  ): number | false =>
+    olmapData?.state === "success" && olmapData.response.image_notes?.[0]?.id;
+
   const getOlmapUrl = (
     popupCoordinates: ElementWithCoordinates,
     olmapData?: NetworkState<OlmapResponse>
@@ -632,10 +639,7 @@ const App: React.FC = () => {
     if (olmapData?.state === "loading") {
       return null;
     }
-    let noteId;
-    if (olmapData?.state === "success") {
-      noteId = olmapData.response.image_notes?.[0]?.id;
-    }
+    const noteId = getOlmapId(olmapData);
     if (!noteId) {
       return olmapNewNoteURL(popupCoordinates);
     }
@@ -944,6 +948,18 @@ const App: React.FC = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{ display: "inline-flex" }}
+                  onClick={(event): void => {
+                    const noteId = getOlmapId(state.olmapData);
+                    if (noteId) {
+                      setState(
+                        (prevState): State => ({
+                          ...prevState,
+                          editingNote: noteId,
+                        })
+                      );
+                      event.preventDefault();
+                    }
+                  }}
                 >
                   <AddCommentIcon
                     style={{
@@ -1062,6 +1078,15 @@ const App: React.FC = () => {
           </Popup>
         )}
       </MapGL>
+      <OLMapDialog
+        noteId={state.editingNote}
+        onClose={() =>
+          setState((prevState) => ({
+            ...prevState,
+            editingNote: undefined,
+          }))
+        }
+      />
     </div>
   );
 };
