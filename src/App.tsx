@@ -3,7 +3,10 @@ import { useRouteMatch, useHistory } from "react-router-dom";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { match } from "react-router-dom";
 import { Button, IconButton } from "@material-ui/core";
-import { Close as CloseIcon } from "@material-ui/icons";
+import {
+  Close as CloseIcon,
+  AddComment as AddCommentIcon,
+} from "@material-ui/icons";
 import { useSnackbar } from "notistack";
 import MapGL, { Popup, Source, Layer, Marker } from "@urbica/react-map-gl";
 import { WebMercatorViewport } from "viewport-mercator-project";
@@ -25,6 +28,7 @@ import {
 } from "./map-style";
 import Pin, { pinAsSVG } from "./components/Pin";
 import { triangleAsSVG, triangleDotAsSVG } from "./components/Triangle";
+import OLMapImages from "./components/OLMapImages";
 import UserPosition from "./components/UserPosition";
 import GeolocateControl from "./components/GeolocateControl";
 import calculatePlan, { geometryToGeoJSON } from "./planner";
@@ -32,6 +36,13 @@ import { queryEntrances, ElementWithCoordinates } from "./overpass";
 import { addImageSVG, getMapSize } from "./mapbox-utils";
 import routableTilesToGeoJSON from "./RoutableTilesToGeoJSON";
 import { getVisibleTiles } from "./minimal-xyz-viewer";
+import {
+  fetchOlmapData,
+  olmapNewNoteURL,
+  olmapNoteURL,
+  OlmapResponse,
+  NetworkState,
+} from "./olmap";
 
 import "./App.css";
 import "./components/PinMarker.css";
@@ -53,6 +64,7 @@ interface State {
   popupCoordinates: ElementWithCoordinates | null;
   snackbar?: ReactText;
   routableTiles: Map<string, FeatureCollection | null>;
+  olmapData?: NetworkState<OlmapResponse>;
 }
 
 const latLngToDestination = (latLng: LatLng): ElementWithCoordinates => ({
@@ -480,6 +492,41 @@ const App: React.FC = () => {
   }, [state.origin, state.entrances]); // eslint-disable-line react-hooks/exhaustive-deps
   // XXX: state.destination is missing above as we need to wait for state.entrances to change as well
 
+  // When popup opens, try to fetch data for it from OLMap's API
+  useEffect(() => {
+    (async () => {
+      if (!state.popupCoordinates) return;
+      // Clear previous data
+      setState(
+        (prevState: State): State => {
+          if (prevState.popupCoordinates !== state.popupCoordinates) {
+            return prevState;
+          }
+          return {
+            ...prevState,
+            olmapData: { state: "loading" },
+          };
+        }
+      );
+      // Fetch new data
+      const olmapData = await fetchOlmapData(state.popupCoordinates.id);
+      setState(
+        (prevState: State): State => {
+          if (prevState.popupCoordinates !== state.popupCoordinates) {
+            return prevState;
+          }
+          return {
+            ...prevState,
+            olmapData,
+          };
+        }
+      );
+    })().catch((error) => {
+      // eslint-disable-next-line no-console
+      console.error("Error while fetching OLMap notes:", error);
+    });
+  }, [state.popupCoordinates]);
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleMapClick = (event: any): void => {
     // Inspect the topmost feature under click
@@ -487,9 +534,10 @@ const App: React.FC = () => {
     setState(
       (prevState): State => {
         if (feature?.properties.entrance) {
+          const id = feature.properties["@id"].split("/").reverse()[0];
           // If an entrance was clicked
           const element = {
-            id: feature.properties["@id"],
+            id,
             type: feature.properties["@type"],
             lat: feature.geometry.coordinates[1],
             lon: feature.geometry.coordinates[0],
@@ -550,6 +598,23 @@ const App: React.FC = () => {
         };
       }
     );
+  };
+
+  const getOlmapUrl = (
+    popupCoordinates: ElementWithCoordinates,
+    olmapData?: NetworkState<OlmapResponse>
+  ): string | null => {
+    if (olmapData?.state === "loading") {
+      return null;
+    }
+    let noteId;
+    if (olmapData?.state === "success") {
+      noteId = olmapData.response.image_notes?.[0]?.id;
+    }
+    if (!noteId) {
+      return olmapNewNoteURL(popupCoordinates);
+    }
+    return olmapNoteURL(noteId);
   };
 
   /**
@@ -807,58 +872,98 @@ const App: React.FC = () => {
             />
           </Marker>
         )}
-        <Popup
-          open={state.popupCoordinates != null}
-          latitude={state.popupCoordinates?.lat || null}
-          longitude={state.popupCoordinates?.lon || null}
-          closeButton={false}
-          closeOnClick={false}
-        >
-          {state.popupCoordinates && (
-            <>
-              <div>
-                <h3>
-                  {state.popupCoordinates.tags?.["addr:street"]}{" "}
-                  {state.popupCoordinates.tags?.["addr:housenumber"]}{" "}
-                  {state.popupCoordinates.tags?.["ref"] ||
-                    state.popupCoordinates.tags?.["addr:unit"]}
-                </h3>
-                <p>
-                  {state.popupCoordinates.tags && (
-                    <table
-                      style={{
-                        textAlign: "left",
-                      }}
-                    >
-                      <tbody>
-                        {Object.entries(state.popupCoordinates.tags)
-                          .filter(
-                            ([k]) =>
-                              !k.startsWith("@") &&
-                              ![
-                                "addr:street",
-                                "addr:housenumber",
-                                "addr:unit",
-                                "ref",
-                              ].includes(k)
-                          )
-                          .map(([k, v]) => (
-                            <tr key={`${k}-${v}`}>
-                              <td
-                                style={{
-                                  padding: "0 5px 0 0",
-                                }}
-                              >
-                                {k}
-                              </td>
-                              <td>{v}</td>
-                            </tr>
-                          ))}
-                      </tbody>
-                    </table>
-                  )}
-                </p>
+        {state.popupCoordinates && (
+          <Popup
+            open={state.popupCoordinates != null}
+            latitude={state.popupCoordinates?.lat || null}
+            longitude={state.popupCoordinates?.lon || null}
+            closeButton={false}
+            closeOnClick={false}
+          >
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "30px 1fr 30px",
+              }}
+            >
+              <div />
+              <div
+                style={{
+                  fontSize: "14px",
+                  fontWeight: "bold",
+                }}
+              >
+                {state.popupCoordinates.tags?.["addr:street"]}{" "}
+                {state.popupCoordinates.tags?.["addr:housenumber"]}{" "}
+                {state.popupCoordinates.tags?.["ref"] ||
+                  state.popupCoordinates.tags?.["addr:unit"]}
               </div>
+              <div
+                style={{
+                  textAlign: "right",
+                }}
+              >
+                <a
+                  aria-label="Comment"
+                  href={
+                    getOlmapUrl(state.popupCoordinates, state.olmapData) || "#"
+                  }
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ display: "inline-flex" }}
+                >
+                  <AddCommentIcon
+                    style={{
+                      color: "#ff5000",
+                      backgroundColor: "#fff",
+                    }}
+                  />
+                </a>
+              </div>
+            </div>
+            <OLMapImages olmapData={state.olmapData} />
+            {state.popupCoordinates.tags && (
+              <table
+                style={{
+                  marginTop: "10px",
+                  marginBottom: "10px",
+                  textAlign: "left",
+                }}
+              >
+                <tbody>
+                  {Object.entries(state.popupCoordinates.tags)
+                    .filter(
+                      ([k]) =>
+                        !k.startsWith("@") &&
+                        ![
+                          "addr:street",
+                          "addr:housenumber",
+                          "addr:unit",
+                          "ref",
+                        ].includes(k)
+                    )
+                    .map(([k, v]) => (
+                      <tr key={`${k}-${v}`}>
+                        <td
+                          style={{
+                            padding: "0 5px 0 0",
+                            textAlign: "right",
+                          }}
+                        >
+                          {k}
+                        </td>
+                        <td>{v}</td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            )}
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+              }}
+            >
               <Button
                 data-testid="origin-button"
                 variant="contained"
@@ -920,9 +1025,9 @@ const App: React.FC = () => {
               >
                 Destination
               </Button>
-            </>
-          )}
-        </Popup>
+            </div>
+          </Popup>
+        )}
       </MapGL>
     </div>
   );
