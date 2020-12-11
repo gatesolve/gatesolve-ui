@@ -395,7 +395,7 @@ const App: React.FC = () => {
 
     // Don't calculate routes between points more than 200 meters apart
     if (
-      distance(state.origin, destinationToLatLng(state.destination)) >
+      distance(state.origin, destinationToLatLng(state.destination)) >=
       maxRoutingDistance
     ) {
       const message = state.isOriginExplicit
