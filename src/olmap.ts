@@ -1,3 +1,5 @@
+import type { ElementWithCoordinates } from "./overpass";
+
 export type NetworkLoadingState = {
   state: "loading";
 };
@@ -32,11 +34,12 @@ export interface OlmapNote {
 export const olmapNoteURL = (noteId: number): string =>
   `https://app.olmap.org/#/note/${noteId}`;
 
-export const olmapCoordinateURL = (coordinates: {
-  lat: number;
-  lon: number;
-}): string =>
-  `https://app.olmap.org/#/Notes/@${coordinates.lat},${coordinates.lon}`;
+export const olmapNewNoteURL = (target: ElementWithCoordinates): string => {
+  if (target.id === -1) {
+    return `https://app.olmap.org/#/Notes/new/photo/@${target.lat},${target.lon}`;
+  }
+  return `https://app.olmap.org/#/Notes/new/${target.id}/photo/@${target.lat},${target.lon}`;
+};
 
 export const fetchOlmapData = async (
   osmId: number

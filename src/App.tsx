@@ -38,7 +38,7 @@ import routableTilesToGeoJSON from "./RoutableTilesToGeoJSON";
 import { getVisibleTiles } from "./minimal-xyz-viewer";
 import {
   fetchOlmapData,
-  olmapCoordinateURL,
+  olmapNewNoteURL,
   olmapNoteURL,
   OlmapResponse,
   NetworkState,
@@ -612,7 +612,7 @@ const App: React.FC = () => {
       noteId = olmapData.response.image_notes?.[0]?.id;
     }
     if (!noteId) {
-      return olmapCoordinateURL(popupCoordinates);
+      return olmapNewNoteURL(popupCoordinates);
     }
     return olmapNoteURL(noteId);
   };
