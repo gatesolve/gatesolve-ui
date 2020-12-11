@@ -11,7 +11,10 @@ import { useSnackbar } from "notistack";
 import MapGL, { Popup, Source, Layer, Marker } from "@urbica/react-map-gl";
 import { WebMercatorViewport } from "viewport-mercator-project";
 import type { WebMercatorViewportOptions } from "viewport-mercator-project";
-import { distance as turfDistance } from "@turf/turf";
+import {
+  distance as turfDistance,
+  nearestPointOnLine as turfNearestPointOnLine,
+} from "@turf/turf";
 import { MapboxGeoJSONFeature } from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 // eslint-disable-next-line import/no-extraneous-dependencies
@@ -21,7 +24,7 @@ import { ReactAutosuggestGeocoder } from "react-autosuggest-geocoder";
 import {
   routePointLayer,
   routePointSymbolLayer,
-  routeLineLayer,
+  routeLineLayers,
   routeImaginaryLineLayer,
   buildingHighlightLayer,
   allEntrancesLayers,
@@ -567,6 +570,28 @@ const App: React.FC = () => {
             popupCoordinates: element,
           };
         }
+        if (
+          feature?.properties.barrier ||
+          feature?.properties.highway === "steps"
+        ) {
+          const id = feature.properties["@id"].split("/").reverse()[0];
+          const [lon, lat] =
+            feature.geometry.type === "Point"
+              ? feature.geometry.coordinates
+              : // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- bug in turf < 6.2
+                turfNearestPointOnLine(feature, event.lngLat.toArray())
+                  .geometry!.coordinates;
+          return {
+            ...prevState,
+            popupCoordinates: {
+              id,
+              type: feature.properties["@type"],
+              lat,
+              lon,
+              tags: feature.properties,
+            },
+          };
+        }
         if (feature?.sourceLayer === "building") {
           // If a building was clicked, highlight it and set as destination
           return {
@@ -799,11 +824,15 @@ const App: React.FC = () => {
         </Source>
 
         <Source id="route" type="geojson" data={state.route}>
-          <Layer
-            // eslint-disable-next-line react/jsx-props-no-spreading
-            {...routeLineLayer}
-            source="route"
-          />
+          {routeLineLayers.map((layer) => (
+            <Layer
+              // eslint-disable-next-line react/jsx-props-no-spreading
+              {...layer}
+              key={layer.id}
+              source="route"
+              before="building-highlight"
+            />
+          ))}
           <Layer
             // eslint-disable-next-line react/jsx-props-no-spreading
             {...routeImaginaryLineLayer}

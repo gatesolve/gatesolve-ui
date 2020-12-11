@@ -44,7 +44,7 @@ const anglesToAnchors = (): Array<string | number> => {
   return ret;
 };
 
-export const routeLineLayer: LayerProps = {
+const routeLineLayer: LayerProps = {
   id: "route-line",
   type: "line",
   layout: {
@@ -52,12 +52,27 @@ export const routeLineLayer: LayerProps = {
     "line-join": "round",
   },
   paint: {
-    "line-opacity": ["coalesce", ["get", "opacity"], 0.8],
+    "line-opacity": ["coalesce", ["get", "@opacity"], 0.8],
     "line-width": 2,
-    "line-color": ["get", "color"],
+    "line-color": ["get", "@color"],
   },
-  filter: ["!", ["coalesce", ["get", "imaginary"], false]],
+  filter: ["!", ["coalesce", ["get", "@imaginary"], false]],
 };
+
+const routeLineInteractive: LayerProps = {
+  id: "route-line-interactive",
+  type: "line",
+  paint: {
+    "line-width": 16,
+    "line-opacity": 0,
+  },
+  filter: ["coalesce", ["get", "@interactive"]],
+};
+
+export const routeLineLayers: Array<LayerProps> = [
+  routeLineLayer,
+  routeLineInteractive,
+];
 
 export const routeImaginaryLineLayer: LayerProps = {
   id: "route-imaginary-line",
@@ -67,21 +82,21 @@ export const routeImaginaryLineLayer: LayerProps = {
     "line-join": "round",
   },
   paint: {
-    "line-opacity": ["coalesce", ["get", "opacity"], 0.5],
+    "line-opacity": ["coalesce", ["get", "@opacity"], 0.5],
     "line-width": 5,
-    "line-color": ["get", "color"],
+    "line-color": ["get", "@color"],
     "line-dasharray": [0, 2],
   },
-  filter: ["coalesce", ["get", "imaginary"], false],
+  filter: ["coalesce", ["get", "@imaginary"], false],
 };
 
 export const routePointLayer: LayerProps = {
   id: "route-point",
   type: "circle",
   paint: {
-    "circle-opacity": ["coalesce", ["get", "opacity"], 1],
+    "circle-opacity": ["coalesce", ["get", "@opacity"], 1],
     "circle-radius": 5,
-    "circle-color": ["get", "color"],
+    "circle-color": ["get", "@color"],
   },
   filter: ["==", "Point", ["geometry-type"]],
 };
@@ -383,7 +398,7 @@ export const routePointSymbolLayer: LayerProps = {
     "text-halo-width": 3,
   },
   layout: {
-    "text-field": ["get", "ref"],
+    "text-field": ["get", "@label"],
     "text-anchor": "center",
     "text-font": ["Klokantech Noto Sans Regular"],
     "text-size": 24,

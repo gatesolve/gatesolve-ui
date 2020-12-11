@@ -6,6 +6,8 @@ import {
   booleanClockwise as turfBooleanClockwise,
 } from "@turf/turf";
 
+import { triplesToTags } from "./routable-tiles";
+
 const offset = 0.2;
 
 var processRelations = function (relations, ways, nodes, entrances) {
@@ -174,30 +176,26 @@ export default function (json) {
 
       if (element["osm:hasTag"]?.find((tag) => tag.startsWith("entrance="))) {
         // Create a GeoJSON feature for each entrance
+
+        const id = element["@id"];
+        // XXX: Could be computed later on demand
+        const tags = triplesToTags(id, element, element["osm:hasTag"]);
+
         const entranceLabel = entranceNodeToLabel(element);
         const entrance = {
-          id: element["@id"],
           type: "Feature",
           geometry: {
             type: "Point",
             coordinates: lngLat,
           },
           properties: {
-            "@id": element["@id"],
+            ...tags,
             "@entrance-label": entranceLabel.entrance,
             "@house-label": entranceLabel.house,
           },
         };
-        // Store each OSM tag as a feature property
-        // XXX: Could be computed later on demand
-        element["osm:hasTag"].forEach((tag) => {
-          const splitIndex = tag.indexOf("=");
-          entrance.properties[tag.substring(0, splitIndex)] = tag.substring(
-            splitIndex + 1
-          );
-        });
 
-        entrances[entrance.properties["@id"]] = entrance;
+        entrances[id] = entrance;
       }
     }
   }
