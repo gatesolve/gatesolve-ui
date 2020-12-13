@@ -3,10 +3,14 @@ import React from "react";
 import { olmapNoteURL, NetworkState, OlmapResponse } from "../olmap";
 
 interface OLMapImagesProps {
+  onImageClick: (event: React.MouseEvent<HTMLElement>) => void;
   olmapData?: NetworkState<OlmapResponse>;
 }
 
-const OLMapImages: React.FC<OLMapImagesProps> = ({ olmapData }) => {
+const OLMapImages: React.FC<OLMapImagesProps> = ({
+  onImageClick,
+  olmapData,
+}) => {
   const content =
     olmapData?.state === "success" &&
     olmapData?.response?.image_notes
@@ -16,6 +20,7 @@ const OLMapImages: React.FC<OLMapImagesProps> = ({ olmapData }) => {
         <a
           key={note.id}
           href={olmapNoteURL(note.id)}
+          onClick={onImageClick}
           target="_blank"
           rel="noopener noreferrer"
           style={{ display: "inline-flex" }}
