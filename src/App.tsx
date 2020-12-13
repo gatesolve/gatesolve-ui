@@ -36,7 +36,11 @@ import OLMapImages from "./components/OLMapImages";
 import UserPosition from "./components/UserPosition";
 import GeolocateControl from "./components/GeolocateControl";
 import calculatePlan, { geometryToGeoJSON } from "./planner";
-import { queryEntrances, ElementWithCoordinates } from "./overpass";
+import {
+  queryEntrances,
+  queryMatchingStreet,
+  ElementWithCoordinates,
+} from "./overpass";
 import { addImageSVG, getMapSize } from "./mapbox-utils";
 import routableTilesToGeoJSON from "./RoutableTilesToGeoJSON";
 import { getVisibleTiles } from "./minimal-xyz-viewer";
@@ -367,9 +371,10 @@ const App: React.FC = () => {
     (async () => {
       if (state.snackbar) closeSnackbar(state.snackbar);
 
-      if (!state.origin || !state.destination || !state.entrances) {
+      if (!state.destination || !state.entrances) {
         return; // Nothing to do yet
       }
+      let { origin } = state;
       let targets = [] as Array<ElementWithCoordinates>;
 
       // Try to find the destination among the entrances
@@ -396,10 +401,36 @@ const App: React.FC = () => {
         })
       );
 
-      // Don't calculate routes between points more than 200 meters apart
+      // Try to find an intermediary point on the street near the destination
       if (
+        !state.origin ||
         distance(state.origin, destinationToLatLng(state.destination)) >=
-        maxRoutingDistance
+          maxRoutingDistance
+      ) {
+        const [target] = targets; // Pick a random target
+        const streetName = target.tags?.["addr:street"];
+        if (streetName) {
+          const streetGeometry = await queryMatchingStreet(target, streetName);
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          const point = turfNearestPointOnLine(streetGeometry, [
+            target.lon,
+            target.lat,
+          ]).geometry!.coordinates;
+          origin = [point[1], point[0]];
+        }
+      }
+
+      // Don't calculate routes if there was no origin and none was found either
+      if (!origin) {
+        return;
+      }
+
+      // If the distance is still more than 200 meters apart
+      // Show an error and proposed actions
+      if (
+        origin === state.origin /* For typechecker */ &&
+        distance(origin, destinationToLatLng(state.destination)) >=
+          maxRoutingDistance
       ) {
         const message = state.isOriginExplicit
           ? "Origin is too far for showing routes."
@@ -467,10 +498,9 @@ const App: React.FC = () => {
           ),
         });
         setState((prevState): State => ({ ...prevState, snackbar }));
-        return;
+        return; // Don't calculate routes until the inputs change
       }
-
-      await calculatePlan(state.origin, targets, (geojson) => {
+      await calculatePlan(origin, targets, (geojson) => {
         setState(
           (prevState): State => {
             // don't use the result if the parameters changed meanwhile
