@@ -364,133 +364,135 @@ const App: React.FC = () => {
 
   // Set off routing calculation when inputs change; collect results in state.route
   useEffect(() => {
-    if (state.snackbar) closeSnackbar(state.snackbar);
+    (async () => {
+      if (state.snackbar) closeSnackbar(state.snackbar);
 
-    if (!state.origin || !state.destination || !state.entrances) {
-      return; // Nothing to do yet
-    }
-    let targets = [] as Array<ElementWithCoordinates>;
-
-    // Try to find the destination among the entrances
-    state.entrances.forEach((entrance) => {
-      if (!state.destination) return; // XXX: Typescript needs this
-      if (
-        state.destination.type === entrance.type &&
-        state.destination.id === entrance.id
-      ) {
-        targets = [entrance];
+      if (!state.origin || !state.destination || !state.entrances) {
+        return; // Nothing to do yet
       }
-    });
+      let targets = [] as Array<ElementWithCoordinates>;
 
-    // If the destination entrance wasn't found, route to all entrances
-    if (!targets.length) {
-      targets = state.entrances;
-    }
+      // Try to find the destination among the entrances
+      state.entrances.forEach((entrance) => {
+        if (!state.destination) return; // XXX: Typescript needs this
+        if (
+          state.destination.type === entrance.type &&
+          state.destination.id === entrance.id
+        ) {
+          targets = [entrance];
+        }
+      });
 
-    // Clear previous routing results by setting an empty result set
-    setState(
-      (prevState): State => ({
-        ...prevState,
-        route: geometryToGeoJSON(),
-      })
-    );
+      // If the destination entrance wasn't found, route to all entrances
+      if (!targets.length) {
+        targets = state.entrances;
+      }
 
-    // Don't calculate routes between points more than 200 meters apart
-    if (
-      distance(state.origin, destinationToLatLng(state.destination)) >=
-      maxRoutingDistance
-    ) {
-      const message = state.isOriginExplicit
-        ? "Origin is too far for showing routes."
-        : "Routes show when distance is shorter.";
-      const snackbar = enqueueSnackbar(message, {
-        variant: "info",
-        persist: true,
-        anchorOrigin: {
-          vertical: "bottom",
-          horizontal: "center",
-        },
-        action: (
-          <>
-            {state.isOriginExplicit && (
+      // Clear previous routing results by setting an empty result set
+      setState(
+        (prevState): State => ({
+          ...prevState,
+          route: geometryToGeoJSON(),
+        })
+      );
+
+      // Don't calculate routes between points more than 200 meters apart
+      if (
+        distance(state.origin, destinationToLatLng(state.destination)) >=
+        maxRoutingDistance
+      ) {
+        const message = state.isOriginExplicit
+          ? "Origin is too far for showing routes."
+          : "Routes show when distance is shorter.";
+        const snackbar = enqueueSnackbar(message, {
+          variant: "info",
+          persist: true,
+          anchorOrigin: {
+            vertical: "bottom",
+            horizontal: "center",
+          },
+          action: (
+            <>
+              {state.isOriginExplicit && (
+                <Button
+                  color="inherit"
+                  onClick={(): void => {
+                    setState(
+                      (prevState): State => ({
+                        ...prevState,
+                        origin: prevState.geolocationPosition || undefined,
+                        isOriginExplicit: false,
+                        viewport: fitMap(prevState.viewport, [
+                          prevState.destination &&
+                            destinationToLatLng(prevState.destination),
+                        ]),
+                      })
+                    );
+                  }}
+                >
+                  Undo origin
+                </Button>
+              )}
               <Button
                 color="inherit"
                 onClick={(): void => {
                   setState(
                     (prevState): State => ({
                       ...prevState,
-                      origin: prevState.geolocationPosition || undefined,
-                      isOriginExplicit: false,
-                      viewport: fitMap(prevState.viewport, [
-                        prevState.destination &&
-                          destinationToLatLng(prevState.destination),
-                      ]),
+                      destination: undefined,
+                      entrances: [],
+                      viewport: fitMap(prevState.viewport, [prevState.origin]),
                     })
                   );
                 }}
               >
-                Undo origin
+                Undo destination
               </Button>
-            )}
-            <Button
-              color="inherit"
-              onClick={(): void => {
-                setState(
-                  (prevState): State => ({
-                    ...prevState,
-                    destination: undefined,
-                    entrances: [],
-                    viewport: fitMap(prevState.viewport, [prevState.origin]),
-                  })
-                );
-              }}
-            >
-              Undo destination
-            </Button>
-            <Button
-              color="inherit"
-              target="_blank"
-              rel="noreferrer"
-              href={`https://www.google.com/maps/dir/?api=1&origin=${state.origin[0]},${state.origin[1]}&destination=${state.destination.lat},${state.destination.lon}&travelmode=driving`}
-            >
-              Google Maps
-            </Button>
+              <Button
+                color="inherit"
+                target="_blank"
+                rel="noreferrer"
+                href={`https://www.google.com/maps/dir/?api=1&origin=${state.origin[0]},${state.origin[1]}&destination=${state.destination.lat},${state.destination.lon}&travelmode=driving`}
+              >
+                Google Maps
+              </Button>
 
-            <IconButton
-              aria-label="close"
-              onClick={(): void => closeSnackbar(snackbar)}
-            >
-              <CloseIcon />
-            </IconButton>
-          </>
-        ),
-      });
-      setState((prevState): State => ({ ...prevState, snackbar }));
-      return;
-    }
+              <IconButton
+                aria-label="close"
+                onClick={(): void => closeSnackbar(snackbar)}
+              >
+                <CloseIcon />
+              </IconButton>
+            </>
+          ),
+        });
+        setState((prevState): State => ({ ...prevState, snackbar }));
+        return;
+      }
 
-    calculatePlan(state.origin, targets, (geojson) => {
-      setState(
-        (prevState): State => {
-          // don't use the result if the parameters changed meanwhile
-          if (
-            state.origin !== prevState.origin ||
-            state.entrances !== prevState.entrances ||
-            state.destination !== prevState.destination
-          ) {
-            return prevState;
+      await calculatePlan(state.origin, targets, (geojson) => {
+        setState(
+          (prevState): State => {
+            // don't use the result if the parameters changed meanwhile
+            if (
+              state.origin !== prevState.origin ||
+              state.entrances !== prevState.entrances ||
+              state.destination !== prevState.destination
+            ) {
+              return prevState;
+            }
+            const extendedGeojson = {
+              ...geojson,
+              features: geojson.features.concat(prevState.route.features),
+            };
+            return {
+              ...prevState,
+              route: extendedGeojson,
+            };
           }
-          const extendedGeojson = {
-            ...geojson,
-            features: geojson.features.concat(prevState.route.features),
-          };
-          return {
-            ...prevState,
-            route: extendedGeojson,
-          };
-        }
-      );
-    }).catch((error) => {
+        );
+      });
+    })().catch((error) => {
       // eslint-disable-next-line no-console
       console.error("Error while starting route planning:", error);
     });
