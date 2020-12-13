@@ -632,6 +632,19 @@ const App: React.FC = () => {
   ): number | false =>
     olmapData?.state === "success" && olmapData.response.image_notes?.[0]?.id;
 
+  const setEditingNote = (event: React.MouseEvent<HTMLElement>): void => {
+    const noteId = getOlmapId(state.olmapData);
+    if (noteId) {
+      setState(
+        (prevState): State => ({
+          ...prevState,
+          editingNote: noteId,
+        })
+      );
+      event.preventDefault();
+    }
+  };
+
   const getOlmapUrl = (
     popupCoordinates: ElementWithCoordinates,
     olmapData?: NetworkState<OlmapResponse>
@@ -948,18 +961,7 @@ const App: React.FC = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{ display: "inline-flex" }}
-                  onClick={(event): void => {
-                    const noteId = getOlmapId(state.olmapData);
-                    if (noteId) {
-                      setState(
-                        (prevState): State => ({
-                          ...prevState,
-                          editingNote: noteId,
-                        })
-                      );
-                      event.preventDefault();
-                    }
-                  }}
+                  onClick={setEditingNote}
                 >
                   <AddCommentIcon
                     style={{
@@ -970,7 +972,10 @@ const App: React.FC = () => {
                 </a>
               </div>
             </div>
-            <OLMapImages olmapData={state.olmapData} />
+            <OLMapImages
+              onImageClick={setEditingNote}
+              olmapData={state.olmapData}
+            />
             {state.popupCoordinates.tags && (
               <table
                 style={{
