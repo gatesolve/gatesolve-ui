@@ -10,7 +10,11 @@ interface OLMapDialogProps {
 }
 
 const OLMapDialog: React.FC<OLMapDialogProps> = ({ noteId, onClose }) => (
-  <Dialog open={!!noteId} fullWidth PaperProps={{ style: { height: "100%" } }}>
+  <Dialog
+    open={!!noteId}
+    fullWidth
+    PaperProps={{ style: { height: "100%", overflow: "hidden" } }}
+  >
     {noteId && (
       <>
         <DialogTitle>
