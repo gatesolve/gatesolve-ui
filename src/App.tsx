@@ -397,7 +397,7 @@ const App: React.FC = () => {
 
     // Don't calculate routes between points more than 200 meters apart
     if (
-      distance(state.origin, destinationToLatLng(state.destination)) >
+      distance(state.origin, destinationToLatLng(state.destination)) >=
       maxRoutingDistance
     ) {
       const message = state.isOriginExplicit
@@ -538,9 +538,18 @@ const App: React.FC = () => {
     const feature = map.current?.getMap().queryRenderedFeatures(event.point)[0];
     setState(
       (prevState): State => {
+        // Typing needed as the compiler is not smart enough.
+        const noHighlights: FeatureCollection = {
+          type: "FeatureCollection",
+          features: [],
+        };
+        const clickCoordinates = latLngToDestination([
+          event.lngLat.lat,
+          event.lngLat.lng,
+        ]);
+        // If an entrance was clicked, show details in the popup.
         if (feature?.properties.entrance) {
           const id = feature.properties["@id"].split("/").reverse()[0];
-          // If an entrance was clicked
           const element = {
             id,
             type: feature.properties["@type"],
@@ -548,30 +557,13 @@ const App: React.FC = () => {
             lon: feature.geometry.coordinates[0],
             tags: feature.properties,
           };
-          if (
-            prevState.origin &&
-            distance(prevState.origin, [
-              feature.geometry.coordinates[1],
-              feature.geometry.coordinates[0],
-            ]) < maxRoutingDistance
-          ) {
-            // If the entrance is close enough for routing, set it as destination
-            return {
-              ...prevState,
-              destination: element,
-              popupCoordinates: element,
-              highlights: {
-                type: "FeatureCollection",
-                features: [],
-              },
-            };
-          }
-          // Otherwise, just open the popup
           return {
             ...prevState,
             popupCoordinates: element,
+            highlights: noHighlights,
           };
         }
+        // If a barrier or steps were clicked, show details in the popup.
         if (
           feature?.properties.barrier ||
           feature?.properties.highway === "steps"
@@ -592,36 +584,30 @@ const App: React.FC = () => {
               lon,
               tags: feature.properties,
             },
+            highlights: noHighlights,
           };
         }
-        if (feature?.sourceLayer === "building") {
-          // If a building was clicked, highlight it and set as destination
-          return {
-            ...prevState,
-            highlights: feature.toJSON(),
-            destination: latLngToDestination([
-              event.lngLat.lat,
-              event.lngLat.lng,
-            ]),
-          };
-        }
-        // As a fallback, toggle popup.
-        if (prevState.popupCoordinates) {
+        // If the popup is open, close it.
+        if (prevState.popupCoordinates != null) {
           return {
             ...prevState,
             popupCoordinates: null,
+            highlights: noHighlights,
           };
         }
+        // If a building was clicked, highlight it.
+        if (feature?.sourceLayer === "building") {
+          return {
+            ...prevState,
+            popupCoordinates: clickCoordinates,
+            highlights: feature.toJSON(),
+          };
+        }
+        // Otherwise open a plain popup.
         return {
           ...prevState,
-          popupCoordinates: latLngToDestination([
-            event.lngLat.lat,
-            event.lngLat.lng,
-          ]),
-          highlights: {
-            type: "FeatureCollection",
-            features: [],
-          },
+          popupCoordinates: clickCoordinates,
+          highlights: noHighlights,
         };
       }
     );
