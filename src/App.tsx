@@ -581,10 +581,10 @@ const App: React.FC = () => {
         ]);
         // If an entrance was clicked, show details in the popup.
         if (feature?.properties.entrance) {
-          const id = feature.properties["@id"].split("/").reverse()[0];
+          const [id, type] = feature.properties["@id"].split("/").reverse();
           const element = {
-            id,
-            type: feature.properties["@type"],
+            id: parseInt(id, 10),
+            type,
             lat: feature.geometry.coordinates[1],
             lon: feature.geometry.coordinates[0],
             tags: feature.properties,
