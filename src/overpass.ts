@@ -1,3 +1,5 @@
+import type { MultiLineString } from "geojson";
+
 export interface OverpassResponse {
   version: number;
   generator: string;
@@ -12,9 +14,14 @@ export interface Osm3S {
 
 export type Element =
   | ElementWithCoordinates
+  | ElementWithGeometry
   | (ElementCore & Partial<Coordinates>);
 
 export type ElementWithCoordinates = ElementCore & Coordinates;
+
+export type ElementWithGeometry = ElementCore & {
+  geometry: Array<Coordinates>;
+};
 
 interface ElementCore {
   type: string;
@@ -81,4 +88,42 @@ export const queryEntrances = (
       return targets as ElementWithCoordinates[];
     })
   );
+};
+
+const buildMatchingStreetQuery = (
+  lat: number,
+  lon: number,
+  street: string
+): string => {
+  const streetEscaped = street
+    .replace(/\\/g, "\\\\")
+    .replace(/"/g, '\\"')
+    .replace(/\n/g, "\\n");
+  return `
+  [out:json][timeout:25];
+  (
+    way(around:100, ${lat}, ${lon})["highway"][name="${streetEscaped}"];
+  );
+  // print results as id and geometry for each way in qt (non-sorted) order
+  out ids geom qt;`;
+};
+
+export const queryMatchingStreet = async (
+  target: ElementWithCoordinates,
+  street: string
+): Promise<MultiLineString> => {
+  const url = new URL("https://overpass.rwqr.org/api/interpreter");
+  url.searchParams.append(
+    "data",
+    buildMatchingStreetQuery(target.lat, target.lon, street)
+  );
+  const response = await fetch(url.toString());
+  const body = await response.json();
+  const coordinates = body.elements.map((way: ElementWithGeometry) =>
+    way.geometry.map(({ lat, lon }) => [lon, lat])
+  );
+  return {
+    type: "MultiLineString",
+    coordinates,
+  };
 };
