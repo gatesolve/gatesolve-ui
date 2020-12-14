@@ -407,8 +407,15 @@ const App: React.FC = () => {
         distance(state.origin, destinationToLatLng(state.destination)) >=
           maxRoutingDistance
       ) {
-        const [target] = targets; // Pick a random target
-        const streetName = target.tags?.["addr:street"];
+        let target;
+        let streetName;
+        if (state.destination.tags?.["addr:street"]) {
+          target = state.destination;
+          streetName = state.destination.tags?.["addr:street"];
+        } else {
+          [target] = targets; // Pick a random entrance
+          streetName = target.tags?.["addr:street"];
+        }
         if (streetName) {
           const streetGeometry = await queryMatchingStreet(target, streetName);
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -764,6 +771,9 @@ const App: React.FC = () => {
                   lon: destination[1],
                   type,
                   id: Number(id),
+                  tags: {
+                    "addr:street": suggestion.properties.street,
+                  },
                 },
                 entrances: [],
                 viewport: { ...prevState.viewport, ...viewport },
