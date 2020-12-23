@@ -22,7 +22,7 @@
     "@types/viewport-mercator-project": "^6.1.1",
     "@urbica/react-map-gl": "^1.14.2",
     "mapbox-gl": "^1.13.0",
-    "notistack": "^1.0.2",
+    "notistack": "^1.0.3",
     "plannerjs": "https://github.com/gatesolve/planner.js#build-for-gatesolve",
     "react": "^16.14.0",
     "react-autosuggest-geocoder": "https://github.com/gatesolve/react-autosuggest-geocoder#fix/modify-for-gatesolve",
