@@ -120,7 +120,7 @@ const transformRequest = (originalURL: string): { url: string } => {
 };
 
 const distance = (from: LatLng, to: LatLng): number =>
-  turfDistance([from[1], from[0]], [to[1], to[0]], { units: "metres" });
+  turfDistance([from[1], from[0]], [to[1], to[0]], { units: "meters" });
 
 const parseLatLng = (text: string | undefined): LatLng | undefined => {
   if (text) {
