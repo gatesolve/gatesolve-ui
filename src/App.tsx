@@ -9,8 +9,8 @@ import {
 } from "@material-ui/icons";
 import { useSnackbar } from "notistack";
 import MapGL, { Popup, Source, Layer, Marker } from "@urbica/react-map-gl";
-import { WebMercatorViewport } from "viewport-mercator-project";
-import type { WebMercatorViewportOptions } from "viewport-mercator-project";
+import { WebMercatorViewport } from "@math.gl/web-mercator";
+import type { WebMercatorViewportOptions } from "@math.gl/web-mercator/dist/es6/web-mercator-viewport";
 import {
   distance as turfDistance,
   nearestPointOnLine as turfNearestPointOnLine,
@@ -59,8 +59,10 @@ const maxRoutingDistance = 200; // in meters
 
 type LatLng = [number, number];
 
+type ViewportState = Omit<WebMercatorViewportOptions, "width" | "height">;
+
 interface State {
-  viewport: WebMercatorViewportOptions;
+  viewport: ViewportState;
   isOriginExplicit: boolean;
   origin?: LatLng;
   destination?: ElementWithCoordinates;
@@ -163,8 +165,7 @@ const fitBounds = (
         right: padding + markerSize / 2,
       },
       maxZoom: 17,
-    } as any // eslint-disable-line @typescript-eslint/no-explicit-any
-    // XXX above: @types/viewport-mercator-project is missing maxZoom
+    }
   );
 };
 
@@ -209,7 +210,7 @@ const App: React.FC = () => {
   const [state, setState] = useState(initialState);
 
   const fitMap = (
-    viewportOptions: WebMercatorViewportOptions,
+    viewportOptions: ViewportState,
     latLngs: Array<LatLng | undefined>
   ): WebMercatorViewportOptions => {
     return fitBounds(
@@ -287,9 +288,9 @@ const App: React.FC = () => {
 
   useEffect(() => {
     /**
-     * FIXME: urbica/react-map-gl does not expose fitBounds and its viewport
-     * does not include width and height which are required by fitBounds from
-     * viewport-mercator-project. This is dirty but seems to work.
+     * FIXME: urbica/react-map-gl does not expose fitBounds and state does not
+     * include viewport width and height which are required by fitBounds from
+     * @math.gl/web-mercator. This is dirty but seems to work.
      */
     if (!map.current) {
       return; // No map yet, so nothing to do
@@ -304,8 +305,8 @@ const App: React.FC = () => {
     ) {
       const origin = parseLatLng(urlMatch.params.from);
       const destination = parseLatLng(urlMatch.params.to);
-      const extendedViewport = { ...state.viewport, width, height };
-      const viewport = fitBounds(extendedViewport, [origin, destination]);
+      const viewportOptions = { ...state.viewport, width, height };
+      const viewport = fitBounds(viewportOptions, [origin, destination]);
       setState(
         (prevState): State => ({
           ...prevState,
