@@ -120,7 +120,7 @@ const transformRequest = (originalURL: string): { url: string } => {
 };
 
 const distance = (from: LatLng, to: LatLng): number =>
-  turfDistance([from[1], from[0]], [to[1], to[0]], { units: "metres" });
+  turfDistance([from[1], from[0]], [to[1], to[0]], { units: "meters" });
 
 const parseLatLng = (text: string | undefined): LatLng | undefined => {
   if (text) {
@@ -418,11 +418,10 @@ const App: React.FC = () => {
         }
         if (streetName) {
           const streetGeometry = await queryMatchingStreet(target, streetName);
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           const point = turfNearestPointOnLine(streetGeometry, [
             target.lon,
             target.lat,
-          ]).geometry!.coordinates;
+          ]).geometry.coordinates;
           origin = [point[1], point[0]];
         }
       }
@@ -611,9 +610,8 @@ const App: React.FC = () => {
           const [lon, lat] =
             feature.geometry.type === "Point"
               ? feature.geometry.coordinates
-              : // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- bug in turf < 6.2
-                turfNearestPointOnLine(feature, event.lngLat.toArray())
-                  .geometry!.coordinates;
+              : turfNearestPointOnLine(feature, event.lngLat.toArray()).geometry
+                  .coordinates;
           return {
             ...prevState,
             popupCoordinates: {
