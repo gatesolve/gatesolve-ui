@@ -37,6 +37,7 @@ module.exports = {
     "react-hooks/rules-of-hooks": "error",
     "react-hooks/exhaustive-deps": "warn",
     "prettier/prettier": "error",
+    "@typescript-eslint/dot-notation": "off",
     // XXX: Enable these new rules as time permits
     "@typescript-eslint/restrict-template-expressions": "off",
     "@typescript-eslint/no-unsafe-assignment": "off",
