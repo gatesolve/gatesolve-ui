@@ -4,8 +4,8 @@
     "App.js": "/static/js/App.c84bb439.chunk.js",
     "App.js.map": "/static/js/App.c84bb439.chunk.js.map",
     "main.css": "/static/css/main.4a4137e4.chunk.css",
-    "main.js": "/static/js/main.77c59506.chunk.js",
-    "main.js.map": "/static/js/main.77c59506.chunk.js.map",
+    "main.js": "/static/js/main.c25b676a.chunk.js",
+    "main.js.map": "/static/js/main.c25b676a.chunk.js.map",
     "planner-config.js": "/static/js/planner-config.844591b9.chunk.js",
     "planner-config.js.map": "/static/js/planner-config.844591b9.chunk.js.map",
     "runtime-main.js": "/static/js/runtime-main.d2c0092c.js",
@@ -18,6 +18,8 @@
     "static/js/6.5d888478.chunk.js": "/static/js/6.5d888478.chunk.js",
     "static/js/6.5d888478.chunk.js.map": "/static/js/6.5d888478.chunk.js.map",
     "index.html": "/index.html",
+    "service-worker.js": "/service-worker.js",
+    "service-worker.js.map": "/service-worker.js.map",
     "static/css/6.b97e8dc0.chunk.css.map": "/static/css/6.b97e8dc0.chunk.css.map",
     "static/css/App.577b05d3.chunk.css.map": "/static/css/App.577b05d3.chunk.css.map",
     "static/css/main.4a4137e4.chunk.css.map": "/static/css/main.4a4137e4.chunk.css.map",
@@ -29,6 +31,6 @@
     "static/js/runtime-main.d2c0092c.js",
     "static/js/5.3a57718e.chunk.js",
     "static/css/main.4a4137e4.chunk.css",
-    "static/js/main.77c59506.chunk.js"
+    "static/js/main.c25b676a.chunk.js"
   ]
 }
