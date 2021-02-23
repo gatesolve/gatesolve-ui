@@ -33,6 +33,9 @@
     "reflect-metadata": "^0.1.13",
     "typescript": "~4.1.5"
   },
+  "resolutions": {
+    "ldfetch": "1.1.2"
+  },
   "homepage": "https://app.gatesolve.com/",
   "scripts": {
     "start": "react-scripts start",
