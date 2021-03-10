@@ -380,7 +380,7 @@
         "hasObject": "osm:Bridleway"
       },
       "concludes": {
-        "hasPriority": 0.8
+        "hasPriority": 1
       },
       "hasOrder": 0
     },
@@ -390,7 +390,7 @@
         "hasObject": "osm:CycleHighway"
       },
       "concludes": {
-        "hasPriority": 0.8
+        "hasPriority": 1
       },
       "hasOrder": 0
     },
@@ -400,7 +400,7 @@
         "hasObject": "osm:Service"
       },
       "concludes": {
-        "hasPriority": 0.9
+        "hasPriority": 1
       },
       "hasOrder": 0
     },
@@ -410,7 +410,7 @@
         "hasObject": "osm:Primary"
       },
       "concludes": {
-        "hasPriority": 0.9
+        "hasPriority": 1
       },
       "hasOrder": 0
     },
@@ -420,7 +420,7 @@
         "hasObject": "osm:PrimaryLink"
       },
       "concludes": {
-        "hasPriority": 0.9
+        "hasPriority": 1
       },
       "hasOrder": 0
     },
@@ -430,7 +430,7 @@
         "hasObject": "osm:Secondary"
       },
       "concludes": {
-        "hasPriority": 0.9
+        "hasPriority": 1
       },
       "hasOrder": 0
     },
@@ -440,7 +440,7 @@
         "hasObject": "osm:SecondaryLink"
       },
       "concludes": {
-        "hasPriority": 0.9
+        "hasPriority": 1
       },
       "hasOrder": 0
     },
@@ -450,7 +450,7 @@
         "hasObject": "osm:Tertiary"
       },
       "concludes": {
-        "hasPriority": 0.9
+        "hasPriority": 1
       },
       "hasOrder": 0
     },
@@ -460,7 +460,7 @@
         "hasObject": "osm:TertiaryLink"
       },
       "concludes": {
-        "hasPriority": 0.9
+        "hasPriority": 1
       },
       "hasOrder": 0
     },
@@ -470,7 +470,7 @@
         "hasObject": "osm:LivingStreet"
       },
       "concludes": {
-        "hasPriority": 1.2
+        "hasPriority": 1
       },
       "hasOrder": 0
     },
@@ -480,7 +480,7 @@
         "hasObject": "osm:Pedestrian"
       },
       "concludes": {
-        "hasPriority": 1.2
+        "hasPriority": 1
       },
       "hasOrder": 0
     },
@@ -490,7 +490,7 @@
         "hasObject": "osm:FootHighway"
       },
       "concludes": {
-        "hasPriority": 1.2
+        "hasPriority": 1
       },
       "hasOrder": 0
     },
