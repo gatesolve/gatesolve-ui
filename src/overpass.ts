@@ -69,7 +69,7 @@ const buildEntranceQuery = (lat: number, lon: number): string => `
 export const queryEntrances = (
   target: ElementWithCoordinates
 ): Promise<ElementWithCoordinates[]> => {
-  const url = new URL("https://overpass.rwqr.org/api/interpreter");
+  const url = new URL("https://overpass.fvh.io/api/interpreter");
   url.searchParams.append("data", buildEntranceQuery(target.lat, target.lon));
   return fetch(url.toString()).then((response) =>
     response.json().then((body: OverpassResponse) => {
