@@ -66,7 +66,7 @@
       "@type": "@id"
     }
   },
-  "rdfs:label": "example car profile",
+  "rdfs:label": "deliveries profile",
   "hasMaxSpeed": 10,
   "usePublicTransport": true,
   "hasAccessRules": [
@@ -536,7 +536,7 @@
         "hasObject": "osm:TrafficSignals"
       },
       "concludes": {
-        "hasObstacleTime": 30
+        "hasObstacleTime": 0
       },
       "hasOrder": 0
     },
@@ -546,7 +546,7 @@
         "hasObject": "osm:Unmarked"
       },
       "concludes": {
-        "hasObstacleTime": 10
+        "hasObstacleTime": 0
       },
       "hasOrder": 0
     },
@@ -556,7 +556,7 @@
         "hasObject": "osm:Uncontrolled"
       },
       "concludes": {
-        "hasObstacleTime": 10
+        "hasObstacleTime": 0
       },
       "hasOrder": 0
     },
@@ -566,7 +566,7 @@
         "hasObject": "osm:Uncontrolled"
       },
       "concludes": {
-        "hasObstacleTime": 5
+        "hasObstacleTime": 0
       },
       "hasOrder": 3
     },
