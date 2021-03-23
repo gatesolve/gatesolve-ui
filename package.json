@@ -9,7 +9,7 @@
     "@math.gl/web-mercator": "^3.4.2",
     "@testing-library/jest-dom": "^5.11.9",
     "@testing-library/react": "^11.2.5",
-    "@testing-library/user-event": "^13.0.8",
+    "@testing-library/user-event": "^13.0.9",
     "@turf/turf": "^6.3.0",
     "@types/geojson": "^7946.0.7",
     "@types/jest": "^26.0.21",
