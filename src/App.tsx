@@ -333,7 +333,17 @@ const App: React.FC = () => {
     ];
     const path = `/route/${state.origin}/${destination}/`;
     if (history.location.pathname !== path) {
-      history.replace(path);
+      let newLocation = path;
+      // Keep utm_source if any in the query parameters
+      if (/utm_source=/.exec(history.location.search)) {
+        const params = new URLSearchParams(history.location.search);
+        const utmSource = params.get("utm_source");
+        if (utmSource !== null) {
+          const newSearch = new URLSearchParams({ utm_source: utmSource });
+          newLocation = `${path}?${newSearch}`;
+        }
+      }
+      history.replace(newLocation);
     }
   }, [history, state.origin, state.destination]);
 
