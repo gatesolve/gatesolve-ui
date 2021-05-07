@@ -112,7 +112,7 @@ export const queryMatchingStreet = async (
   target: ElementWithCoordinates,
   street: string
 ): Promise<MultiLineString> => {
-  const url = new URL("https://overpass.rwqr.org/api/interpreter");
+  const url = new URL("https://overpass.fvh.io/api/interpreter");
   url.searchParams.append(
     "data",
     buildMatchingStreetQuery(target.lat, target.lon, street)
