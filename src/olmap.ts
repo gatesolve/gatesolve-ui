@@ -20,15 +20,39 @@ export type NetworkState<T> =
   | NetworkSuccessState<T>;
 
 export interface OlmapResponse {
+  id: number;
   associated_entrances: Array<number>;
   image_notes: Array<OlmapNote>;
+  workplace?: OlmapWorkplace;
   detail?: string;
-  status: number;
 }
 
 export interface OlmapNote {
   id: number;
   image: string;
+}
+
+export interface OlmapWorkplace {
+  id: number;
+  as_osm_tags: Record<string, string>;
+  osm_feature: number;
+  type: number;
+  workplace_entrances: Array<OlmapWorkplaceEntrance>;
+}
+
+export interface OlmapWorkplaceEntrance {
+  id: number;
+  delivery_types: Array<string>;
+  image_note: OlmapNote;
+  entrance_data: OlmapEntranceData;
+  delivery_hours: string;
+  delivery_instructions: string;
+  workplace: number;
+  entrance: number;
+}
+
+export interface OlmapEntranceData {
+  osm_feature: number;
 }
 
 export const olmapNoteURL = (noteId: number): string =>
