@@ -348,33 +348,34 @@ const App: React.FC = () => {
   }, [history, state.origin, state.destination]);
 
   useEffect(() => {
-    if (!state.destination) return; // Nothing to do yet
-    queryEntrances(state.destination)
-      .catch((error) => {
+    (async () => {
+      if (!state.destination) return; // Nothing to do yet
+      let result: ElementWithCoordinates[];
+      try {
+        result = await queryEntrances(state.destination);
+      } catch (error) {
         // eslint-disable-next-line no-console
         console.error("Error while fetching building entrances:", error);
-        return []; // Proceed as if there was no entrance data
-      })
-      .then((result) => {
-        setState(
-          (prevState): State => {
-            if (!state.destination) return prevState; // XXX Typescript needs this
-            if (prevState.destination !== state.destination) {
-              return prevState;
-            }
-            const entrances = result.length ? result : [state.destination];
-
-            return {
-              ...prevState,
-              entrances,
-            };
+        result = []; // Proceed as if there was no entrance data
+      }
+      setState(
+        (prevState): State => {
+          if (!state.destination) return prevState; // XXX Typescript needs this
+          if (prevState.destination !== state.destination) {
+            return prevState;
           }
-        );
-      })
-      .catch((error) => {
-        // eslint-disable-next-line no-console
-        console.error("Error while handling entrances:", error);
-      });
+          const entrances = result.length ? result : [state.destination];
+
+          return {
+            ...prevState,
+            entrances,
+          };
+        }
+      );
+    })().catch((error) => {
+      // eslint-disable-next-line no-console
+      console.error("Error while handling entrances:", error);
+    });
   }, [state.destination]);
 
   // Set off routing calculation when inputs change; collect results in state.route
