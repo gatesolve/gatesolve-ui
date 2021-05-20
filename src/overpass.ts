@@ -1,5 +1,9 @@
 import type { MultiLineString } from "geojson";
 
+const OVERPASS_INTERPRETER =
+  process.env.REACT_APP_OVERPASS_INTERPRETER?.replace(/\?$/, "") ||
+  "https://overpass.fvh.io/api/interpreter";
+
 export interface OverpassResponse {
   version: number;
   generator: string;
@@ -69,7 +73,7 @@ const buildEntranceQuery = (lat: number, lon: number): string => `
 export const queryEntrances = (
   target: ElementWithCoordinates
 ): Promise<ElementWithCoordinates[]> => {
-  const url = new URL("https://overpass.fvh.io/api/interpreter");
+  const url = new URL(OVERPASS_INTERPRETER);
   url.searchParams.append("data", buildEntranceQuery(target.lat, target.lon));
   return fetch(url.toString()).then((response) =>
     response.json().then((body: OverpassResponse) => {
@@ -112,7 +116,7 @@ export const queryMatchingStreet = async (
   target: ElementWithCoordinates,
   street: string
 ): Promise<MultiLineString> => {
-  const url = new URL("https://overpass.fvh.io/api/interpreter");
+  const url = new URL(OVERPASS_INTERPRETER);
   url.searchParams.append(
     "data",
     buildMatchingStreetQuery(target.lat, target.lon, street)
@@ -126,4 +130,21 @@ export const queryMatchingStreet = async (
     type: "MultiLineString",
     coordinates,
   };
+};
+
+const buildQueryNodesById = (ids: Array<number>): string => `
+  [out:json][timeout:25];
+  node(id:${ids.join(",")});
+  out;
+`;
+
+export const queryNodesById = async (
+  ids: Array<number>
+): Promise<Array<ElementWithCoordinates>> => {
+  const url = new URL(OVERPASS_INTERPRETER);
+  if (!ids.length) return [];
+  url.searchParams.append("data", buildQueryNodesById(ids));
+  const response = await fetch(url.toString());
+  const body = (await response.json()) as OverpassResponse;
+  return body.elements as Array<ElementWithCoordinates>;
 };

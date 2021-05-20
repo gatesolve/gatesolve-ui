@@ -37,6 +37,7 @@ import UserPosition from "./components/UserPosition";
 import GeolocateControl from "./components/GeolocateControl";
 import calculatePlan, { geometryToGeoJSON } from "./planner";
 import {
+  queryNodesById,
   queryEntrances,
   queryMatchingStreet,
   ElementWithCoordinates,
@@ -66,6 +67,7 @@ interface State {
   isOriginExplicit: boolean;
   origin?: LatLng;
   destination?: ElementWithCoordinates;
+  venue?: ElementWithCoordinates;
   entrances?: Array<ElementWithCoordinates>;
   route: FeatureCollection;
   highlights?: MapboxGeoJSONFeature | FeatureCollection;
@@ -347,17 +349,41 @@ const App: React.FC = () => {
     }
   }, [history, state.origin, state.destination]);
 
+  // Fetch entrance information whenever destination changes
   useEffect(() => {
     (async () => {
       if (!state.destination) return; // Nothing to do yet
-      let result: ElementWithCoordinates[];
+
+      let result = [] as ElementWithCoordinates[];
+
       try {
-        result = await queryEntrances(state.destination);
+        if (state.destination.id === state.venue?.id) {
+          const olmapResponse = await fetchOlmapData(state.venue.id);
+          if (olmapResponse?.state === "success") {
+            const workplaceEntrances =
+              olmapResponse.response.workplace?.workplace_entrances;
+            const entranceIds = workplaceEntrances?.map(
+              (workplaceEntrance) => workplaceEntrance.entrance_data.osm_feature
+            );
+            result = await queryNodesById(entranceIds || []);
+          }
+        }
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.error("Error while fetching venue entrances:", error);
+        // Proceed as if there was no entrance data
+      }
+
+      try {
+        if (!result.length) {
+          result = await queryEntrances(state.destination);
+        }
       } catch (error) {
         // eslint-disable-next-line no-console
         console.error("Error while fetching building entrances:", error);
-        result = []; // Proceed as if there was no entrance data
+        // Proceed as if there was no entrance data
       }
+
       setState(
         (prevState): State => {
           if (!state.destination) return prevState; // XXX Typescript needs this
@@ -376,7 +402,7 @@ const App: React.FC = () => {
       // eslint-disable-next-line no-console
       console.error("Error while handling entrances:", error);
     });
-  }, [state.destination]);
+  }, [state.destination, state.venue]);
 
   // Set off routing calculation when inputs change; collect results in state.route
   useEffect(() => {
@@ -760,7 +786,7 @@ const App: React.FC = () => {
           setTimeout(() => {
             geocoder.current.blur();
           });
-          const destination: LatLng = [
+          const coordinates: LatLng = [
             suggestion.geometry.coordinates[1],
             suggestion.geometry.coordinates[0],
           ];
@@ -769,23 +795,25 @@ const App: React.FC = () => {
             (prevState): State => {
               const pointsToFit =
                 prevState.origin &&
-                distance(prevState.origin, destination) < maxRoutingDistance
-                  ? [prevState.origin, destination]
-                  : [destination];
+                distance(prevState.origin, coordinates) < maxRoutingDistance
+                  ? [prevState.origin, coordinates]
+                  : [coordinates];
               const viewport = fitMap(prevState.viewport, pointsToFit);
+              const destination = {
+                lat: coordinates[0],
+                lon: coordinates[1],
+                type,
+                id: Number(id),
+                tags: {
+                  "addr:street": suggestion.properties.street,
+                },
+              };
               return {
                 ...prevState,
                 origin: prevState.origin,
-                destination: {
-                  lat: destination[0],
-                  lon: destination[1],
-                  type,
-                  id: Number(id),
-                  tags: {
-                    "addr:street": suggestion.properties.street,
-                  },
-                },
+                destination,
                 entrances: [],
+                venue: destination,
                 viewport: { ...prevState.viewport, ...viewport },
               };
             }
