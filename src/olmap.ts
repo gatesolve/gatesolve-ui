@@ -30,6 +30,7 @@ export interface OlmapResponse {
 export interface OlmapNote {
   id: number;
   image: string;
+  tags: Array<string>;
 }
 
 export interface OlmapWorkplace {
@@ -37,6 +38,8 @@ export interface OlmapWorkplace {
   as_osm_tags: Record<string, string>;
   osm_feature: number;
   type: number;
+  delivery_hours: string;
+  delivery_instructions: string;
   workplace_entrances: Array<OlmapWorkplaceEntrance>;
 }
 

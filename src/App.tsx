@@ -55,6 +55,7 @@ import {
 
 import "./App.css";
 import "./components/PinMarker.css";
+import VenueDialog from "./components/VenueDialog";
 
 const maxRoutingDistance = 200; // in meters
 
@@ -78,6 +79,8 @@ interface State {
   routableTiles: Map<string, FeatureCollection | null>;
   olmapData?: NetworkState<OlmapResponse>;
   editingNote?: number;
+  venueOlmapData?: NetworkState<OlmapResponse>;
+  venueDialogOpen: boolean;
 }
 
 const latLngToDestination = (latLng: LatLng): ElementWithCoordinates => ({
@@ -111,6 +114,7 @@ const initialState: State = {
   geolocationPosition: null,
   popupCoordinates: null,
   routableTiles: new Map(),
+  venueDialogOpen: false,
 };
 
 const metropolitanAreaCenter = [60.17066815612902, 24.941510260105133];
@@ -355,13 +359,14 @@ const App: React.FC = () => {
       if (!state.destination) return; // Nothing to do yet
 
       let result = [] as ElementWithCoordinates[];
+      let { venueOlmapData } = state; // By default, keep the previous data
 
       try {
         if (state.destination.id === state.venue?.id) {
-          const olmapResponse = await fetchOlmapData(state.venue.id);
-          if (olmapResponse?.state === "success") {
+          venueOlmapData = await fetchOlmapData(state.venue.id);
+          if (venueOlmapData?.state === "success") {
             const workplaceEntrances =
-              olmapResponse.response.workplace?.workplace_entrances;
+              venueOlmapData.response.workplace?.workplace_entrances;
             const entranceIds = workplaceEntrances?.map(
               (workplaceEntrance) => workplaceEntrance.entrance_data.osm_feature
             );
@@ -395,6 +400,9 @@ const App: React.FC = () => {
           return {
             ...prevState,
             entrances,
+            venueOlmapData,
+            venueDialogOpen:
+              !!venueOlmapData && state.destination.id === state.venue?.id,
           };
         }
       );
@@ -402,7 +410,7 @@ const App: React.FC = () => {
       // eslint-disable-next-line no-console
       console.error("Error while handling entrances:", error);
     });
-  }, [state.destination, state.venue]);
+  }, [state.destination, state.venue]); // eslint-disable-line react-hooks/exhaustive-deps -- state.venueOlmapData does not affect effect
 
   // Set off routing calculation when inputs change; collect results in state.route
   useEffect(() => {
@@ -1155,6 +1163,30 @@ const App: React.FC = () => {
           setState((prevState) => ({
             ...prevState,
             editingNote: undefined,
+          }))
+        }
+      />
+      <VenueDialog
+        open={state.venueDialogOpen}
+        venueOlmapData={state.venueOlmapData}
+        onEntranceSelected={(entranceId): void => {
+          setState(
+            (prevState): State => {
+              return {
+                ...prevState,
+                destination:
+                  prevState.entrances?.find(
+                    (entrance) => entrance.id === entranceId
+                  ) || undefined,
+                venueDialogOpen: false,
+              };
+            }
+          );
+        }}
+        onClose={(): void =>
+          setState((prevState) => ({
+            ...prevState,
+            venueDialogOpen: false,
           }))
         }
       />
