@@ -361,6 +361,15 @@ const App: React.FC = () => {
       let result = [] as ElementWithCoordinates[];
       let { venueOlmapData } = state; // By default, keep the previous data
 
+      // If state.entrances already has our destination, copy instead of fetching
+      if (
+        state.entrances?.find(
+          (entrance) => entrance.id === state.destination?.id
+        )
+      ) {
+        result = state.entrances.slice();
+      }
+
       try {
         if (state.destination.id === state.venue?.id) {
           venueOlmapData = await fetchOlmapData(state.venue.id);
