@@ -1192,6 +1192,23 @@ const App: React.FC = () => {
             }
           );
         }}
+        onUnloadingPlaceSelected={(unloadingPlace, venueEntranceIds): void => {
+          setState(
+            (prevState): State => {
+              return {
+                ...prevState,
+                origin: [unloadingPlace.lat, unloadingPlace.lon],
+                entrances:
+                  prevState.entrances?.filter((entrance) =>
+                    venueEntranceIds.find(
+                      (venueEntranceId) => entrance.id === venueEntranceId
+                    )
+                  ) || undefined,
+                venueDialogOpen: false,
+              };
+            }
+          );
+        }}
         onClose={(): void =>
           setState((prevState) => ({
             ...prevState,

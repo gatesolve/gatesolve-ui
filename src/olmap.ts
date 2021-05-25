@@ -31,6 +31,8 @@ export interface OlmapNote {
   id: number;
   image: string;
   tags: Array<string>;
+  lat: string;
+  lon: string;
 }
 
 export interface OlmapWorkplace {
@@ -52,10 +54,21 @@ export interface OlmapWorkplaceEntrance {
   delivery_instructions: string;
   workplace: number;
   entrance: number;
+  unloading_places: Array<OlmapUnloadingPlace>;
 }
 
 export interface OlmapEntranceData {
   osm_feature: number;
+}
+
+export interface OlmapUnloadingPlace {
+  id: number;
+  as_osm_tags: Record<string, string>;
+  osm_feature: number;
+  image_note: OlmapNote;
+  description: string;
+  opening_hours: string;
+  entrances: Array<number>;
 }
 
 export const olmapNoteURL = (noteId: number): string =>
