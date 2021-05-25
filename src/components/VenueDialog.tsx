@@ -9,6 +9,7 @@ import {
   CardActions,
   CardContent,
   CardHeader,
+  CardMedia,
   Typography,
 } from "@material-ui/core";
 import { Close as CloseIcon } from "@material-ui/icons";
@@ -82,6 +83,15 @@ const VenueDialog: React.FC<VenueDialogProps> = ({
                 style={{ marginTop: "1em" }}
                 variant="outlined"
               >
+                <CardMedia
+                  component="img"
+                  image={workplaceEntrance.image_note.image}
+                  style={{
+                    width: "50%",
+                    height: "auto",
+                    float: "right",
+                  }}
+                />
                 <CardHeader
                   title={workplaceEntrance.delivery_types.join("; ")}
                   subheader={
