@@ -42,6 +42,19 @@ const VenueDialog: React.FC<VenueDialogProps> = ({
     (venueOlmapData?.state === "success" &&
       venueOlmapData.response.workplace?.workplace_entrances) ||
     [];
+  const workplaceImageMain =
+    venueOlmapData?.state === "success" &&
+    venueOlmapData.response.workplace?.image_note;
+  const workplaceImageAdditional =
+    (venueOlmapData?.state === "success" &&
+      venueOlmapData.response.image_notes?.filter(
+        (note) => note.image && note.tags.find((x) => x === "Workplace")
+      )) ||
+    [];
+  const workplaceProfileImage =
+    workplaceImageMain && workplaceImageMain?.image
+      ? workplaceImageMain
+      : workplaceImageAdditional[0];
   const unloadingPlaceEntrances = {} as Record<number, Array<number>>;
   const unloadingPlaces = workplaceEntrances.flatMap((workplaceEntrance) =>
     workplaceEntrance.unloading_places.flatMap((unloadingPlace) => {
@@ -91,10 +104,7 @@ const VenueDialog: React.FC<VenueDialogProps> = ({
                 state: "success",
                 response: {
                   ...venueOlmapData.response,
-                  image_notes: venueOlmapData.response.image_notes?.filter(
-                    (note) =>
-                      note.image && note.tags.find((x) => x === "Workplace")
-                  ),
+                  image_notes: [workplaceProfileImage] || [],
                 },
               }}
             />
@@ -117,7 +127,9 @@ const VenueDialog: React.FC<VenueDialogProps> = ({
                   }}
                 />
                 <CardHeader
-                  title={workplaceEntrance.delivery_types.join("; ")}
+                  title={`${
+                    workplaceEntrance.description
+                  }: ${workplaceEntrance.delivery_types.join("; ")}`}
                   subheader={
                     workplaceEntrance.delivery_hours ||
                     venueOlmapData.response.workplace?.delivery_hours

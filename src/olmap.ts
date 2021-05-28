@@ -43,10 +43,12 @@ export interface OlmapWorkplace {
   delivery_hours: string;
   delivery_instructions: string;
   workplace_entrances: Array<OlmapWorkplaceEntrance>;
+  image_note: OlmapNote;
 }
 
 export interface OlmapWorkplaceEntrance {
   id: number;
+  description: string;
   delivery_types: Array<string>;
   image_note: OlmapNote;
   entrance_data: OlmapEntranceData;
