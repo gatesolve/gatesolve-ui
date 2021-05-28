@@ -31,6 +31,14 @@ interface VenueDialogProps {
   ) => void;
 }
 
+const deliveryTypePriorities = {
+  main: 2,
+  yes: 1,
+  null: 0,
+  "": 0,
+  no: -1,
+};
+
 const VenueDialog: React.FC<VenueDialogProps> = ({
   open,
   venueOlmapData,
@@ -47,6 +55,11 @@ const VenueDialog: React.FC<VenueDialogProps> = ({
   const imageNotes = venueOlmapData.response.image_notes;
   const { workplace } = venueOlmapData.response;
   const workplaceEntrances = workplace.workplace_entrances;
+  workplaceEntrances.sort(
+    (a, b) =>
+      deliveryTypePriorities[b.deliveries || "null"] -
+      deliveryTypePriorities[a.deliveries || "null"]
+  );
 
   const workplaceAdditionalImageNotes = imageNotes.filter(
     (note) => note.image && note.tags.find((x) => x === "Workplace")
@@ -122,9 +135,12 @@ const VenueDialog: React.FC<VenueDialogProps> = ({
               }}
             />
             <CardHeader
-              title={`${
-                workplaceEntrance.description
-              }: ${workplaceEntrance.delivery_types.join("; ")}`}
+              title={`${[
+                workplaceEntrance.description,
+                workplaceEntrance.delivery_types.join("; "),
+              ]
+                .filter((x) => x)
+                .join(": ")}`}
               subheader={
                 workplaceEntrance.delivery_hours || workplace.delivery_hours
               }

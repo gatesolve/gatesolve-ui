@@ -49,6 +49,7 @@ export interface OlmapWorkplace {
 export interface OlmapWorkplaceEntrance {
   id: number;
   description: string;
+  deliveries: "main" | "yes" | "no" | "" | null;
   delivery_types: Array<string>;
   image_note: OlmapNote;
   entrance_data: OlmapEntranceData;
