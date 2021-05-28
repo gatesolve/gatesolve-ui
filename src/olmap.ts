@@ -7,6 +7,7 @@ export type NetworkLoadingState = {
 export type NetworkFailedState = {
   state: "failed";
   code: number;
+  detail: string;
 };
 
 export type NetworkSuccessState<T> = {
@@ -24,7 +25,6 @@ export interface OlmapResponse {
   associated_entrances: Array<number>;
   image_notes: Array<OlmapNote>;
   workplace?: OlmapWorkplace;
-  detail?: string;
 }
 
 export interface OlmapNote {
@@ -95,20 +95,29 @@ export const fetchOlmapData = async (
     );
     try {
       const data = await response.json();
+      if (!response.ok) {
+        return {
+          state: "failed",
+          code: response.status,
+          detail: data.detail,
+        };
+      }
       return {
         state: "success",
         response: data as OlmapResponse,
       };
-    } catch {
+    } catch (error) {
       return {
         state: "failed",
         code: response.status,
+        detail: error,
       };
     }
-  } catch {
+  } catch (error) {
     return {
       state: "failed",
       code: 0,
+      detail: error,
     };
   }
 };
