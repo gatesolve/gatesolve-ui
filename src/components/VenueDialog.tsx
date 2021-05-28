@@ -38,23 +38,23 @@ const VenueDialog: React.FC<VenueDialogProps> = ({
   onEntranceSelected,
   onUnloadingPlaceSelected,
 }) => {
-  const workplaceEntrances =
-    (venueOlmapData?.state === "success" &&
-      venueOlmapData.response.workplace?.workplace_entrances) ||
-    [];
-  const workplaceImageMain =
-    venueOlmapData?.state === "success" &&
-    venueOlmapData.response.workplace?.image_note;
-  const workplaceImageAdditional =
-    (venueOlmapData?.state === "success" &&
-      venueOlmapData.response.image_notes?.filter(
-        (note) => note.image && note.tags.find((x) => x === "Workplace")
-      )) ||
-    [];
-  const workplaceProfileImage =
-    workplaceImageMain && workplaceImageMain?.image
-      ? workplaceImageMain
-      : workplaceImageAdditional[0];
+  if (
+    venueOlmapData?.state !== "success" ||
+    !venueOlmapData.response.workplace
+  ) {
+    return null;
+  }
+  const imageNotes = venueOlmapData.response.image_notes;
+  const { workplace } = venueOlmapData.response;
+  const workplaceEntrances = workplace.workplace_entrances;
+
+  const workplaceAdditionalImageNotes = imageNotes.filter(
+    (note) => note.image && note.tags.find((x) => x === "Workplace")
+  );
+  const workplaceProfileImages = workplace.image_note.image
+    ? [workplace.image_note]
+    : workplaceAdditionalImageNotes;
+
   const unloadingPlaceEntrances = {} as Record<number, Array<number>>;
   const unloadingPlaces = workplaceEntrances.flatMap((workplaceEntrance) =>
     workplaceEntrance.unloading_places.flatMap((unloadingPlace) => {
@@ -68,155 +68,139 @@ const VenueDialog: React.FC<VenueDialogProps> = ({
       return [unloadingPlace];
     })
   );
+
   return (
     <Dialog
-      open={
-        open &&
-        venueOlmapData?.state === "success" &&
-        !!venueOlmapData?.response.workplace
-      }
+      open={open}
       fullWidth
       PaperProps={{ style: { height: "100%", overflow: "hidden" } }}
     >
-      {venueOlmapData?.state === "success" && (
-        <>
-          <DialogTitle>
-            {venueOlmapData.response.workplace?.as_osm_tags.name}
-            <IconButton
-              style={{
-                position: "absolute",
-                top: "8px",
-                right: "8px",
-              }}
-              onClick={onClose}
-            >
-              <CloseIcon />
-            </IconButton>
-          </DialogTitle>
-          <DialogContent
-            style={{
-              overflow: "auto",
-            }}
+      <DialogTitle>
+        {workplace.as_osm_tags.name}
+        <IconButton
+          style={{
+            position: "absolute",
+            top: "8px",
+            right: "8px",
+          }}
+          onClick={onClose}
+        >
+          <CloseIcon />
+        </IconButton>
+      </DialogTitle>
+      <DialogContent
+        style={{
+          overflow: "auto",
+        }}
+      >
+        <OLMapImages
+          onImageClick={() => {}}
+          olmapData={{
+            state: "success",
+            response: {
+              ...venueOlmapData.response,
+              image_notes: workplaceProfileImages,
+            },
+          }}
+        />
+        <Typography variant="body2" color="textSecondary" component="p">
+          {workplace.delivery_instructions}
+        </Typography>
+        {workplaceEntrances.map((workplaceEntrance) => (
+          <Card
+            key={workplaceEntrance.id}
+            style={{ marginTop: "1em" }}
+            variant="outlined"
           >
-            <OLMapImages
-              onImageClick={() => {}}
-              olmapData={{
-                state: "success",
-                response: {
-                  ...venueOlmapData.response,
-                  image_notes: [workplaceProfileImage] || [],
-                },
+            <CardMedia
+              component="img"
+              image={workplaceEntrance.image_note.image}
+              style={{
+                width: "50%",
+                height: "auto",
+                float: "right",
               }}
             />
-            <Typography variant="body2" color="textSecondary" component="p">
-              {venueOlmapData.response.workplace?.delivery_instructions}
-            </Typography>
-            {workplaceEntrances.map((workplaceEntrance) => (
-              <Card
-                key={workplaceEntrance.id}
-                style={{ marginTop: "1em" }}
-                variant="outlined"
+            <CardHeader
+              title={`${
+                workplaceEntrance.description
+              }: ${workplaceEntrance.delivery_types.join("; ")}`}
+              subheader={
+                workplaceEntrance.delivery_hours || workplace.delivery_hours
+              }
+            />
+            <CardContent>
+              <Typography variant="body2" color="textSecondary" component="p">
+                {workplaceEntrance.delivery_instructions}
+              </Typography>
+            </CardContent>
+            <CardActions>
+              <Button
+                variant="contained"
+                size="small"
+                style={{ backgroundColor: "#64be14", color: "#fff" }}
+                type="button"
+                aria-label="Set destination"
+                onClick={(): void =>
+                  onEntranceSelected(
+                    workplaceEntrance.entrance_data.osm_feature
+                  )
+                }
               >
-                <CardMedia
-                  component="img"
-                  image={workplaceEntrance.image_note.image}
-                  style={{
-                    width: "50%",
-                    height: "auto",
-                    float: "right",
-                  }}
-                />
-                <CardHeader
-                  title={`${
-                    workplaceEntrance.description
-                  }: ${workplaceEntrance.delivery_types.join("; ")}`}
-                  subheader={
-                    workplaceEntrance.delivery_hours ||
-                    venueOlmapData.response.workplace?.delivery_hours
-                  }
-                />
-                <CardContent>
-                  <Typography
-                    variant="body2"
-                    color="textSecondary"
-                    component="p"
-                  >
-                    {workplaceEntrance.delivery_instructions}
-                  </Typography>
-                </CardContent>
-                <CardActions>
-                  <Button
-                    variant="contained"
-                    size="small"
-                    style={{ backgroundColor: "#64be14", color: "#fff" }}
-                    type="button"
-                    aria-label="Set destination"
-                    onClick={(): void =>
-                      onEntranceSelected(
-                        workplaceEntrance.entrance_data.osm_feature
-                      )
-                    }
-                  >
-                    Destination
-                  </Button>
-                </CardActions>
-              </Card>
-            ))}
-            {unloadingPlaces.map((unloadingPlace) => (
-              <Card
-                key={unloadingPlace.id}
-                style={{ marginTop: "1em" }}
-                variant="outlined"
+                Destination
+              </Button>
+            </CardActions>
+          </Card>
+        ))}
+        {unloadingPlaces.map((unloadingPlace) => (
+          <Card
+            key={unloadingPlace.id}
+            style={{ marginTop: "1em" }}
+            variant="outlined"
+          >
+            <CardMedia
+              component="img"
+              image={unloadingPlace.image_note.image}
+              style={{
+                width: "50%",
+                height: "auto",
+                float: "right",
+              }}
+            />
+            <CardHeader
+              title={unloadingPlace.as_osm_tags["parking:condition"]}
+              subheader={unloadingPlace.opening_hours}
+            />
+            <CardContent>
+              <Typography variant="body2" color="textSecondary" component="p">
+                {unloadingPlace.description}
+              </Typography>
+            </CardContent>
+            <CardActions>
+              <Button
+                variant="contained"
+                size="small"
+                style={{ backgroundColor: "#00afff", color: "#fff" }}
+                type="button"
+                aria-label="Set origin"
+                onClick={(): void =>
+                  onUnloadingPlaceSelected(
+                    {
+                      id: unloadingPlace.osm_feature,
+                      type: "node",
+                      lat: Number(unloadingPlace.image_note.lat),
+                      lon: Number(unloadingPlace.image_note.lon),
+                    },
+                    unloadingPlaceEntrances[unloadingPlace.id]
+                  )
+                }
               >
-                <CardMedia
-                  component="img"
-                  image={unloadingPlace.image_note.image}
-                  style={{
-                    width: "50%",
-                    height: "auto",
-                    float: "right",
-                  }}
-                />
-                <CardHeader
-                  title={unloadingPlace.as_osm_tags["parking:condition"]}
-                  subheader={unloadingPlace.opening_hours}
-                />
-                <CardContent>
-                  <Typography
-                    variant="body2"
-                    color="textSecondary"
-                    component="p"
-                  >
-                    {unloadingPlace.description}
-                  </Typography>
-                </CardContent>
-                <CardActions>
-                  <Button
-                    variant="contained"
-                    size="small"
-                    style={{ backgroundColor: "#00afff", color: "#fff" }}
-                    type="button"
-                    aria-label="Set origin"
-                    onClick={(): void =>
-                      onUnloadingPlaceSelected(
-                        {
-                          id: unloadingPlace.osm_feature,
-                          type: "node",
-                          lat: Number(unloadingPlace.image_note.lat),
-                          lon: Number(unloadingPlace.image_note.lon),
-                        },
-                        unloadingPlaceEntrances[unloadingPlace.id]
-                      )
-                    }
-                  >
-                    Origin
-                  </Button>
-                </CardActions>
-              </Card>
-            ))}
-          </DialogContent>
-        </>
-      )}
+                Origin
+              </Button>
+            </CardActions>
+          </Card>
+        ))}
+      </DialogContent>
     </Dialog>
   );
 };
