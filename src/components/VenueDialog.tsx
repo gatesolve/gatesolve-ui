@@ -2,7 +2,6 @@ import React from "react";
 import {
   Button,
   IconButton,
-  Dialog,
   DialogTitle,
   DialogContent,
   Card,
@@ -11,6 +10,7 @@ import {
   CardHeader,
   CardMedia,
   Typography,
+  Drawer,
 } from "@material-ui/core";
 import { Close as CloseIcon } from "@material-ui/icons";
 
@@ -83,10 +83,11 @@ const VenueDialog: React.FC<VenueDialogProps> = ({
   );
 
   return (
-    <Dialog
+    <Drawer
       open={open}
-      fullWidth
-      PaperProps={{ style: { height: "100%", overflow: "hidden" } }}
+      anchor="bottom"
+      variant="persistent"
+      PaperProps={{ style: { maxHeight: "50%" } }}
     >
       <DialogTitle>
         {workplace.as_osm_tags.name}
@@ -217,7 +218,7 @@ const VenueDialog: React.FC<VenueDialogProps> = ({
           </Card>
         ))}
       </DialogContent>
-    </Dialog>
+    </Drawer>
   );
 };
 export default VenueDialog;

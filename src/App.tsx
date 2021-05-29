@@ -410,8 +410,6 @@ const App: React.FC = () => {
             ...prevState,
             entrances,
             venueOlmapData,
-            venueDialogOpen:
-              !!venueOlmapData && state.destination.id === state.venue?.id,
           };
         }
       );
@@ -831,6 +829,8 @@ const App: React.FC = () => {
                 destination,
                 entrances: [],
                 venue: destination,
+                venueDialogOpen: true, // Let the dialog open
+                venueOlmapData: undefined, // Clear old data
                 viewport: { ...prevState.viewport, ...viewport },
               };
             }
@@ -1187,7 +1187,6 @@ const App: React.FC = () => {
                   prevState.entrances?.find(
                     (entrance) => entrance.id === entranceId
                   ) || undefined,
-                venueDialogOpen: false,
               };
             }
           );
@@ -1204,7 +1203,6 @@ const App: React.FC = () => {
                       (venueEntranceId) => entrance.id === venueEntranceId
                     )
                   ) || undefined,
-                venueDialogOpen: false,
               };
             }
           );
@@ -1213,6 +1211,8 @@ const App: React.FC = () => {
           setState((prevState) => ({
             ...prevState,
             venueDialogOpen: false,
+            venueOlmapData: undefined,
+            venue: undefined,
           }))
         }
       />
