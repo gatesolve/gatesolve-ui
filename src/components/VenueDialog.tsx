@@ -96,7 +96,7 @@ const VenueDialog: React.FC<VenueDialogProps> = ({
       open={open}
       anchor="bottom"
       variant="persistent"
-      PaperProps={{ style: { maxHeight: "50%" } }}
+      PaperProps={{ style: { maxHeight: "45%" } }} // 50% of the height under the app bar
     >
       <DialogTitle>
         <IconButton

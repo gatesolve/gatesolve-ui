@@ -147,7 +147,8 @@ const parseLatLng = (text: string | undefined): LatLng | undefined => {
 
 const fitBounds = (
   viewportOptions: WebMercatorViewportOptions,
-  latLngs: Array<LatLng | undefined>
+  latLngs: Array<LatLng | undefined>,
+  occludedBottomProportion = 0
 ): WebMercatorViewportOptions => {
   const viewport = new WebMercatorViewport(viewportOptions);
   const inputs = latLngs.filter((x) => x) as Array<LatLng>;
@@ -159,8 +160,9 @@ const fitBounds = (
   const padding = 20;
   const markerSize = 50;
   const occludedTop = 40;
+  const occludedBottom = occludedBottomProportion * viewportOptions.height;
   const circleRadius = 5;
-  return viewport.fitBounds(
+  const result = viewport.fitBounds(
     [
       [minLng, minLat],
       [maxLng, maxLat],
@@ -168,13 +170,15 @@ const fitBounds = (
     {
       padding: {
         top: padding + occludedTop + markerSize,
-        bottom: padding + circleRadius,
+        bottom: padding + occludedBottom + circleRadius,
         left: padding + markerSize / 2,
         right: padding + markerSize / 2,
       },
-      maxZoom: 17,
+      // Math in viewport.fitBounds breaks if both padding and maxZoom are set
+      // maxZoom: 17,
     }
   );
+  return result;
 };
 
 const App: React.FC = () => {
@@ -219,11 +223,13 @@ const App: React.FC = () => {
 
   const fitMap = (
     viewportOptions: ViewportState,
-    latLngs: Array<LatLng | undefined>
+    latLngs: Array<LatLng | undefined>,
+    occludedBottomProportion?: number
   ): WebMercatorViewportOptions => {
     return fitBounds(
       { ...viewportOptions, ...getMapSize(map.current?.getMap()) },
-      latLngs
+      latLngs,
+      occludedBottomProportion
     );
   };
 
@@ -624,6 +630,31 @@ const App: React.FC = () => {
       console.error("Error while fetching OLMap notes:", error);
     });
   }, [state.popupCoordinates]);
+
+  // When we receive OLMap data for a venue and the dialog opens, zoom the map to fit
+  useEffect(() => {
+    if (
+      state.venueOlmapData?.state === "success" &&
+      state.venueOlmapData.response.workplace
+    ) {
+      setState(
+        (prevState): State => {
+          return {
+            ...prevState,
+            viewport: fitMap(
+              prevState.viewport,
+              [
+                state.origin,
+                state.destination && destinationToLatLng(state.destination),
+                ...(state.entrances?.map(destinationToLatLng) || []),
+              ],
+              0.5
+            ),
+          };
+        }
+      );
+    }
+  }, [state.venueOlmapData]); // eslint-disable-line react-hooks/exhaustive-deps -- trigger only on new venue data
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleMapClick = (event: any): void => {
