@@ -81,6 +81,7 @@ interface State {
   editingNote?: number;
   venueOlmapData?: NetworkState<OlmapResponse>;
   venueDialogOpen: boolean;
+  venueDialogCollapsed: boolean;
 }
 
 const latLngToDestination = (latLng: LatLng): ElementWithCoordinates => ({
@@ -115,6 +116,7 @@ const initialState: State = {
   popupCoordinates: null,
   routableTiles: new Map(),
   venueDialogOpen: false,
+  venueDialogCollapsed: false,
 };
 
 const metropolitanAreaCenter = [60.17066815612902, 24.941510260105133];
@@ -830,6 +832,7 @@ const App: React.FC = () => {
                 entrances: [],
                 venue: destination,
                 venueDialogOpen: true, // Let the dialog open
+                venueDialogCollapsed: false,
                 venueOlmapData: undefined, // Clear old data
                 viewport: { ...prevState.viewport, ...viewport },
               };
@@ -1177,6 +1180,7 @@ const App: React.FC = () => {
       />
       <VenueDialog
         open={state.venueDialogOpen}
+        collapsed={state.venueDialogCollapsed}
         venueOlmapData={state.venueOlmapData}
         onEntranceSelected={(entranceId): void => {
           setState(
@@ -1211,8 +1215,15 @@ const App: React.FC = () => {
           setState((prevState) => ({
             ...prevState,
             venueDialogOpen: false,
+            venueDialogCollapsed: false,
             venueOlmapData: undefined,
             venue: undefined,
+          }))
+        }
+        onCollapsingToggled={(): void =>
+          setState((prevState) => ({
+            ...prevState,
+            venueDialogCollapsed: !state.venueDialogCollapsed,
           }))
         }
       />

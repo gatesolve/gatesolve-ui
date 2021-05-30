@@ -12,7 +12,12 @@ import {
   Typography,
   Drawer,
 } from "@material-ui/core";
-import { Close as CloseIcon } from "@material-ui/icons";
+
+import {
+  Close as CloseIcon,
+  ExpandLess as ExpandIcon, // https://material.io/components/sheets-bottom
+  ExpandMore as CollapseIcon,
+} from "@material-ui/icons";
 
 import type { ElementWithCoordinates } from "../overpass";
 
@@ -22,6 +27,7 @@ import OLMapImages from "./OLMapImages";
 
 interface VenueDialogProps {
   open: boolean;
+  collapsed: boolean;
   venueOlmapData?: NetworkState<OlmapResponse>;
   onClose: () => void;
   onEntranceSelected: (entranceId: number) => void;
@@ -29,6 +35,7 @@ interface VenueDialogProps {
     unloadingPlace: ElementWithCoordinates,
     entranceIds: Array<number>
   ) => void;
+  onCollapsingToggled: () => void;
 }
 
 const deliveryTypePriorities = {
@@ -41,10 +48,12 @@ const deliveryTypePriorities = {
 
 const VenueDialog: React.FC<VenueDialogProps> = ({
   open,
+  collapsed,
   venueOlmapData,
   onClose,
   onEntranceSelected,
   onUnloadingPlaceSelected,
+  onCollapsingToggled,
 }) => {
   if (
     venueOlmapData?.state !== "success" ||
@@ -90,6 +99,16 @@ const VenueDialog: React.FC<VenueDialogProps> = ({
       PaperProps={{ style: { maxHeight: "50%" } }}
     >
       <DialogTitle>
+        <IconButton
+          style={{
+            position: "absolute",
+            top: "8px",
+            left: "8px",
+          }}
+          onClick={() => onCollapsingToggled()}
+        >
+          {collapsed ? <ExpandIcon /> : <CollapseIcon />}
+        </IconButton>
         {workplace.as_osm_tags.name}
         <IconButton
           style={{
@@ -104,6 +123,7 @@ const VenueDialog: React.FC<VenueDialogProps> = ({
       </DialogTitle>
       <DialogContent
         style={{
+          display: collapsed ? "none" : "block",
           overflow: "auto",
         }}
       >
