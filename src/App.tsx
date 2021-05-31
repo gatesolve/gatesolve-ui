@@ -53,6 +53,7 @@ import {
   OlmapResponse,
   NetworkState,
   venueDataToGeoJSON,
+  OlmapWorkplaceEntrance,
 } from "./olmap";
 
 import "./App.css";
@@ -395,7 +396,25 @@ const App: React.FC = () => {
               (workplaceEntrance) => workplaceEntrance.entrance_data.osm_feature
             );
             result = await queryNodesById(entranceIds || []);
-            venueFeatures = venueDataToGeoJSON(venueOlmapData, result);
+            if (venueOlmapData.response.workplace?.workplace_entrances) {
+              const workplaceEntrancesInBoth = [] as Array<OlmapWorkplaceEntrance>;
+              const osmEntrancesInOrder = [] as Array<ElementWithCoordinates>;
+              workplaceEntrances?.forEach((workplaceEntrance) => {
+                const osmEntrance = result.find(
+                  (node) =>
+                    node.id === workplaceEntrance.entrance_data.osm_feature
+                );
+                if (osmEntrance) {
+                  workplaceEntrancesInBoth.push(workplaceEntrance);
+                  osmEntrancesInOrder.push(osmEntrance);
+                }
+              });
+              venueOlmapData.response.workplace.workplace_entrances = workplaceEntrancesInBoth;
+              venueFeatures = venueDataToGeoJSON(
+                venueOlmapData,
+                osmEntrancesInOrder
+              );
+            }
           }
         }
       } catch (error) {
