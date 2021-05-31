@@ -1,5 +1,6 @@
 import React from "react";
 import {
+  Avatar,
   Button,
   IconButton,
   DialogTitle,
@@ -12,12 +13,15 @@ import {
   Typography,
   Drawer,
 } from "@material-ui/core";
+import "@fontsource/noto-sans/400.css";
 
 import {
   Close as CloseIcon,
   ExpandLess as ExpandIcon, // https://material.io/components/sheets-bottom
   ExpandMore as CollapseIcon,
 } from "@material-ui/icons";
+
+import { romanize } from "romans";
 
 import type { ElementWithCoordinates } from "../overpass";
 
@@ -38,14 +42,6 @@ interface VenueDialogProps {
   onCollapsingToggled: () => void;
 }
 
-const deliveryTypePriorities = {
-  main: 2,
-  yes: 1,
-  null: 0,
-  "": 0,
-  no: -1,
-};
-
 const VenueDialog: React.FC<VenueDialogProps> = ({
   open,
   collapsed,
@@ -64,11 +60,6 @@ const VenueDialog: React.FC<VenueDialogProps> = ({
   const imageNotes = venueOlmapData.response.image_notes;
   const { workplace } = venueOlmapData.response;
   const workplaceEntrances = workplace.workplace_entrances;
-  workplaceEntrances.sort(
-    (a, b) =>
-      deliveryTypePriorities[b.deliveries || "null"] -
-      deliveryTypePriorities[a.deliveries || "null"]
-  );
 
   const workplaceAdditionalImageNotes = imageNotes.filter(
     (note) => note.image && note.tags.find((x) => x === "Workplace")
@@ -140,7 +131,7 @@ const VenueDialog: React.FC<VenueDialogProps> = ({
         <Typography variant="body2" color="textSecondary" component="p">
           {workplace.delivery_instructions}
         </Typography>
-        {workplaceEntrances.map((workplaceEntrance) => (
+        {workplaceEntrances.map((workplaceEntrance, index) => (
           <Card
             key={workplaceEntrance.id}
             style={{ marginTop: "1em" }}
@@ -156,6 +147,42 @@ const VenueDialog: React.FC<VenueDialogProps> = ({
               }}
             />
             <CardHeader
+              avatar={
+                <Avatar
+                  style={{
+                    background: "#af8dbc",
+                    color: "#af8dbc",
+                    textShadow: `
+0      -1px 0.5px white,
+1px    -1px 0.5px white,
+1px    0    0.5px white,
+1px    1px  0.5px white,
+0      1px  0.5px white,
+-1px   1px  0.5px white,
+-1px   0    0.5px white,
+-1px   -1px 0.5px white,
+2px    -0.5px 0.5px white,
+2px    0.5px  0.5px white,
+-2px   -0.5px 0.5px white,
+-2px   0.5px  0.5px white,
+-0.5px 2px 0.5px white,
+0.5px  2px 0.5px white,
+-0.5px -2px 0.5px white,
+0.5px  -2px 0.5px white,
+-1.5px    1.5px  0.5px white,
+1.5px    -1.5px  0.5px white,
+-1.5px -1.5px 0.5px white,
+1.5px    1.5px  0.5px white,
+2px    0px 0.5px white,
+0px    2px  0.5px white,
+-2px   0px 0.5px white,
+0px    -2px  0.5px white`,
+                    font: '30px "Noto Sans"',
+                  }}
+                >
+                  <span>{romanize(index + 1)}</span>
+                </Avatar>
+              }
               title={`${[
                 workplaceEntrance.description,
                 workplaceEntrance.delivery_types.join("; "),

@@ -1,3 +1,12 @@
+import type {
+  Feature,
+  FeatureCollection,
+  Geometry,
+  GeoJsonProperties,
+} from "geojson";
+
+import { romanize } from "romans";
+
 import type { ElementWithCoordinates } from "./overpass";
 
 export type NetworkLoadingState = {
@@ -84,6 +93,25 @@ export const olmapNewNoteURL = (target: ElementWithCoordinates): string => {
   return `https://app.olmap.org/#/Notes/new/${target.id}/photo/@${target.lat},${target.lon}`;
 };
 
+const deliveryTypePriorities = {
+  main: 2,
+  yes: 1,
+  null: 0,
+  "": 0,
+  no: -1,
+};
+
+const processOlmapData = (data: OlmapResponse): OlmapResponse => {
+  if (data.workplace) {
+    data.workplace.workplace_entrances.sort(
+      (a, b) =>
+        deliveryTypePriorities[b.deliveries || "null"] -
+        deliveryTypePriorities[a.deliveries || "null"]
+    );
+  }
+  return data;
+};
+
 export const fetchOlmapData = async (
   osmId: number
 ): Promise<NetworkState<OlmapResponse> | undefined> => {
@@ -105,7 +133,7 @@ export const fetchOlmapData = async (
       }
       return {
         state: "success",
-        response: data as OlmapResponse,
+        response: processOlmapData(data as OlmapResponse),
       };
     } catch (error) {
       return {
@@ -121,4 +149,33 @@ export const fetchOlmapData = async (
       detail: error,
     };
   }
+};
+
+export const venueDataToGeoJSON = (
+  venueData: NetworkState<OlmapResponse>,
+  osmData: Array<ElementWithCoordinates>
+): FeatureCollection => {
+  if (venueData?.state !== "success" || !venueData.response.workplace) {
+    return {
+      type: "FeatureCollection",
+      features: [],
+    };
+  }
+  const features = [] as Array<Feature<Geometry, GeoJsonProperties>>;
+  osmData.forEach((workplaceEntrance, index) => {
+    features.push({
+      type: "Feature",
+      geometry: {
+        type: "Point",
+        coordinates: [workplaceEntrance.lon, workplaceEntrance.lat],
+      },
+      properties: {
+        "@label": romanize(index + 1),
+      },
+    });
+  });
+  return {
+    type: "FeatureCollection",
+    features,
+  };
 };

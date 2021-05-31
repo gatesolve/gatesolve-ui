@@ -28,6 +28,7 @@ import {
   routeImaginaryLineLayer,
   buildingHighlightLayer,
   allEntrancesLayers,
+  venueLayers,
 } from "./map-style";
 import Pin, { pinAsSVG } from "./components/Pin";
 import { triangleAsSVG, triangleDotAsSVG } from "./components/Triangle";
@@ -51,6 +52,7 @@ import {
   olmapNoteURL,
   OlmapResponse,
   NetworkState,
+  venueDataToGeoJSON,
 } from "./olmap";
 
 import "./App.css";
@@ -82,6 +84,7 @@ interface State {
   venueOlmapData?: NetworkState<OlmapResponse>;
   venueDialogOpen: boolean;
   venueDialogCollapsed: boolean;
+  venueFeatures: FeatureCollection;
 }
 
 const latLngToDestination = (latLng: LatLng): ElementWithCoordinates => ({
@@ -96,13 +99,15 @@ const destinationToLatLng = (destination: ElementWithCoordinates): LatLng => [
   destination.lon,
 ];
 
+const emptyFeatureCollection: FeatureCollection = {
+  type: "FeatureCollection",
+  features: [],
+};
+
 const initialState: State = {
   entrances: [],
   route: geometryToGeoJSON(),
-  highlights: {
-    type: "FeatureCollection",
-    features: [],
-  },
+  highlights: emptyFeatureCollection,
   viewport: {
     latitude: 60.17,
     longitude: 24.941,
@@ -117,6 +122,7 @@ const initialState: State = {
   routableTiles: new Map(),
   venueDialogOpen: false,
   venueDialogCollapsed: false,
+  venueFeatures: emptyFeatureCollection,
 };
 
 const metropolitanAreaCenter = [60.17066815612902, 24.941510260105133];
@@ -367,7 +373,7 @@ const App: React.FC = () => {
       if (!state.destination) return; // Nothing to do yet
 
       let result = [] as ElementWithCoordinates[];
-      let { venueOlmapData } = state; // By default, keep the previous data
+      let { venueOlmapData, venueFeatures } = state; // By default, keep the previous data
 
       // If state.entrances already has our destination, copy instead of fetching
       if (
@@ -381,6 +387,7 @@ const App: React.FC = () => {
       try {
         if (state.destination.id === state.venue?.id) {
           venueOlmapData = await fetchOlmapData(state.venue.id);
+          venueFeatures = emptyFeatureCollection;
           if (venueOlmapData?.state === "success") {
             const workplaceEntrances =
               venueOlmapData.response.workplace?.workplace_entrances;
@@ -388,6 +395,7 @@ const App: React.FC = () => {
               (workplaceEntrance) => workplaceEntrance.entrance_data.osm_feature
             );
             result = await queryNodesById(entranceIds || []);
+            venueFeatures = venueDataToGeoJSON(venueOlmapData, result);
           }
         }
       } catch (error) {
@@ -418,6 +426,7 @@ const App: React.FC = () => {
             ...prevState,
             entrances,
             venueOlmapData,
+            venueFeatures,
           };
         }
       );
@@ -866,6 +875,7 @@ const App: React.FC = () => {
                 venueDialogCollapsed: false,
                 venueOlmapData: undefined, // Clear old data
                 viewport: { ...prevState.viewport, ...viewport },
+                venueFeatures: emptyFeatureCollection,
               };
             }
           );
@@ -959,6 +969,17 @@ const App: React.FC = () => {
             {...buildingHighlightLayer}
             source="highlights"
           />
+        </Source>
+
+        <Source id="venue" type="geojson" data={state.venueFeatures}>
+          {venueLayers.map((layer) => (
+            <Layer
+              // eslint-disable-next-line react/jsx-props-no-spreading
+              {...layer}
+              key={layer.id}
+              source="venue"
+            />
+          ))}
         </Source>
 
         <Source id="route" type="geojson" data={state.route}>
@@ -1248,6 +1269,7 @@ const App: React.FC = () => {
             venueDialogOpen: false,
             venueDialogCollapsed: false,
             venueOlmapData: undefined,
+            venueFeatures: emptyFeatureCollection,
             venue: undefined,
           }))
         }
