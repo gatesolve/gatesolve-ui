@@ -87,7 +87,17 @@ const VenueDialog: React.FC<VenueDialogProps> = ({
       open={open}
       anchor="bottom"
       variant="persistent"
-      PaperProps={{ style: { maxHeight: "45%" } }} // 50% of the height under the app bar
+      elevation={8}
+      PaperProps={{
+        style: {
+          maxHeight: "45%", // 50% of the height under the app bar
+          width: "100%",
+          maxWidth: "600px",
+          left: "50%",
+          transform: "translateX(-50%)",
+        },
+        elevation: 8, // Need to repeat Drawer's elevation here
+      }}
     >
       <DialogTitle>
         <IconButton
@@ -192,6 +202,13 @@ const VenueDialog: React.FC<VenueDialogProps> = ({
               subheader={
                 workplaceEntrance.delivery_hours || workplace.delivery_hours
               }
+              // The following backgrounds are in case a long word overlaps the floated photo
+              titleTypographyProps={{
+                style: { background: "rgba(255,255,255,0.5)" },
+              }}
+              subheaderTypographyProps={{
+                style: { background: "rgba(255,255,255,0.5)" },
+              }}
             />
             <CardContent>
               <Typography variant="body2" color="textSecondary" component="p">
