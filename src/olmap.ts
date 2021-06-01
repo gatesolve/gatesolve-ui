@@ -162,14 +162,16 @@ export const venueDataToGeoJSON = (
     };
   }
   const features = [] as Array<Feature<Geometry, GeoJsonProperties>>;
-  osmData.forEach((workplaceEntrance, index) => {
+  osmData.forEach((entrance, index) => {
     features.push({
       type: "Feature",
       geometry: {
         type: "Point",
-        coordinates: [workplaceEntrance.lon, workplaceEntrance.lat],
+        coordinates: [entrance.lon, entrance.lat],
       },
       properties: {
+        "@id": `http://www.openstreetmap.org/${entrance.type}/${entrance.id}`,
+        ...entrance.tags,
         "@label": romanize(index + 1),
       },
     });
