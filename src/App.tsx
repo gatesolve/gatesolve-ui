@@ -18,7 +18,7 @@ import {
 import { MapboxGeoJSONFeature } from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 // eslint-disable-next-line import/no-extraneous-dependencies
-import { FeatureCollection } from "geojson";
+import { Feature, FeatureCollection, Point } from "geojson";
 import { ReactAutosuggestGeocoder } from "react-autosuggest-geocoder";
 
 import {
@@ -99,6 +99,18 @@ const destinationToLatLng = (destination: ElementWithCoordinates): LatLng => [
   destination.lat,
   destination.lon,
 ];
+
+const geoJsonToElement = (feature: Feature<Point>): ElementWithCoordinates => {
+  const [id, type] = feature.properties?.["@id"].split("/").reverse();
+  const element = {
+    id: parseInt(id, 10),
+    type,
+    lat: feature.geometry.coordinates[1],
+    lon: feature.geometry.coordinates[0],
+    tags: feature.properties || undefined,
+  };
+  return element;
+};
 
 const emptyFeatureCollection: FeatureCollection = {
   type: "FeatureCollection",
@@ -708,14 +720,7 @@ const App: React.FC = () => {
         ]);
         // If an entrance was clicked, show details in the popup.
         if (feature?.properties.entrance) {
-          const [id, type] = feature.properties["@id"].split("/").reverse();
-          const element = {
-            id: parseInt(id, 10),
-            type,
-            lat: feature.geometry.coordinates[1],
-            lon: feature.geometry.coordinates[0],
-            tags: feature.properties,
-          };
+          const element = geoJsonToElement(feature);
           return {
             ...prevState,
             popupCoordinates: element,
