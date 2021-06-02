@@ -595,7 +595,14 @@ const App: React.FC = () => {
         setState((prevState): State => ({ ...prevState, snackbar }));
         return; // Don't calculate routes until the inputs change
       }
-      await calculatePlan(origin, targets, (geojson) => {
+
+      const queries = [] as Array<[LatLng, ElementWithCoordinates]>;
+      targets.forEach((target) => {
+        if (!origin) return; // Needed to convince Typescript
+        queries.push([origin, target]);
+      });
+
+      await calculatePlan(queries, (geojson) => {
         setState(
           (prevState): State => {
             // don't use the result if the parameters changed meanwhile

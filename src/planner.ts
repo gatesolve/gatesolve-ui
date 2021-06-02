@@ -214,8 +214,7 @@ export function geometryToGeoJSON(
 }
 
 export default async function calculatePlan(
-  origin: [number, number],
-  targets: Array<ElementWithCoordinates>,
+  queries: Array<[[number, number], ElementWithCoordinates]>,
   callback: (f: FeatureCollection) => void
 ): Promise<void> {
   const { Planner } = await import(
@@ -223,7 +222,7 @@ export default async function calculatePlan(
     /* webpackPrefetch: true */
     "./planner-config"
   );
-  targets.forEach((target) => {
+  queries.forEach(([origin, target]) => {
     const planner = new Planner();
     // XXX setProfileID requires URL to start with scheme, so guess
     const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
