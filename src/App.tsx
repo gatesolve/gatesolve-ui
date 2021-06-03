@@ -194,7 +194,7 @@ const fitBounds = (
         right: padding + markerSize / 2,
       },
       // Math in viewport.fitBounds breaks if both padding and maxZoom are set
-      // maxZoom: 17,
+      maxZoom: occludedBottomProportion ? undefined : 17,
     }
   );
   return result;
