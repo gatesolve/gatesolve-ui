@@ -23,9 +23,12 @@ import {
 
 import { romanize } from "romans";
 
-import type { ElementWithCoordinates } from "../overpass";
-
-import { NetworkState, OlmapResponse } from "../olmap";
+import {
+  NetworkState,
+  OlmapResponse,
+  OlmapUnloadingPlace,
+  venueDataToUnloadingPlaces,
+} from "../olmap";
 
 import OLMapImages from "./OLMapImages";
 
@@ -35,10 +38,7 @@ interface VenueDialogProps {
   venueOlmapData?: NetworkState<OlmapResponse>;
   onClose: () => void;
   onEntranceSelected: (entranceId: number) => void;
-  onUnloadingPlaceSelected: (
-    unloadingPlace: ElementWithCoordinates,
-    entranceIds: Array<number>
-  ) => void;
+  onUnloadingPlaceSelected: (unloadingPlace: OlmapUnloadingPlace) => void;
   onCollapsingToggled: () => void;
 }
 
@@ -68,19 +68,7 @@ const VenueDialog: React.FC<VenueDialogProps> = ({
     ? [workplace.image_note]
     : workplaceAdditionalImageNotes;
 
-  const unloadingPlaceEntrances = {} as Record<number, Array<number>>;
-  const unloadingPlaces = workplaceEntrances.flatMap((workplaceEntrance) =>
-    workplaceEntrance.unloading_places.flatMap((unloadingPlace) => {
-      const foundEntrances = unloadingPlaceEntrances[unloadingPlace.id];
-      const newEntrance = workplaceEntrance.entrance_data.osm_feature;
-      if (foundEntrances) {
-        foundEntrances.push(newEntrance);
-        return [];
-      }
-      unloadingPlaceEntrances[unloadingPlace.id] = [newEntrance];
-      return [unloadingPlace];
-    })
-  );
+  const unloadingPlaces = venueDataToUnloadingPlaces(venueOlmapData);
 
   return (
     <Drawer
@@ -264,17 +252,7 @@ const VenueDialog: React.FC<VenueDialogProps> = ({
                 style={{ backgroundColor: "#00afff", color: "#fff" }}
                 type="button"
                 aria-label="Set origin"
-                onClick={(): void =>
-                  onUnloadingPlaceSelected(
-                    {
-                      id: unloadingPlace.osm_feature,
-                      type: "node",
-                      lat: Number(unloadingPlace.image_note.lat),
-                      lon: Number(unloadingPlace.image_note.lon),
-                    },
-                    unloadingPlaceEntrances[unloadingPlace.id]
-                  )
-                }
+                onClick={(): void => onUnloadingPlaceSelected(unloadingPlace)}
               >
                 Origin
               </Button>

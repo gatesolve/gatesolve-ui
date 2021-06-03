@@ -81,6 +81,7 @@ export interface OlmapUnloadingPlace {
   description: string;
   opening_hours: string;
   entrances: Array<number>;
+  access_points: Array<{ lat: number; lon: number }>;
 }
 
 export const olmapNoteURL = (noteId: number): string =>
@@ -181,3 +182,34 @@ export const venueDataToGeoJSON = (
     features,
   };
 };
+
+const venueDataToUnloadingPlaceData = (
+  venueData?: NetworkState<OlmapResponse>
+): [Array<OlmapUnloadingPlace>, Record<number, Array<number>>] => {
+  if (venueData?.state !== "success" || !venueData.response.workplace) {
+    return [[], {}];
+  }
+  const workplaceEntrances = venueData.response.workplace.workplace_entrances;
+  const unloadingPlaceEntrances = {} as Record<number, Array<number>>;
+  const unloadingPlaces = workplaceEntrances.flatMap((workplaceEntrance) =>
+    workplaceEntrance.unloading_places.flatMap((unloadingPlace) => {
+      const foundEntrances = unloadingPlaceEntrances[unloadingPlace.id];
+      const newEntrance = workplaceEntrance.entrance_data.osm_feature;
+      if (foundEntrances) {
+        foundEntrances.push(newEntrance);
+        return [];
+      }
+      unloadingPlaceEntrances[unloadingPlace.id] = [newEntrance];
+      return [unloadingPlace];
+    })
+  );
+  return [unloadingPlaces, unloadingPlaceEntrances];
+};
+
+export const venueDataToUnloadingPlaces = (
+  venueData?: NetworkState<OlmapResponse>
+): Array<OlmapUnloadingPlace> => venueDataToUnloadingPlaceData(venueData)[0];
+
+export const venueDataToUnloadingPlaceEntrances = (
+  venueData?: NetworkState<OlmapResponse>
+): Record<number, Array<number>> => venueDataToUnloadingPlaceData(venueData)[1];

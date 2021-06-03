@@ -54,6 +54,9 @@ import {
   NetworkState,
   venueDataToGeoJSON,
   OlmapWorkplaceEntrance,
+  OlmapUnloadingPlace,
+  venueDataToUnloadingPlaces,
+  venueDataToUnloadingPlaceEntrances,
 } from "./olmap";
 
 import "./App.css";
@@ -86,6 +89,7 @@ interface State {
   venueDialogOpen: boolean;
   venueDialogCollapsed: boolean;
   venueFeatures: FeatureCollection;
+  unloadingPlace?: OlmapUnloadingPlace;
 }
 
 const latLngToDestination = (latLng: LatLng): ElementWithCoordinates => ({
@@ -398,7 +402,17 @@ const App: React.FC = () => {
       }
 
       try {
-        if (state.destination.id === state.venue?.id) {
+        if (
+          state.destination.id === state.venue?.id &&
+          venueOlmapData?.state === "success" &&
+          venueOlmapData.response.workplace?.osm_feature ===
+            state.destination.id
+        ) {
+          result = venueFeatures.features.map((feature) =>
+            geoJsonToElement(feature as Feature<Point>)
+          );
+          // FIXME: If state already had the same entrances, no need to re-set
+        } else if (state.destination.id === state.venue?.id) {
           venueOlmapData = await fetchOlmapData(state.venue.id);
           venueFeatures = emptyFeatureCollection;
           if (venueOlmapData?.state === "success") {
@@ -502,8 +516,35 @@ const App: React.FC = () => {
         })
       );
 
-      // Try to find an intermediary point on the street near the destination
-      if (
+      let venueUnloadingPlaces = [] as Array<OlmapUnloadingPlace>;
+      if (state.destination.id === state.venue?.id) {
+        venueUnloadingPlaces = venueDataToUnloadingPlaces(state.venueOlmapData);
+      }
+      // The explicitly chosen destination entrance of a venue, if any
+      const workplaceEntrance =
+        (state.venueOlmapData?.state === "success" &&
+          state.venueOlmapData.response.workplace?.workplace_entrances.find(
+            (aWorkplaceEntrance) =>
+              aWorkplaceEntrance.entrance_data.osm_feature ===
+              state.destination?.id
+          )) ||
+        undefined;
+
+      // Try to find an intermediary point (or multiple ones) on the street near the destination
+      if (workplaceEntrance && workplaceEntrance.unloading_places.length) {
+        // Routing to a venue feature with known unloading places
+        venueUnloadingPlaces = workplaceEntrance.unloading_places;
+      } else if (venueUnloadingPlaces.length) {
+        if (state.unloadingPlace) {
+          const preferredUnloadingPlace = venueUnloadingPlaces.find(
+            (venueUnloadingPlace) =>
+              venueUnloadingPlace.id === state.unloadingPlace?.id
+          );
+          if (preferredUnloadingPlace) {
+            venueUnloadingPlaces = [preferredUnloadingPlace];
+          }
+        }
+      } else if (
         !state.origin ||
         distance(state.origin, destinationToLatLng(state.destination)) >=
           maxRoutingDistance
@@ -528,14 +569,16 @@ const App: React.FC = () => {
       }
 
       // Don't calculate routes if there was no origin and none was found either
-      if (!origin) {
+      if (!origin && !venueUnloadingPlaces.length) {
         return;
       }
 
       // If the distance is still more than 200 meters apart
       // Show an error and proposed actions
       if (
-        origin === state.origin /* For typechecker */ &&
+        !venueUnloadingPlaces.length &&
+        origin &&
+        origin === state.origin &&
         distance(origin, destinationToLatLng(state.destination)) >=
           maxRoutingDistance
       ) {
@@ -609,10 +652,67 @@ const App: React.FC = () => {
       }
 
       const queries = [] as Array<[LatLng, ElementWithCoordinates]>;
-      targets.forEach((target) => {
-        if (!origin) return; // Needed to convince Typescript
-        queries.push([origin, target]);
-      });
+      if (venueUnloadingPlaces.length) {
+        // If the destination is the whole venue, route to all entrances of venueUnloadingPlaces
+        if (state.destination.id === state.venue?.id) {
+          const unloadingPlaceEntrances = venueDataToUnloadingPlaceEntrances(
+            state.venueOlmapData
+          );
+          venueUnloadingPlaces.forEach((venueOrigin) => {
+            unloadingPlaceEntrances[venueOrigin.id].forEach((target) => {
+              const targetEntrance = state.entrances?.find(
+                (entrance) => entrance.id === target
+              );
+              // XXX: Always true, needed by Typescript:
+              if (targetEntrance) {
+                queries.push([
+                  [
+                    Number(venueOrigin.image_note.lat),
+                    Number(venueOrigin.image_note.lon),
+                  ],
+                  targetEntrance,
+                ]);
+              }
+              venueOrigin.access_points?.forEach((access_point) => {
+                queries.push([
+                  [Number(access_point.lat), Number(access_point.lon)],
+                  latLngToDestination([
+                    Number(venueOrigin.image_note.lat) + 0.000001,
+                    Number(venueOrigin.image_note.lon) + 0.000001,
+                  ]),
+                ]);
+              });
+            });
+          });
+        } else {
+          // The destination is a specific entrance of the venue
+          workplaceEntrance?.unloading_places?.forEach((venueOrigin) => {
+            if (state.destination) {
+              queries.push([
+                [
+                  Number(venueOrigin.image_note.lat),
+                  Number(venueOrigin.image_note.lon),
+                ],
+                state.destination,
+              ]);
+            }
+            venueOrigin.access_points?.forEach((access_point) => {
+              queries.push([
+                [Number(access_point.lat), Number(access_point.lon)],
+                latLngToDestination([
+                  Number(venueOrigin.image_note.lat) + 0.000001,
+                  Number(venueOrigin.image_note.lon) + 0.000001,
+                ]),
+              ]);
+            });
+          });
+        }
+      } else {
+        targets.forEach((target) => {
+          if (!origin) return; // Needed to convince Typescript
+          queries.push([origin, target]);
+        });
+      }
 
       await calculatePlan(queries, (geojson) => {
         setState(
@@ -640,7 +740,7 @@ const App: React.FC = () => {
       // eslint-disable-next-line no-console
       console.error("Error while starting route planning:", error);
     });
-  }, [state.origin, state.entrances]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [state.origin, state.entrances, state.unloadingPlace]); // eslint-disable-line react-hooks/exhaustive-deps
   // XXX: state.destination is missing above as we need to wait for state.entrances to change as well
 
   // When popup opens, try to fetch data for it from OLMap's API
@@ -907,6 +1007,7 @@ const App: React.FC = () => {
                 venueOlmapData: undefined, // Clear old data
                 viewport: { ...prevState.viewport, ...viewport },
                 venueFeatures: emptyFeatureCollection,
+                unloadingPlace: undefined,
               };
             }
           );
@@ -1268,28 +1369,47 @@ const App: React.FC = () => {
         onEntranceSelected={(entranceId): void => {
           setState(
             (prevState): State => {
+              const entranceFeatures = prevState.venueFeatures.features.filter(
+                (feature) =>
+                  feature.geometry.type === "Point" &&
+                  feature.properties?.entrance
+              );
+
+              const entrance = prevState.venueFeatures.features.find(
+                (feature) =>
+                  feature.properties?.["@id"] ===
+                  `http://www.openstreetmap.org/node/${entranceId}`
+              );
               return {
                 ...prevState,
+                unloadingPlace: undefined,
                 destination:
-                  prevState.entrances?.find(
-                    (entrance) => entrance.id === entranceId
-                  ) || undefined,
+                  (entrance &&
+                    entrance.geometry.type === "Point" &&
+                    geoJsonToElement(entrance as Feature<Point>)) ||
+                  undefined,
+                entrances: entranceFeatures.map((feature) =>
+                  geoJsonToElement(feature as Feature<Point>)
+                ),
               };
             }
           );
         }}
-        onUnloadingPlaceSelected={(unloadingPlace, venueEntranceIds): void => {
+        onUnloadingPlaceSelected={(unloadingPlace): void => {
           setState(
             (prevState): State => {
+              const entranceFeatures = prevState.venueFeatures.features.filter(
+                (feature) =>
+                  feature.geometry.type === "Point" &&
+                  feature.properties?.entrance
+              );
               return {
                 ...prevState,
-                origin: [unloadingPlace.lat, unloadingPlace.lon],
-                entrances:
-                  prevState.entrances?.filter((entrance) =>
-                    venueEntranceIds.find(
-                      (venueEntranceId) => entrance.id === venueEntranceId
-                    )
-                  ) || undefined,
+                unloadingPlace,
+                destination: prevState.venue,
+                entrances: entranceFeatures.map((feature) =>
+                  geoJsonToElement(feature as Feature<Point>)
+                ),
               };
             }
           );
