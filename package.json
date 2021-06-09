@@ -15,7 +15,7 @@
     "@types/jest": "^26.0.23",
     "@types/mapbox-gl": "^1.13.0",
     "@types/node": "^15.12.2",
-    "@types/react": "^17.0.10",
+    "@types/react": "^17.0.11",
     "@types/react-dom": "^17.0.7",
     "@types/react-map-gl": "^5.2.9",
     "@types/react-router": "^5.1.15",
