@@ -8,7 +8,7 @@
     "@material-ui/icons": "^4.11.2",
     "@math.gl/web-mercator": "^3.4.3",
     "@testing-library/jest-dom": "^5.14.1",
-    "@testing-library/react": "^11.2.7",
+    "@testing-library/react": "^12.0.0",
     "@testing-library/user-event": "^13.1.9",
     "@turf/turf": "^6.4.0",
     "@types/geojson": "^7946.0.7",
