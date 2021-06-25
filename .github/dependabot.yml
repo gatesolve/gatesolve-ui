@@ -1,0 +1,43 @@
+version: 2
+updates:
+- package-ecosystem: npm
+  directory: "/"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 99
+  ignore:
+  - dependency-name: mapbox-gl
+    versions:
+    - ">= 2.a, < 3"
+  - dependency-name: "@types/mapbox-gl"
+    versions:
+    - "> 2.0.0, < 3"
+  - dependency-name: "@types/node"
+    versions:
+    - 15.0.0
+  - dependency-name: "@testing-library/user-event"
+    versions:
+    - 12.8.2
+    - 13.0.9
+  - dependency-name: "@typescript-eslint/parser"
+    versions:
+    - 4.15.1
+    - 4.16.0
+  - dependency-name: eslint-config-airbnb-typescript
+    versions:
+    - 12.0.1
+    - 12.2.0
+    - 12.3.0
+    - 12.3.1
+  - dependency-name: eslint-config-react-app
+    versions:
+    - 6.0.0
+  - dependency-name: viewport-mercator-project
+    versions:
+    - 7.0.2
+  - dependency-name: react-dom
+    versions:
+    - 17.0.1
+  - dependency-name: react-scripts
+    versions:
+    - 4.0.1
