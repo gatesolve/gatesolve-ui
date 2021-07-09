@@ -108,7 +108,9 @@ export function geometryToGeoJSON(
   origin?: [number, number],
   targets?: Array<ElementWithCoordinates>,
   entrances?: Array<ElementWithCoordinates>,
-  routeGeometries?: RouteGeometries
+  routeGeometries?: RouteGeometries,
+  originColor?: string,
+  targetColor?: string
 ): FeatureCollection {
   const features = [] as Array<Feature<Geometry, GeoJsonProperties>>;
   if (origin) {
@@ -119,7 +121,7 @@ export function geometryToGeoJSON(
         coordinates: [origin[1], origin[0]],
       },
       properties: {
-        "@color": "#00afff",
+        "@color": originColor,
       },
     });
   }
@@ -132,7 +134,7 @@ export function geometryToGeoJSON(
           coordinates: [target.lon, target.lat],
         },
         properties: {
-          "@color": "#64be14",
+          "@color": targetColor,
         },
       });
     });
@@ -214,7 +216,7 @@ export function geometryToGeoJSON(
 }
 
 export default async function calculatePlan(
-  queries: Array<[[number, number], ElementWithCoordinates]>,
+  queries: Array<[[number, number], ElementWithCoordinates, string?]>,
   callback: (f: FeatureCollection) => void
 ): Promise<void> {
   const { Planner } = await import(
@@ -222,7 +224,7 @@ export default async function calculatePlan(
     /* webpackPrefetch: true */
     "./planner-config"
   );
-  queries.forEach(([origin, target]) => {
+  queries.forEach(([origin, target, profile = "delivery-walking"]) => {
     const planner = new Planner();
     // XXX setProfileID requires URL to start with scheme, so guess
     const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
@@ -239,11 +241,15 @@ export default async function calculatePlan(
         // eslint-disable-next-line no-console
         console.log("Plan", completePath, "from", origin, "to", target);
         const routeGeometries = extractGeometry(completePath);
+        const originColor = profile === "delivery-car" ? "#000000" : "#00afff";
+        const targetColor = profile === "delivery-car" ? "#00afff" : "#64be14";
         const geoJSON = geometryToGeoJSON(
           origin,
           [target],
           undefined,
-          routeGeometries
+          routeGeometries,
+          originColor,
+          targetColor
         );
         callback(geoJSON);
       });

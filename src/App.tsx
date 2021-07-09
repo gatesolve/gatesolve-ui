@@ -651,7 +651,7 @@ const App: React.FC = () => {
         return; // Don't calculate routes until the inputs change
       }
 
-      const queries = [] as Array<[LatLng, ElementWithCoordinates]>;
+      const queries = [] as Array<[LatLng, ElementWithCoordinates, string?]>;
       if (venueUnloadingPlaces.length) {
         // If the destination is the whole venue, route to all entrances of venueUnloadingPlaces
         if (state.destination.id === state.venue?.id) {
@@ -671,6 +671,7 @@ const App: React.FC = () => {
                     Number(venueOrigin.image_note.lon),
                   ],
                   targetEntrance,
+                  "delivery-walking",
                 ]);
               }
               venueOrigin.access_points?.forEach((access_point) => {
@@ -680,6 +681,7 @@ const App: React.FC = () => {
                     Number(venueOrigin.image_note.lat) + 0.000001,
                     Number(venueOrigin.image_note.lon) + 0.000001,
                   ]),
+                  "delivery-car",
                 ]);
               });
             });
@@ -694,6 +696,7 @@ const App: React.FC = () => {
                   Number(venueOrigin.image_note.lon),
                 ],
                 state.destination,
+                "delivery-walking",
               ]);
             }
             venueOrigin.access_points?.forEach((access_point) => {
@@ -703,6 +706,7 @@ const App: React.FC = () => {
                   Number(venueOrigin.image_note.lat) + 0.000001,
                   Number(venueOrigin.image_note.lon) + 0.000001,
                 ]),
+                "delivery-car",
               ]);
             });
           });
