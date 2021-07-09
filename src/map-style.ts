@@ -44,6 +44,31 @@ const anglesToAnchors = (): Array<string | number> => {
   return ret;
 };
 
+const venueSymbolLayer: LayerProps = {
+  id: "venue-symbol",
+  type: "symbol",
+  paint: {
+    "text-halo-color": "#fff",
+    "text-color": "#af8dbc",
+    "text-halo-width": 2,
+  },
+  layout: {
+    "text-field": ["get", "@label"],
+    "text-anchor": "center",
+    "text-font": ["Klokantech Noto Sans Regular"],
+    "text-size": 20,
+    "text-offset": [0, -1.55],
+    "text-allow-overlap": true,
+    "text-ignore-placement": true,
+    "icon-image": "icon-svg-pin-48-#af8dbc-#fff",
+    "icon-anchor": "bottom",
+    "icon-allow-overlap": true,
+    "icon-ignore-placement": true,
+  },
+};
+
+export const venueLayers = [venueSymbolLayer];
+
 const routeLineLayer: LayerProps = {
   id: "route-line",
   type: "line",

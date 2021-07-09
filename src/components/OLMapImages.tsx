@@ -33,7 +33,7 @@ const OLMapImages: React.FC<OLMapImagesProps> = ({
           />
         </a>
       ));
-  return <div className="olmapImages">{content}</div>;
+  return <div style={{ textAlign: "center" }}>{content}</div>;
 };
 
 export default OLMapImages;

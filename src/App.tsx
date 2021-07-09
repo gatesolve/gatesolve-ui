@@ -18,7 +18,7 @@ import {
 import { MapboxGeoJSONFeature } from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 // eslint-disable-next-line import/no-extraneous-dependencies
-import { FeatureCollection } from "geojson";
+import { Feature, FeatureCollection, Point } from "geojson";
 import { ReactAutosuggestGeocoder } from "react-autosuggest-geocoder";
 
 import {
@@ -28,6 +28,7 @@ import {
   routeImaginaryLineLayer,
   buildingHighlightLayer,
   allEntrancesLayers,
+  venueLayers,
 } from "./map-style";
 import Pin, { pinAsSVG } from "./components/Pin";
 import { triangleAsSVG, triangleDotAsSVG } from "./components/Triangle";
@@ -37,6 +38,7 @@ import UserPosition from "./components/UserPosition";
 import GeolocateControl from "./components/GeolocateControl";
 import calculatePlan, { geometryToGeoJSON } from "./planner";
 import {
+  queryNodesById,
   queryEntrances,
   queryMatchingStreet,
   ElementWithCoordinates,
@@ -50,10 +52,16 @@ import {
   olmapNoteURL,
   OlmapResponse,
   NetworkState,
+  venueDataToGeoJSON,
+  OlmapWorkplaceEntrance,
+  OlmapUnloadingPlace,
+  venueDataToUnloadingPlaces,
+  venueDataToUnloadingPlaceEntrances,
 } from "./olmap";
 
 import "./App.css";
 import "./components/PinMarker.css";
+import VenueDialog from "./components/VenueDialog";
 
 const maxRoutingDistance = 200; // in meters
 
@@ -66,6 +74,7 @@ interface State {
   isOriginExplicit: boolean;
   origin?: LatLng;
   destination?: ElementWithCoordinates;
+  venue?: ElementWithCoordinates;
   entrances?: Array<ElementWithCoordinates>;
   route: FeatureCollection;
   highlights?: MapboxGeoJSONFeature | FeatureCollection;
@@ -76,6 +85,11 @@ interface State {
   routableTiles: Map<string, FeatureCollection | null>;
   olmapData?: NetworkState<OlmapResponse>;
   editingNote?: number;
+  venueOlmapData?: NetworkState<OlmapResponse>;
+  venueDialogOpen: boolean;
+  venueDialogCollapsed: boolean;
+  venueFeatures: FeatureCollection;
+  unloadingPlace?: OlmapUnloadingPlace;
 }
 
 const latLngToDestination = (latLng: LatLng): ElementWithCoordinates => ({
@@ -90,13 +104,27 @@ const destinationToLatLng = (destination: ElementWithCoordinates): LatLng => [
   destination.lon,
 ];
 
+const geoJsonToElement = (feature: Feature<Point>): ElementWithCoordinates => {
+  const [id, type] = feature.properties?.["@id"].split("/").reverse();
+  const element = {
+    id: parseInt(id, 10),
+    type,
+    lat: feature.geometry.coordinates[1],
+    lon: feature.geometry.coordinates[0],
+    tags: feature.properties || undefined,
+  };
+  return element;
+};
+
+const emptyFeatureCollection: FeatureCollection = {
+  type: "FeatureCollection",
+  features: [],
+};
+
 const initialState: State = {
   entrances: [],
   route: geometryToGeoJSON(),
-  highlights: {
-    type: "FeatureCollection",
-    features: [],
-  },
+  highlights: emptyFeatureCollection,
   viewport: {
     latitude: 60.17,
     longitude: 24.941,
@@ -109,6 +137,9 @@ const initialState: State = {
   geolocationPosition: null,
   popupCoordinates: null,
   routableTiles: new Map(),
+  venueDialogOpen: false,
+  venueDialogCollapsed: false,
+  venueFeatures: emptyFeatureCollection,
 };
 
 const metropolitanAreaCenter = [60.17066815612902, 24.941510260105133];
@@ -139,7 +170,8 @@ const parseLatLng = (text: string | undefined): LatLng | undefined => {
 
 const fitBounds = (
   viewportOptions: WebMercatorViewportOptions,
-  latLngs: Array<LatLng | undefined>
+  latLngs: Array<LatLng | undefined>,
+  occludedBottomProportion = 0
 ): WebMercatorViewportOptions => {
   const viewport = new WebMercatorViewport(viewportOptions);
   const inputs = latLngs.filter((x) => x) as Array<LatLng>;
@@ -151,8 +183,9 @@ const fitBounds = (
   const padding = 20;
   const markerSize = 50;
   const occludedTop = 40;
+  const occludedBottom = occludedBottomProportion * viewportOptions.height;
   const circleRadius = 5;
-  return viewport.fitBounds(
+  const result = viewport.fitBounds(
     [
       [minLng, minLat],
       [maxLng, maxLat],
@@ -160,13 +193,15 @@ const fitBounds = (
     {
       padding: {
         top: padding + occludedTop + markerSize,
-        bottom: padding + circleRadius,
+        bottom: padding + occludedBottom + circleRadius,
         left: padding + markerSize / 2,
         right: padding + markerSize / 2,
       },
-      maxZoom: 17,
+      // Math in viewport.fitBounds breaks if both padding and maxZoom are set
+      maxZoom: occludedBottomProportion ? undefined : 17,
     }
   );
+  return result;
 };
 
 const App: React.FC = () => {
@@ -211,11 +246,13 @@ const App: React.FC = () => {
 
   const fitMap = (
     viewportOptions: ViewportState,
-    latLngs: Array<LatLng | undefined>
+    latLngs: Array<LatLng | undefined>,
+    occludedBottomProportion?: number
   ): WebMercatorViewportOptions => {
     return fitBounds(
       { ...viewportOptions, ...getMapSize(map.current?.getMap()) },
-      latLngs
+      latLngs,
+      occludedBottomProportion
     );
   };
 
@@ -347,35 +384,102 @@ const App: React.FC = () => {
     }
   }, [history, state.origin, state.destination]);
 
+  // Fetch entrance information whenever destination changes
   useEffect(() => {
-    if (!state.destination) return; // Nothing to do yet
-    queryEntrances(state.destination)
-      .catch((error) => {
+    (async () => {
+      if (!state.destination) return; // Nothing to do yet
+
+      let result = [] as ElementWithCoordinates[];
+      let { venueOlmapData, venueFeatures } = state; // By default, keep the previous data
+
+      // If state.entrances already has our destination, copy instead of fetching
+      if (
+        state.entrances?.find(
+          (entrance) => entrance.id === state.destination?.id
+        )
+      ) {
+        result = state.entrances.slice();
+      }
+
+      try {
+        if (
+          state.destination.id === state.venue?.id &&
+          venueOlmapData?.state === "success" &&
+          venueOlmapData.response.workplace?.osm_feature ===
+            state.destination.id
+        ) {
+          result = venueFeatures.features.map((feature) =>
+            geoJsonToElement(feature as Feature<Point>)
+          );
+          // FIXME: If state already had the same entrances, no need to re-set
+        } else if (state.destination.id === state.venue?.id) {
+          venueOlmapData = await fetchOlmapData(state.venue.id);
+          venueFeatures = emptyFeatureCollection;
+          if (venueOlmapData?.state === "success") {
+            const workplaceEntrances =
+              venueOlmapData.response.workplace?.workplace_entrances;
+            const entranceIds = workplaceEntrances?.map(
+              (workplaceEntrance) => workplaceEntrance.entrance_data.osm_feature
+            );
+            result = await queryNodesById(entranceIds || []);
+            if (venueOlmapData.response.workplace?.workplace_entrances) {
+              const workplaceEntrancesInBoth = [] as Array<OlmapWorkplaceEntrance>;
+              const osmEntrancesInOrder = [] as Array<ElementWithCoordinates>;
+              workplaceEntrances?.forEach((workplaceEntrance) => {
+                const osmEntrance = result.find(
+                  (node) =>
+                    node.id === workplaceEntrance.entrance_data.osm_feature
+                );
+                if (osmEntrance) {
+                  workplaceEntrancesInBoth.push(workplaceEntrance);
+                  osmEntrancesInOrder.push(osmEntrance);
+                }
+              });
+              venueOlmapData.response.workplace.workplace_entrances = workplaceEntrancesInBoth;
+              venueFeatures = venueDataToGeoJSON(
+                venueOlmapData,
+                osmEntrancesInOrder
+              );
+            }
+          }
+        }
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.error("Error while fetching venue entrances:", error);
+        // Proceed as if there was no entrance data
+      }
+
+      try {
+        if (!result.length) {
+          result = await queryEntrances(state.destination);
+        }
+      } catch (error) {
         // eslint-disable-next-line no-console
         console.error("Error while fetching building entrances:", error);
-        return []; // Proceed as if there was no entrance data
-      })
-      .then((result) => {
-        setState(
-          (prevState): State => {
-            if (!state.destination) return prevState; // XXX Typescript needs this
-            if (prevState.destination !== state.destination) {
-              return prevState;
-            }
-            const entrances = result.length ? result : [state.destination];
+        // Proceed as if there was no entrance data
+      }
 
-            return {
-              ...prevState,
-              entrances,
-            };
+      setState(
+        (prevState): State => {
+          if (!state.destination) return prevState; // XXX Typescript needs this
+          if (prevState.destination !== state.destination) {
+            return prevState;
           }
-        );
-      })
-      .catch((error) => {
-        // eslint-disable-next-line no-console
-        console.error("Error while handling entrances:", error);
-      });
-  }, [state.destination]);
+          const entrances = result.length ? result : [state.destination];
+
+          return {
+            ...prevState,
+            entrances,
+            venueOlmapData,
+            venueFeatures,
+          };
+        }
+      );
+    })().catch((error) => {
+      // eslint-disable-next-line no-console
+      console.error("Error while handling entrances:", error);
+    });
+  }, [state.destination, state.venue]); // eslint-disable-line react-hooks/exhaustive-deps -- state.venueOlmapData does not affect effect
 
   // Set off routing calculation when inputs change; collect results in state.route
   useEffect(() => {
@@ -412,8 +516,35 @@ const App: React.FC = () => {
         })
       );
 
-      // Try to find an intermediary point on the street near the destination
-      if (
+      let venueUnloadingPlaces = [] as Array<OlmapUnloadingPlace>;
+      if (state.destination.id === state.venue?.id) {
+        venueUnloadingPlaces = venueDataToUnloadingPlaces(state.venueOlmapData);
+      }
+      // The explicitly chosen destination entrance of a venue, if any
+      const workplaceEntrance =
+        (state.venueOlmapData?.state === "success" &&
+          state.venueOlmapData.response.workplace?.workplace_entrances.find(
+            (aWorkplaceEntrance) =>
+              aWorkplaceEntrance.entrance_data.osm_feature ===
+              state.destination?.id
+          )) ||
+        undefined;
+
+      // Try to find an intermediary point (or multiple ones) on the street near the destination
+      if (workplaceEntrance && workplaceEntrance.unloading_places.length) {
+        // Routing to a venue feature with known unloading places
+        venueUnloadingPlaces = workplaceEntrance.unloading_places;
+      } else if (venueUnloadingPlaces.length) {
+        if (state.unloadingPlace) {
+          const preferredUnloadingPlace = venueUnloadingPlaces.find(
+            (venueUnloadingPlace) =>
+              venueUnloadingPlace.id === state.unloadingPlace?.id
+          );
+          if (preferredUnloadingPlace) {
+            venueUnloadingPlaces = [preferredUnloadingPlace];
+          }
+        }
+      } else if (
         !state.origin ||
         distance(state.origin, destinationToLatLng(state.destination)) >=
           maxRoutingDistance
@@ -438,14 +569,16 @@ const App: React.FC = () => {
       }
 
       // Don't calculate routes if there was no origin and none was found either
-      if (!origin) {
+      if (!origin && !venueUnloadingPlaces.length) {
         return;
       }
 
       // If the distance is still more than 200 meters apart
       // Show an error and proposed actions
       if (
-        origin === state.origin /* For typechecker */ &&
+        !venueUnloadingPlaces.length &&
+        origin &&
+        origin === state.origin &&
         distance(origin, destinationToLatLng(state.destination)) >=
           maxRoutingDistance
       ) {
@@ -517,7 +650,75 @@ const App: React.FC = () => {
         setState((prevState): State => ({ ...prevState, snackbar }));
         return; // Don't calculate routes until the inputs change
       }
-      await calculatePlan(origin, targets, (geojson) => {
+
+      const queries = [] as Array<[LatLng, ElementWithCoordinates, string?]>;
+      if (venueUnloadingPlaces.length) {
+        // If the destination is the whole venue, route to all entrances of venueUnloadingPlaces
+        if (state.destination.id === state.venue?.id) {
+          const unloadingPlaceEntrances = venueDataToUnloadingPlaceEntrances(
+            state.venueOlmapData
+          );
+          venueUnloadingPlaces.forEach((venueOrigin) => {
+            unloadingPlaceEntrances[venueOrigin.id].forEach((target) => {
+              const targetEntrance = state.entrances?.find(
+                (entrance) => entrance.id === target
+              );
+              // XXX: Always true, needed by Typescript:
+              if (targetEntrance) {
+                queries.push([
+                  [
+                    Number(venueOrigin.image_note.lat),
+                    Number(venueOrigin.image_note.lon),
+                  ],
+                  targetEntrance,
+                  "delivery-walking",
+                ]);
+              }
+              venueOrigin.access_points?.forEach((access_point) => {
+                queries.push([
+                  [Number(access_point.lat), Number(access_point.lon)],
+                  latLngToDestination([
+                    Number(venueOrigin.image_note.lat) + 0.000001,
+                    Number(venueOrigin.image_note.lon) + 0.000001,
+                  ]),
+                  "delivery-car",
+                ]);
+              });
+            });
+          });
+        } else {
+          // The destination is a specific entrance of the venue
+          workplaceEntrance?.unloading_places?.forEach((venueOrigin) => {
+            if (state.destination) {
+              queries.push([
+                [
+                  Number(venueOrigin.image_note.lat),
+                  Number(venueOrigin.image_note.lon),
+                ],
+                state.destination,
+                "delivery-walking",
+              ]);
+            }
+            venueOrigin.access_points?.forEach((access_point) => {
+              queries.push([
+                [Number(access_point.lat), Number(access_point.lon)],
+                latLngToDestination([
+                  Number(venueOrigin.image_note.lat) + 0.000001,
+                  Number(venueOrigin.image_note.lon) + 0.000001,
+                ]),
+                "delivery-car",
+              ]);
+            });
+          });
+        }
+      } else {
+        targets.forEach((target) => {
+          if (!origin) return; // Needed to convince Typescript
+          queries.push([origin, target]);
+        });
+      }
+
+      await calculatePlan(queries, (geojson) => {
         setState(
           (prevState): State => {
             // don't use the result if the parameters changed meanwhile
@@ -543,7 +744,7 @@ const App: React.FC = () => {
       // eslint-disable-next-line no-console
       console.error("Error while starting route planning:", error);
     });
-  }, [state.origin, state.entrances]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [state.origin, state.entrances, state.unloadingPlace]); // eslint-disable-line react-hooks/exhaustive-deps
   // XXX: state.destination is missing above as we need to wait for state.entrances to change as well
 
   // When popup opens, try to fetch data for it from OLMap's API
@@ -581,6 +782,31 @@ const App: React.FC = () => {
     });
   }, [state.popupCoordinates]);
 
+  // When we receive OLMap data for a venue and the dialog opens, zoom the map to fit
+  useEffect(() => {
+    if (
+      state.venueOlmapData?.state === "success" &&
+      state.venueOlmapData.response.workplace
+    ) {
+      setState(
+        (prevState): State => {
+          return {
+            ...prevState,
+            viewport: fitMap(
+              prevState.viewport,
+              [
+                state.origin,
+                state.destination && destinationToLatLng(state.destination),
+                ...(state.entrances?.map(destinationToLatLng) || []),
+              ],
+              0.5
+            ),
+          };
+        }
+      );
+    }
+  }, [state.venueOlmapData]); // eslint-disable-line react-hooks/exhaustive-deps -- trigger only on new venue data
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleMapClick = (event: any): void => {
     // Inspect the topmost feature under click
@@ -598,14 +824,7 @@ const App: React.FC = () => {
         ]);
         // If an entrance was clicked, show details in the popup.
         if (feature?.properties.entrance) {
-          const [id, type] = feature.properties["@id"].split("/").reverse();
-          const element = {
-            id: parseInt(id, 10),
-            type,
-            lat: feature.geometry.coordinates[1],
-            lon: feature.geometry.coordinates[0],
-            tags: feature.properties,
-          };
+          const element = geoJsonToElement(feature);
           return {
             ...prevState,
             popupCoordinates: element,
@@ -759,7 +978,7 @@ const App: React.FC = () => {
           setTimeout(() => {
             geocoder.current.blur();
           });
-          const destination: LatLng = [
+          const coordinates: LatLng = [
             suggestion.geometry.coordinates[1],
             suggestion.geometry.coordinates[0],
           ];
@@ -768,24 +987,31 @@ const App: React.FC = () => {
             (prevState): State => {
               const pointsToFit =
                 prevState.origin &&
-                distance(prevState.origin, destination) < maxRoutingDistance
-                  ? [prevState.origin, destination]
-                  : [destination];
+                distance(prevState.origin, coordinates) < maxRoutingDistance
+                  ? [prevState.origin, coordinates]
+                  : [coordinates];
               const viewport = fitMap(prevState.viewport, pointsToFit);
+              const destination = {
+                lat: coordinates[0],
+                lon: coordinates[1],
+                type,
+                id: Number(id),
+                tags: {
+                  "addr:street": suggestion.properties.street,
+                },
+              };
               return {
                 ...prevState,
                 origin: prevState.origin,
-                destination: {
-                  lat: destination[0],
-                  lon: destination[1],
-                  type,
-                  id: Number(id),
-                  tags: {
-                    "addr:street": suggestion.properties.street,
-                  },
-                },
+                destination,
                 entrances: [],
+                venue: destination,
+                venueDialogOpen: true, // Let the dialog open
+                venueDialogCollapsed: false,
+                venueOlmapData: undefined, // Clear old data
                 viewport: { ...prevState.viewport, ...viewport },
+                venueFeatures: emptyFeatureCollection,
+                unloadingPlace: undefined,
               };
             }
           );
@@ -879,6 +1105,17 @@ const App: React.FC = () => {
             {...buildingHighlightLayer}
             source="highlights"
           />
+        </Source>
+
+        <Source id="venue" type="geojson" data={state.venueFeatures}>
+          {venueLayers.map((layer) => (
+            <Layer
+              // eslint-disable-next-line react/jsx-props-no-spreading
+              {...layer}
+              key={layer.id}
+              source="venue"
+            />
+          ))}
         </Source>
 
         <Source id="route" type="geojson" data={state.route}>
@@ -1126,6 +1363,75 @@ const App: React.FC = () => {
           setState((prevState) => ({
             ...prevState,
             editingNote: undefined,
+          }))
+        }
+      />
+      <VenueDialog
+        open={state.venueDialogOpen}
+        collapsed={state.venueDialogCollapsed}
+        venueOlmapData={state.venueOlmapData}
+        onEntranceSelected={(entranceId): void => {
+          setState(
+            (prevState): State => {
+              const entranceFeatures = prevState.venueFeatures.features.filter(
+                (feature) =>
+                  feature.geometry.type === "Point" &&
+                  feature.properties?.entrance
+              );
+
+              const entrance = prevState.venueFeatures.features.find(
+                (feature) =>
+                  feature.properties?.["@id"] ===
+                  `http://www.openstreetmap.org/node/${entranceId}`
+              );
+              return {
+                ...prevState,
+                unloadingPlace: undefined,
+                destination:
+                  (entrance &&
+                    entrance.geometry.type === "Point" &&
+                    geoJsonToElement(entrance as Feature<Point>)) ||
+                  undefined,
+                entrances: entranceFeatures.map((feature) =>
+                  geoJsonToElement(feature as Feature<Point>)
+                ),
+              };
+            }
+          );
+        }}
+        onUnloadingPlaceSelected={(unloadingPlace): void => {
+          setState(
+            (prevState): State => {
+              const entranceFeatures = prevState.venueFeatures.features.filter(
+                (feature) =>
+                  feature.geometry.type === "Point" &&
+                  feature.properties?.entrance
+              );
+              return {
+                ...prevState,
+                unloadingPlace,
+                destination: prevState.venue,
+                entrances: entranceFeatures.map((feature) =>
+                  geoJsonToElement(feature as Feature<Point>)
+                ),
+              };
+            }
+          );
+        }}
+        onClose={(): void =>
+          setState((prevState) => ({
+            ...prevState,
+            venueDialogOpen: false,
+            venueDialogCollapsed: false,
+            venueOlmapData: undefined,
+            venueFeatures: emptyFeatureCollection,
+            venue: undefined,
+          }))
+        }
+        onCollapsingToggled={(): void =>
+          setState((prevState) => ({
+            ...prevState,
+            venueDialogCollapsed: !state.venueDialogCollapsed,
           }))
         }
       />

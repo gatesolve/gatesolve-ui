@@ -1192,6 +1192,11 @@
     minimatch "^3.0.4"
     strip-json-comments "^3.1.1"
 
+"@fontsource/noto-sans@^4.4.2":
+  version "4.4.2"
+  resolved "https://registry.yarnpkg.com/@fontsource/noto-sans/-/noto-sans-4.4.2.tgz#e1736311ca7be5995df5a367d6a8f214755b287e"
+  integrity sha512-ulwkRDyk9QH3sH9BR0oikgc929YsqQOEYsHvypmTYNXlqfbJxYTwzK10sbrvcO53lFHgpf8o0296BqrDuYnG2g==
+
 "@gribnoysup/wunderbar@^2.2.1":
   version "2.2.2"
   resolved "https://registry.yarnpkg.com/@gribnoysup/wunderbar/-/wunderbar-2.2.2.tgz#4869c650bf02ac499967d60088dc5947eaf3c25b"
@@ -4326,6 +4331,11 @@
   integrity sha512-auApPaJf3NPfe18hSoJkp8EbZzer2ISk7o8mCC3M9he/a04+gbMF97NkpD2S8riMGvm4BMRI59/SZQSaLTKpsQ==
   dependencies:
     "@types/node" "*"
+
+"@types/romans@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@types/romans/-/romans-1.0.0.tgz#66b5258a5ee59a32a7a24b6876ed417608ce36c4"
+  integrity sha512-nlT9iCQtMUq2KUYyNmk9PEioYQ8u/qcac8udsHZltPldMeis028/MTfC2dBACGFCHQE3fBMsR/a2yj7Y7flhcA==
 
 "@types/scheduler@*":
   version "0.16.1"
@@ -14106,6 +14116,11 @@ rollup@^1.31.1:
     "@types/estree" "*"
     "@types/node" "*"
     acorn "^7.1.0"
+
+romans@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/romans/-/romans-1.0.2.tgz#98c97c7b2e0a412b1503f7cc5fbd32609dfe4817"
+  integrity sha512-6Q5EoZbQZ6zJuKiP13MnIbfM28ao7ctUo7zfELr4eXl9QyMgZarslu3Ty/Uiwcy+/6519bFTJ0X1Rqd1Sg3VYA==
 
 rsvp@^4.8.4:
   version "4.8.5"
