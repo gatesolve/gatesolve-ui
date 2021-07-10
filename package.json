@@ -5,7 +5,7 @@
   "license:": "AGPL-3.0-or-later",
   "dependencies": {
     "@fontsource/noto-sans": "^4.4.2",
-    "@material-ui/core": "^4.12.1",
+    "@material-ui/core": "~4.11.4",
     "@material-ui/icons": "^4.11.2",
     "@math.gl/web-mercator": "^3.4.3",
     "@testing-library/jest-dom": "^5.14.1",
