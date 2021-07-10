@@ -790,17 +790,23 @@ const App: React.FC = () => {
     ) {
       setState(
         (prevState): State => {
+          const destinationLatLng =
+            state.destination && destinationToLatLng(state.destination);
+          const routingMarkers =
+            prevState.origin &&
+            destinationLatLng &&
+            distance(prevState.origin, destinationLatLng) < maxRoutingDistance
+              ? [prevState.origin, destinationLatLng]
+              : [destinationLatLng];
+          const venueMarkers = state.entrances?.map(destinationToLatLng) || [];
+          const viewport = fitMap(
+            prevState.viewport,
+            [...routingMarkers, ...venueMarkers],
+            0.5
+          );
           return {
             ...prevState,
-            viewport: fitMap(
-              prevState.viewport,
-              [
-                state.origin,
-                state.destination && destinationToLatLng(state.destination),
-                ...(state.entrances?.map(destinationToLatLng) || []),
-              ],
-              0.5
-            ),
+            viewport,
           };
         }
       );
