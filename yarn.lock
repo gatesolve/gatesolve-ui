@@ -14109,10 +14109,10 @@ rollup@^1.31.1:
     "@types/node" "*"
     acorn "^7.1.0"
 
-romans@^1.0.2:
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/romans/-/romans-1.0.2.tgz#98c97c7b2e0a412b1503f7cc5fbd32609dfe4817"
-  integrity sha512-6Q5EoZbQZ6zJuKiP13MnIbfM28ao7ctUo7zfELr4eXl9QyMgZarslu3Ty/Uiwcy+/6519bFTJ0X1Rqd1Sg3VYA==
+romans@^1.0.4:
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/romans/-/romans-1.0.4.tgz#e80ae286077e54ab1cfb2cd2acb6c51319cc9163"
+  integrity sha512-v2hLZCF2OQvnRaSlOqgK1IafgTLSxZED+4LaipbX2TYeJAyoe8yNjnmruY9rYcWXIfKeTztRtJM2v/huU2y8nQ==
 
 rsvp@^4.8.4:
   version "4.8.5"
