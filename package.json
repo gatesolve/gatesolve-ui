@@ -24,7 +24,7 @@
     "@types/romans": "^1.0.0",
     "@urbica/react-map-gl": "^1.14.3",
     "mapbox-gl": "^1.13.1",
-    "notistack": "^1.0.9",
+    "notistack": "^1.0.10",
     "plannerjs": "https://github.com/gatesolve/planner.js#build-for-gatesolve",
     "react": "^17.0.2",
     "react-autosuggest-geocoder": "https://github.com/gatesolve/react-autosuggest-geocoder#fix/modify-for-gatesolve",
