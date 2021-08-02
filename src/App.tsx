@@ -291,14 +291,12 @@ const App: React.FC = () => {
       routableTiles.set(key, state.routableTiles.get(key) || null);
     });
 
-    setState(
-      (prevState: State): State => {
-        return {
-          ...prevState,
-          routableTiles,
-        };
-      }
-    );
+    setState((prevState: State): State => {
+      return {
+        ...prevState,
+        routableTiles,
+      };
+    });
 
     visibleTiles.map(async ({ zoom, x, y }) => {
       const key = `${zoom}/${x}/${y}`;
@@ -311,19 +309,17 @@ const App: React.FC = () => {
       // Convert the tile to GeoJSON
       const geoJSON = routableTilesToGeoJSON(body) as FeatureCollection;
       // Add the tile if still needed based on latest state
-      setState(
-        (prevState: State): State => {
-          if (prevState.routableTiles.get(key) !== null) {
-            return prevState; // This tile is not needed anymore
-          }
-          const newRoutableTiles = new Map(prevState.routableTiles);
-          newRoutableTiles.set(key, geoJSON);
-          return {
-            ...prevState,
-            routableTiles: newRoutableTiles,
-          };
+      setState((prevState: State): State => {
+        if (prevState.routableTiles.get(key) !== null) {
+          return prevState; // This tile is not needed anymore
         }
-      );
+        const newRoutableTiles = new Map(prevState.routableTiles);
+        newRoutableTiles.set(key, geoJSON);
+        return {
+          ...prevState,
+          routableTiles: newRoutableTiles,
+        };
+      });
     });
   }, [map.current, state.viewport]); // eslint-disable-line react-hooks/exhaustive-deps
   // XXX: state.routableTiles is missing above as we only use it as a cache here
@@ -428,7 +424,8 @@ const App: React.FC = () => {
             );
             result = await queryNodesById(entranceIds || []);
             if (venueOlmapData.response.workplace?.workplace_entrances) {
-              const workplaceEntrancesInBoth = [] as Array<OlmapWorkplaceEntrance>;
+              const workplaceEntrancesInBoth =
+                [] as Array<OlmapWorkplaceEntrance>;
               const osmEntrancesInOrder = [] as Array<ElementWithCoordinates>;
               workplaceEntrances?.forEach((workplaceEntrance) => {
                 const osmEntrance = result.find(
@@ -440,7 +437,8 @@ const App: React.FC = () => {
                   osmEntrancesInOrder.push(osmEntrance);
                 }
               });
-              venueOlmapData.response.workplace.workplace_entrances = workplaceEntrancesInBoth;
+              venueOlmapData.response.workplace.workplace_entrances =
+                workplaceEntrancesInBoth;
               venueFeatures = venueDataToGeoJSON(
                 venueOlmapData,
                 osmEntrancesInOrder
@@ -464,22 +462,20 @@ const App: React.FC = () => {
         // Proceed as if there was no entrance data
       }
 
-      setState(
-        (prevState): State => {
-          if (!state.destination) return prevState; // XXX Typescript needs this
-          if (prevState.destination !== state.destination) {
-            return prevState;
-          }
-          const entrances = result.length ? result : [state.destination];
-
-          return {
-            ...prevState,
-            entrances,
-            venueOlmapData,
-            venueFeatures,
-          };
+      setState((prevState): State => {
+        if (!state.destination) return prevState; // XXX Typescript needs this
+        if (prevState.destination !== state.destination) {
+          return prevState;
         }
-      );
+        const entrances = result.length ? result : [state.destination];
+
+        return {
+          ...prevState,
+          entrances,
+          venueOlmapData,
+          venueFeatures,
+        };
+      });
     })().catch((error) => {
       // eslint-disable-next-line no-console
       console.error("Error while handling entrances:", error);
@@ -724,26 +720,24 @@ const App: React.FC = () => {
       }
 
       await calculatePlan(queries, (geojson) => {
-        setState(
-          (prevState): State => {
-            // don't use the result if the parameters changed meanwhile
-            if (
-              state.origin !== prevState.origin ||
-              state.entrances !== prevState.entrances ||
-              state.destination !== prevState.destination
-            ) {
-              return prevState;
-            }
-            const extendedGeojson = {
-              ...geojson,
-              features: geojson.features.concat(prevState.route.features),
-            };
-            return {
-              ...prevState,
-              route: extendedGeojson,
-            };
+        setState((prevState): State => {
+          // don't use the result if the parameters changed meanwhile
+          if (
+            state.origin !== prevState.origin ||
+            state.entrances !== prevState.entrances ||
+            state.destination !== prevState.destination
+          ) {
+            return prevState;
           }
-        );
+          const extendedGeojson = {
+            ...geojson,
+            features: geojson.features.concat(prevState.route.features),
+          };
+          return {
+            ...prevState,
+            route: extendedGeojson,
+          };
+        });
       });
     })().catch((error) => {
       // eslint-disable-next-line no-console
@@ -757,30 +751,26 @@ const App: React.FC = () => {
     (async () => {
       if (!state.popupCoordinates) return;
       // Clear previous data
-      setState(
-        (prevState: State): State => {
-          if (prevState.popupCoordinates !== state.popupCoordinates) {
-            return prevState;
-          }
-          return {
-            ...prevState,
-            olmapData: { state: "loading" },
-          };
+      setState((prevState: State): State => {
+        if (prevState.popupCoordinates !== state.popupCoordinates) {
+          return prevState;
         }
-      );
+        return {
+          ...prevState,
+          olmapData: { state: "loading" },
+        };
+      });
       // Fetch new data
       const olmapData = await fetchOlmapData(state.popupCoordinates.id);
-      setState(
-        (prevState: State): State => {
-          if (prevState.popupCoordinates !== state.popupCoordinates) {
-            return prevState;
-          }
-          return {
-            ...prevState,
-            olmapData,
-          };
+      setState((prevState: State): State => {
+        if (prevState.popupCoordinates !== state.popupCoordinates) {
+          return prevState;
         }
-      );
+        return {
+          ...prevState,
+          olmapData,
+        };
+      });
     })().catch((error) => {
       // eslint-disable-next-line no-console
       console.error("Error while fetching OLMap notes:", error);
@@ -793,28 +783,26 @@ const App: React.FC = () => {
       state.venueOlmapData?.state === "success" &&
       state.venueOlmapData.response.workplace
     ) {
-      setState(
-        (prevState): State => {
-          const destinationLatLng =
-            state.destination && destinationToLatLng(state.destination);
-          const routingMarkers =
-            prevState.origin &&
-            destinationLatLng &&
-            distance(prevState.origin, destinationLatLng) < maxRoutingDistance
-              ? [prevState.origin, destinationLatLng]
-              : [destinationLatLng];
-          const venueMarkers = state.entrances?.map(destinationToLatLng) || [];
-          const viewport = fitMap(
-            prevState.viewport,
-            [...routingMarkers, ...venueMarkers],
-            0.5
-          );
-          return {
-            ...prevState,
-            viewport,
-          };
-        }
-      );
+      setState((prevState): State => {
+        const destinationLatLng =
+          state.destination && destinationToLatLng(state.destination);
+        const routingMarkers =
+          prevState.origin &&
+          destinationLatLng &&
+          distance(prevState.origin, destinationLatLng) < maxRoutingDistance
+            ? [prevState.origin, destinationLatLng]
+            : [destinationLatLng];
+        const venueMarkers = state.entrances?.map(destinationToLatLng) || [];
+        const viewport = fitMap(
+          prevState.viewport,
+          [...routingMarkers, ...venueMarkers],
+          0.5
+        );
+        return {
+          ...prevState,
+          viewport,
+        };
+      });
     }
   }, [state.venueOlmapData]); // eslint-disable-line react-hooks/exhaustive-deps -- trigger only on new venue data
 
@@ -822,73 +810,71 @@ const App: React.FC = () => {
   const handleMapClick = (event: any): void => {
     // Inspect the topmost feature under click
     const feature = map.current?.getMap().queryRenderedFeatures(event.point)[0];
-    setState(
-      (prevState): State => {
-        // Typing needed as the compiler is not smart enough.
-        const noHighlights: FeatureCollection = {
-          type: "FeatureCollection",
-          features: [],
-        };
-        const clickCoordinates = latLngToDestination([
-          event.lngLat.lat,
-          event.lngLat.lng,
-        ]);
-        // If an entrance was clicked, show details in the popup.
-        if (feature?.properties.entrance) {
-          const element = geoJsonToElement(feature);
-          return {
-            ...prevState,
-            popupCoordinates: element,
-            highlights: noHighlights,
-          };
-        }
-        // If a barrier or steps were clicked, show details in the popup.
-        if (
-          feature?.properties.barrier ||
-          feature?.properties.highway === "steps"
-        ) {
-          const id = feature.properties["@id"].split("/").reverse()[0];
-          const [lon, lat] =
-            feature.geometry.type === "Point"
-              ? feature.geometry.coordinates
-              : turfNearestPointOnLine(feature, event.lngLat.toArray()).geometry
-                  .coordinates;
-          return {
-            ...prevState,
-            popupCoordinates: {
-              id,
-              type: feature.properties["@type"],
-              lat,
-              lon,
-              tags: feature.properties,
-            },
-            highlights: noHighlights,
-          };
-        }
-        // If the popup is open, close it.
-        if (prevState.popupCoordinates != null) {
-          return {
-            ...prevState,
-            popupCoordinates: null,
-            highlights: noHighlights,
-          };
-        }
-        // If a building was clicked, highlight it.
-        if (feature?.sourceLayer === "building") {
-          return {
-            ...prevState,
-            popupCoordinates: clickCoordinates,
-            highlights: feature.toJSON(),
-          };
-        }
-        // Otherwise open a plain popup.
+    setState((prevState): State => {
+      // Typing needed as the compiler is not smart enough.
+      const noHighlights: FeatureCollection = {
+        type: "FeatureCollection",
+        features: [],
+      };
+      const clickCoordinates = latLngToDestination([
+        event.lngLat.lat,
+        event.lngLat.lng,
+      ]);
+      // If an entrance was clicked, show details in the popup.
+      if (feature?.properties.entrance) {
+        const element = geoJsonToElement(feature);
         return {
           ...prevState,
-          popupCoordinates: clickCoordinates,
+          popupCoordinates: element,
           highlights: noHighlights,
         };
       }
-    );
+      // If a barrier or steps were clicked, show details in the popup.
+      if (
+        feature?.properties.barrier ||
+        feature?.properties.highway === "steps"
+      ) {
+        const id = feature.properties["@id"].split("/").reverse()[0];
+        const [lon, lat] =
+          feature.geometry.type === "Point"
+            ? feature.geometry.coordinates
+            : turfNearestPointOnLine(feature, event.lngLat.toArray()).geometry
+                .coordinates;
+        return {
+          ...prevState,
+          popupCoordinates: {
+            id,
+            type: feature.properties["@type"],
+            lat,
+            lon,
+            tags: feature.properties,
+          },
+          highlights: noHighlights,
+        };
+      }
+      // If the popup is open, close it.
+      if (prevState.popupCoordinates != null) {
+        return {
+          ...prevState,
+          popupCoordinates: null,
+          highlights: noHighlights,
+        };
+      }
+      // If a building was clicked, highlight it.
+      if (feature?.sourceLayer === "building") {
+        return {
+          ...prevState,
+          popupCoordinates: clickCoordinates,
+          highlights: feature.toJSON(),
+        };
+      }
+      // Otherwise open a plain popup.
+      return {
+        ...prevState,
+        popupCoordinates: clickCoordinates,
+        highlights: noHighlights,
+      };
+    });
   };
 
   const getOlmapId = (
@@ -929,35 +915,33 @@ const App: React.FC = () => {
    * - change origin if deemed appropriate
    */
   const onGeolocate = (position: GeolocationPosition): void =>
-    setState(
-      (prevState): State => {
-        if (prevState.isGeolocating) {
-          const isFirstPosition = prevState.geolocationPosition == null;
-          const geolocationPosition: LatLng = [
-            position.coords.latitude,
-            position.coords.longitude,
-          ];
-          const viewport =
-            isFirstPosition && !prevState.isOriginExplicit
-              ? fitMap(prevState.viewport, [
-                  geolocationPosition,
-                  prevState.destination &&
-                    destinationToLatLng(prevState.destination),
-                ])
-              : prevState.viewport;
-          const updateBase = { ...prevState, geolocationPosition, viewport };
-          if (
-            !prevState.isOriginExplicit &&
-            (prevState.origin == null ||
-              distance(prevState.origin, geolocationPosition) > 20)
-          ) {
-            return { ...updateBase, origin: geolocationPosition };
-          }
-          return updateBase;
+    setState((prevState): State => {
+      if (prevState.isGeolocating) {
+        const isFirstPosition = prevState.geolocationPosition == null;
+        const geolocationPosition: LatLng = [
+          position.coords.latitude,
+          position.coords.longitude,
+        ];
+        const viewport =
+          isFirstPosition && !prevState.isOriginExplicit
+            ? fitMap(prevState.viewport, [
+                geolocationPosition,
+                prevState.destination &&
+                  destinationToLatLng(prevState.destination),
+              ])
+            : prevState.viewport;
+        const updateBase = { ...prevState, geolocationPosition, viewport };
+        if (
+          !prevState.isOriginExplicit &&
+          (prevState.origin == null ||
+            distance(prevState.origin, geolocationPosition) > 20)
+        ) {
+          return { ...updateBase, origin: geolocationPosition };
         }
-        return prevState;
+        return updateBase;
       }
-    );
+      return prevState;
+    });
 
   return (
     <div data-testid="app" className="App">
@@ -994,38 +978,36 @@ const App: React.FC = () => {
             suggestion.geometry.coordinates[0],
           ];
           const [type, id] = suggestion.properties.source_id.split(":");
-          setState(
-            (prevState): State => {
-              const pointsToFit =
-                prevState.origin &&
-                distance(prevState.origin, coordinates) < maxRoutingDistance
-                  ? [prevState.origin, coordinates]
-                  : [coordinates];
-              const viewport = fitMap(prevState.viewport, pointsToFit);
-              const destination = {
-                lat: coordinates[0],
-                lon: coordinates[1],
-                type,
-                id: Number(id),
-                tags: {
-                  "addr:street": suggestion.properties.street,
-                },
-              };
-              return {
-                ...prevState,
-                origin: prevState.origin,
-                destination,
-                entrances: [],
-                venue: destination,
-                venueDialogOpen: true, // Let the dialog open
-                venueDialogCollapsed: false,
-                venueOlmapData: undefined, // Clear old data
-                viewport: { ...prevState.viewport, ...viewport },
-                venueFeatures: emptyFeatureCollection,
-                unloadingPlace: undefined,
-              };
-            }
-          );
+          setState((prevState): State => {
+            const pointsToFit =
+              prevState.origin &&
+              distance(prevState.origin, coordinates) < maxRoutingDistance
+                ? [prevState.origin, coordinates]
+                : [coordinates];
+            const viewport = fitMap(prevState.viewport, pointsToFit);
+            const destination = {
+              lat: coordinates[0],
+              lon: coordinates[1],
+              type,
+              id: Number(id),
+              tags: {
+                "addr:street": suggestion.properties.street,
+              },
+            };
+            return {
+              ...prevState,
+              origin: prevState.origin,
+              destination,
+              entrances: [],
+              venue: destination,
+              venueDialogOpen: true, // Let the dialog open
+              venueDialogCollapsed: false,
+              venueOlmapData: undefined, // Clear old data
+              viewport: { ...prevState.viewport, ...viewport },
+              venueFeatures: emptyFeatureCollection,
+              unloadingPlace: undefined,
+            };
+          });
         }}
       />
       <MapGL
@@ -1311,26 +1293,22 @@ const App: React.FC = () => {
                 type="button"
                 aria-label="Set origin"
                 onClick={(): void =>
-                  setState(
-                    (prevState): State => {
-                      // Check this to appease the compiler.
-                      if (prevState.popupCoordinates != null) {
-                        return {
-                          ...prevState,
-                          origin: destinationToLatLng(
-                            prevState.popupCoordinates
-                          ),
-                          isOriginExplicit: true,
-                          popupCoordinates: null,
-                        };
-                      }
+                  setState((prevState): State => {
+                    // Check this to appease the compiler.
+                    if (prevState.popupCoordinates != null) {
                       return {
                         ...prevState,
+                        origin: destinationToLatLng(prevState.popupCoordinates),
                         isOriginExplicit: true,
                         popupCoordinates: null,
                       };
                     }
-                  )
+                    return {
+                      ...prevState,
+                      isOriginExplicit: true,
+                      popupCoordinates: null,
+                    };
+                  })
                 }
               >
                 Origin
@@ -1344,22 +1322,20 @@ const App: React.FC = () => {
                 type="button"
                 aria-label="Set destination"
                 onClick={(): void =>
-                  setState(
-                    (prevState): State => {
-                      // Check this to appease the compiler.
-                      if (prevState.popupCoordinates != null) {
-                        return {
-                          ...prevState,
-                          destination: prevState.popupCoordinates,
-                          popupCoordinates: null,
-                        };
-                      }
+                  setState((prevState): State => {
+                    // Check this to appease the compiler.
+                    if (prevState.popupCoordinates != null) {
                       return {
                         ...prevState,
+                        destination: prevState.popupCoordinates,
                         popupCoordinates: null,
                       };
                     }
-                  )
+                    return {
+                      ...prevState,
+                      popupCoordinates: null,
+                    };
+                  })
                 }
               >
                 Destination
@@ -1382,52 +1358,48 @@ const App: React.FC = () => {
         collapsed={state.venueDialogCollapsed}
         venueOlmapData={state.venueOlmapData}
         onEntranceSelected={(entranceId): void => {
-          setState(
-            (prevState): State => {
-              const entranceFeatures = prevState.venueFeatures.features.filter(
-                (feature) =>
-                  feature.geometry.type === "Point" &&
-                  feature.properties?.entrance
-              );
+          setState((prevState): State => {
+            const entranceFeatures = prevState.venueFeatures.features.filter(
+              (feature) =>
+                feature.geometry.type === "Point" &&
+                feature.properties?.entrance
+            );
 
-              const entrance = prevState.venueFeatures.features.find(
-                (feature) =>
-                  feature.properties?.["@id"] ===
-                  `http://www.openstreetmap.org/node/${entranceId}`
-              );
-              return {
-                ...prevState,
-                unloadingPlace: undefined,
-                destination:
-                  (entrance &&
-                    entrance.geometry.type === "Point" &&
-                    geoJsonToElement(entrance as Feature<Point>)) ||
-                  undefined,
-                entrances: entranceFeatures.map((feature) =>
-                  geoJsonToElement(feature as Feature<Point>)
-                ),
-              };
-            }
-          );
+            const entrance = prevState.venueFeatures.features.find(
+              (feature) =>
+                feature.properties?.["@id"] ===
+                `http://www.openstreetmap.org/node/${entranceId}`
+            );
+            return {
+              ...prevState,
+              unloadingPlace: undefined,
+              destination:
+                (entrance &&
+                  entrance.geometry.type === "Point" &&
+                  geoJsonToElement(entrance as Feature<Point>)) ||
+                undefined,
+              entrances: entranceFeatures.map((feature) =>
+                geoJsonToElement(feature as Feature<Point>)
+              ),
+            };
+          });
         }}
         onUnloadingPlaceSelected={(unloadingPlace): void => {
-          setState(
-            (prevState): State => {
-              const entranceFeatures = prevState.venueFeatures.features.filter(
-                (feature) =>
-                  feature.geometry.type === "Point" &&
-                  feature.properties?.entrance
-              );
-              return {
-                ...prevState,
-                unloadingPlace,
-                destination: prevState.venue,
-                entrances: entranceFeatures.map((feature) =>
-                  geoJsonToElement(feature as Feature<Point>)
-                ),
-              };
-            }
-          );
+          setState((prevState): State => {
+            const entranceFeatures = prevState.venueFeatures.features.filter(
+              (feature) =>
+                feature.geometry.type === "Point" &&
+                feature.properties?.entrance
+            );
+            return {
+              ...prevState,
+              unloadingPlace,
+              destination: prevState.venue,
+              entrances: entranceFeatures.map((feature) =>
+                geoJsonToElement(feature as Feature<Point>)
+              ),
+            };
+          });
         }}
         onClose={(): void =>
           setState((prevState) => ({
