@@ -10,7 +10,6 @@ import {
 import { useSnackbar } from "notistack";
 import MapGL, { Popup, Source, Layer, Marker } from "@urbica/react-map-gl";
 import { WebMercatorViewport } from "@math.gl/web-mercator";
-import type { WebMercatorViewportOptions } from "@math.gl/web-mercator/dist/es6/web-mercator-viewport";
 import {
   distance as turfDistance,
   nearestPointOnLine as turfNearestPointOnLine,
@@ -65,9 +64,15 @@ import VenueDialog from "./components/VenueDialog";
 
 const maxRoutingDistance = 200; // in meters
 
+// XXX: WebMercatorViewportOptions only indirectly exported by @math.gl/web-mercator
+// XXX: TypeScript 4.3.5 confused if re-using an out-of-scope type name
+type WebMercatorViewportOptions2 = NonNullable<
+  ConstructorParameters<typeof WebMercatorViewport>[0]
+>;
+
 type LatLng = [number, number];
 
-type ViewportState = Omit<WebMercatorViewportOptions, "width" | "height">;
+type ViewportState = Omit<WebMercatorViewportOptions2, "width" | "height">;
 
 interface State {
   viewport: ViewportState;
@@ -169,10 +174,10 @@ const parseLatLng = (text: string | undefined): LatLng | undefined => {
 };
 
 const fitBounds = (
-  viewportOptions: WebMercatorViewportOptions,
+  viewportOptions: WebMercatorViewportOptions2,
   latLngs: Array<LatLng | undefined>,
   occludedBottomProportion = 0
-): WebMercatorViewportOptions => {
+): WebMercatorViewportOptions2 => {
   const viewport = new WebMercatorViewport(viewportOptions);
   const inputs = latLngs.filter((x) => x) as Array<LatLng>;
   if (!inputs.length) return viewportOptions; // Nothing to do
@@ -248,7 +253,7 @@ const App: React.FC = () => {
     viewportOptions: ViewportState,
     latLngs: Array<LatLng | undefined>,
     occludedBottomProportion?: number
-  ): WebMercatorViewportOptions => {
+  ): WebMercatorViewportOptions2 => {
     return fitBounds(
       { ...viewportOptions, ...getMapSize(map.current?.getMap()) },
       latLngs,
