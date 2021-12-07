@@ -253,6 +253,10 @@ const App: React.FC = () => {
     path: "/route/:from?/:to?",
   }) as match<{ from: string; to: string }>;
 
+  const urlMatchSearch = useRouteMatch({
+    path: "/search/:query?",
+  }) as match<{ query: string }>;
+
   const [state, setState] = useState(initialState);
 
   const fitMap = (
@@ -991,6 +995,29 @@ const App: React.FC = () => {
       };
     });
   }, []);
+
+  useEffect(() => {
+    (async () => {
+      const query = urlMatchSearch?.params.query;
+      if (!query) return;
+
+      geocoder.current.update(query);
+
+      const features = (await geocoder.current.autocomplete(query))?.features;
+      if (!features?.length) {
+        // eslint-disable-next-line no-alert
+        alert("Search did not produce any results");
+      } else if (features?.length === 1) {
+        geocoder.current.update(features[0].properties.label);
+        selectSuggestion(features[0]);
+      } else {
+        geocoder.current.focus();
+      }
+    })().catch((error) => {
+      // eslint-disable-next-line no-console
+      console.error("Error while geocoding the query from a link:", error);
+    });
+  }, [urlMatchSearch, selectSuggestion]);
 
   return (
     <div data-testid="app" className="App">
