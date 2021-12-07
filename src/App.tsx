@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useRef, ReactText } from "react";
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  ReactText,
+} from "react";
 import { useRouteMatch, useHistory } from "react-router-dom";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { match } from "react-router-dom";
@@ -943,6 +949,49 @@ const App: React.FC = () => {
       return prevState;
     });
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const selectSuggestion = useCallback((suggestion: any) => {
+    // react-autosuggest will focus, we need to blur afterwards
+    setTimeout(() => {
+      geocoder.current.blur();
+    });
+    const coordinates: LatLng = [
+      suggestion.geometry.coordinates[1],
+      suggestion.geometry.coordinates[0],
+    ];
+    const [type, id] = suggestion.properties.source_id.split(":");
+    setState((prevState): State => {
+      const pointsToFit =
+        prevState.origin &&
+        distance(prevState.origin, coordinates) < maxRoutingDistance
+          ? [prevState.origin, coordinates]
+          : [coordinates];
+      const viewport = fitMap(prevState.viewport, pointsToFit);
+      const destination = {
+        lat: coordinates[0],
+        lon: coordinates[1],
+        type,
+        id: Number(id),
+        tags: {
+          "addr:street": suggestion.properties.street,
+        },
+      };
+      return {
+        ...prevState,
+        origin: prevState.origin,
+        destination,
+        entrances: [],
+        venue: destination,
+        venueDialogOpen: true, // Let the dialog open
+        venueDialogCollapsed: false,
+        venueOlmapData: undefined, // Clear old data
+        viewport: { ...prevState.viewport, ...viewport },
+        venueFeatures: emptyFeatureCollection,
+        unloadingPlace: undefined,
+      };
+    });
+  }, []);
+
   return (
     <div data-testid="app" className="App">
       <header className="App-header">
@@ -969,45 +1018,7 @@ const App: React.FC = () => {
         }}
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         onSuggestionSelected={(event: any, { suggestion }: any): any => {
-          // react-autosuggest will focus, we need to blur afterwards
-          setTimeout(() => {
-            geocoder.current.blur();
-          });
-          const coordinates: LatLng = [
-            suggestion.geometry.coordinates[1],
-            suggestion.geometry.coordinates[0],
-          ];
-          const [type, id] = suggestion.properties.source_id.split(":");
-          setState((prevState): State => {
-            const pointsToFit =
-              prevState.origin &&
-              distance(prevState.origin, coordinates) < maxRoutingDistance
-                ? [prevState.origin, coordinates]
-                : [coordinates];
-            const viewport = fitMap(prevState.viewport, pointsToFit);
-            const destination = {
-              lat: coordinates[0],
-              lon: coordinates[1],
-              type,
-              id: Number(id),
-              tags: {
-                "addr:street": suggestion.properties.street,
-              },
-            };
-            return {
-              ...prevState,
-              origin: prevState.origin,
-              destination,
-              entrances: [],
-              venue: destination,
-              venueDialogOpen: true, // Let the dialog open
-              venueDialogCollapsed: false,
-              venueOlmapData: undefined, // Clear old data
-              viewport: { ...prevState.viewport, ...viewport },
-              venueFeatures: emptyFeatureCollection,
-              unloadingPlace: undefined,
-            };
-          });
+          selectSuggestion(suggestion);
         }}
       />
       <MapGL
