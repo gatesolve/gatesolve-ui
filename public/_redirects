@@ -1,2 +1,4 @@
 /gatesolve-ui/* /:splat 200
 /route/* / 200
+/search/* / 200
+/osm/node/* / 200
