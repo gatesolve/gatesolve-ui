@@ -257,6 +257,10 @@ const App: React.FC = () => {
     path: "/search/:query?",
   }) as match<{ query: string }>;
 
+  const urlMatchOsm = useRouteMatch({
+    path: "/osm/node/:id?",
+  }) as match<{ id: string }>;
+
   const [state, setState] = useState(initialState);
 
   const fitMap = (
@@ -996,6 +1000,7 @@ const App: React.FC = () => {
     });
   }, []);
 
+  // Handle /search/ deeplinks as if such a geocoding result was selected
   useEffect(() => {
     (async () => {
       const query = urlMatchSearch?.params.query;
@@ -1018,6 +1023,44 @@ const App: React.FC = () => {
       console.error("Error while geocoding the query from a link:", error);
     });
   }, [urlMatchSearch, selectSuggestion]);
+
+  // Handle /osm/node/ deeplinks as if such a geocoding result was selected
+  useEffect(() => {
+    (async () => {
+      const id = urlMatchOsm?.params.id;
+      if (!id) return;
+
+      const elements = await queryNodesById([Number(id)]);
+      if (!elements.length) {
+        // eslint-disable-next-line no-alert
+        alert("Linked map feature not found");
+      } else {
+        const element = elements[0];
+        const tags = element.tags || {};
+        // What if the address tags are not there?
+        const address = `${tags["addr:street"] || ""} ${
+          tags["addr:housenumber"] || ""
+        } ${tags["ref"] || tags["addr:unit"] || ""}`;
+        geocoder.current.update(
+          tags.name && address.replace(/ /g, "")
+            ? `${tags.name}, ${address}`
+            : tags.name || address
+        );
+        selectSuggestion({
+          geometry: {
+            coordinates: [element.lon, element.lat],
+          },
+          properties: {
+            source_id: `node:${element.id}`,
+            street: tags["addr:street"],
+          },
+        });
+      }
+    })().catch((error) => {
+      // eslint-disable-next-line no-console
+      console.error("Error while resolving the OSM id from a link:", error);
+    });
+  }, [urlMatchOsm, selectSuggestion]);
 
   return (
     <div data-testid="app" className="App">
