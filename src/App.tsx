@@ -806,10 +806,37 @@ const App: React.FC = () => {
           distance(prevState.origin, destinationLatLng) < maxRoutingDistance
             ? [prevState.origin, destinationLatLng]
             : [destinationLatLng];
-        const venueMarkers = state.entrances?.map(destinationToLatLng) || [];
+        const entranceMarkers = state.entrances?.map(destinationToLatLng) || [];
+        const venueMarker =
+          (state.venue && [destinationToLatLng(state.venue)]) || [];
+        const unloadingPlaces = venueDataToUnloadingPlaces(
+          state.venueOlmapData
+        );
+        const unloadingPlaceMarkers = unloadingPlaces.map(
+          (unloadingPlace) =>
+            [
+              Number(unloadingPlace.image_note.lat),
+              Number(unloadingPlace.image_note.lon),
+            ] as LatLng
+        );
+        const accessPointMarkers = [] as Array<LatLng>;
+        unloadingPlaces.forEach((unloadingPlace) =>
+          unloadingPlace.access_points?.forEach((access_point) => {
+            accessPointMarkers.push([
+              Number(access_point.lat),
+              Number(access_point.lon),
+            ]);
+          })
+        );
         const viewport = fitMap(
           prevState.viewport,
-          [...routingMarkers, ...venueMarkers],
+          [
+            ...routingMarkers,
+            ...entranceMarkers,
+            ...venueMarker,
+            ...unloadingPlaceMarkers,
+            ...accessPointMarkers,
+          ],
           0.5
         );
         return {
