@@ -964,7 +964,16 @@ const App: React.FC = () => {
           position.coords.longitude,
         ];
         const viewport =
-          isFirstPosition && !prevState.isOriginExplicit
+          isFirstPosition &&
+          !prevState.isOriginExplicit &&
+          !(
+            prevState.venue &&
+            prevState.destination &&
+            distance(
+              geolocationPosition,
+              destinationToLatLng(prevState.destination)
+            ) > maxRoutingDistance
+          )
             ? fitMap(prevState.viewport, [
                 geolocationPosition,
                 prevState.destination &&
