@@ -1518,16 +1518,25 @@ const App: React.FC = () => {
             };
           });
         }}
-        onClose={(): void =>
+        onClose={(): void => {
+          geocoder.current.clear();
           setState((prevState) => ({
             ...prevState,
+            // Reset venue
             venueDialogOpen: false,
             venueDialogCollapsed: false,
             venueOlmapData: undefined,
             venueFeatures: emptyFeatureCollection,
             venue: undefined,
-          }))
-        }
+            // Reset routing
+            origin: prevState.geolocationPosition || undefined,
+            originIsExplicit: false,
+            destination: undefined,
+            entrances: [],
+            unloadingPlace: undefined,
+            route: geometryToGeoJSON(),
+          }));
+        }}
         onCollapsingToggled={(): void =>
           setState((prevState) => ({
             ...prevState,
