@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg xmlns="http://www.w3.org/2000/svg" width="642mm" height="642mm" viewBox="0 0 642 642" version="1.1" id="svg8">
+  <defs id="defs2"/>
+  <g id="layer1" transform="translate(0,345)">
+    <circle style="opacity:1;fill:#ffcd00;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:25.76569176;stroke-linecap:square;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" id="path10" cx="321" cy="-24" r="320"/>
+    <path style="opacity:1;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:50;stroke-linecap:square;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" d="m 440.99997,-294.00003 -120,120 -120.00001,-120 z" id="rect888" />
+    <path id="path902" d="m 200.99996,245.99997 120.00001,-120 120,120 z" style="opacity:1;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:50;stroke-linecap:square;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"/>
+    <path id="path913" d="M 321.00008,-273.9998 A 250,250 0 0 0 70.999862,-24.000087 250,250 0 0 0 321.00008,226.00016 250,250 0 0 0 570.99981,-24.000087 250,250 0 0 0 321.00008,-273.9998 Z m 0,9.9999 A 240,240 0 0 1 560.99991,-24.000087 240,240 0 0 1 321.00008,215.99976 240,240 0 0 1 80.999772,-24.000087 240,240 0 0 1 321.00008,-263.9999 Z" style="opacity:1;fill:#ffcd00;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:20.12944603;stroke-linecap:square;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"/>
+    <path style="opacity:1;fill:#e4002b;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:24.96051407;stroke-linecap:square;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" d="M 321.00008,-334.00028 A 309.99998,309.99998 0 0 0 10.999875,-24.000087 309.99998,309.99998 0 0 0 321.00008,286.00012 309.99998,309.99998 0 0 0 630.99977,-24.000087 309.99998,309.99998 0 0 0 321.00008,-334.00028 Z m 0,65.00018 A 245,245 0 0 1 566.00011,-24.000087 245,245 0 0 1 321.00008,220.99996 245,245 0 0 1 76.000072,-24.000087 245,245 0 0 1 321.00008,-269.0001 Z" id="path915"/>
+  </g>
+</svg>
