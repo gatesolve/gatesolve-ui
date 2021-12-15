@@ -53,6 +53,7 @@ export interface OlmapWorkplace {
   delivery_instructions: string;
   workplace_entrances: Array<OlmapWorkplaceEntrance>;
   image_note: OlmapNote;
+  max_vehicle_height: string;
 }
 
 export interface OlmapWorkplaceEntrance {
