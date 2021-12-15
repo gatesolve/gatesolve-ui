@@ -866,6 +866,14 @@ const App: React.FC = () => {
         event.lngLat.lat,
         event.lngLat.lng,
       ]);
+
+      // If an OLMap element was clicked, show details in the popup.
+      if (feature?.properties["@id"]?.startsWith("olmap")) {
+        return {
+          ...prevState,
+          editingNote: feature.properties["@id"].split("/").reverse()[0],
+        };
+      }
       // If an entrance was clicked, show details in the popup.
       if (feature?.properties.entrance) {
         const element = geoJsonToElement(feature);
