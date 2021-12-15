@@ -182,7 +182,7 @@ export const venueDataToGeoJSON = (
       properties: {
         "@id": `http://www.openstreetmap.org/${entrance.type}/${entrance.id}`,
         ...entrance.tags,
-        "@label": romanize(index + 1),
+        "@venue-label": romanize(index + 1),
       },
     });
   });
