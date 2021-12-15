@@ -110,9 +110,9 @@ const latLngToElement = (latLng: LatLng): ElementWithCoordinates => ({
   lon: latLng[1],
 });
 
-const destinationToLatLng = (destination: ElementWithCoordinates): LatLng => [
-  destination.lat,
-  destination.lon,
+const elementToLatLng = (element: ElementWithCoordinates): LatLng => [
+  element.lat,
+  element.lon,
 ];
 
 const geoJsonToElement = (feature: Feature<Point>): ElementWithCoordinates => {
@@ -561,7 +561,7 @@ const App: React.FC = () => {
         }
       } else if (
         !state.origin ||
-        distance(state.origin, destinationToLatLng(state.destination)) >=
+        distance(state.origin, elementToLatLng(state.destination)) >=
           maxRoutingDistance
       ) {
         let target;
@@ -594,7 +594,7 @@ const App: React.FC = () => {
         !venueUnloadingPlaces.length &&
         origin &&
         origin === state.origin &&
-        distance(origin, destinationToLatLng(state.destination)) >=
+        distance(origin, elementToLatLng(state.destination)) >=
           maxRoutingDistance
       ) {
         const message = state.isOriginExplicit
@@ -620,7 +620,7 @@ const App: React.FC = () => {
                         isOriginExplicit: false,
                         viewport: fitMap(prevState.viewport, [
                           prevState.destination &&
-                            destinationToLatLng(prevState.destination),
+                            elementToLatLng(prevState.destination),
                         ]),
                       })
                     );
@@ -799,16 +799,16 @@ const App: React.FC = () => {
     ) {
       setState((prevState): State => {
         const destinationLatLng =
-          state.destination && destinationToLatLng(state.destination);
+          state.destination && elementToLatLng(state.destination);
         const routingMarkers =
           prevState.origin &&
           destinationLatLng &&
           distance(prevState.origin, destinationLatLng) < maxRoutingDistance
             ? [prevState.origin, destinationLatLng]
             : [destinationLatLng];
-        const entranceMarkers = state.entrances?.map(destinationToLatLng) || [];
+        const entranceMarkers = state.entrances?.map(elementToLatLng) || [];
         const venueMarker =
-          (state.venue && [destinationToLatLng(state.venue)]) || [];
+          (state.venue && [elementToLatLng(state.venue)]) || [];
         const unloadingPlaces = venueDataToUnloadingPlaces(
           state.venueOlmapData
         );
@@ -971,13 +971,12 @@ const App: React.FC = () => {
             prevState.destination &&
             distance(
               geolocationPosition,
-              destinationToLatLng(prevState.destination)
+              elementToLatLng(prevState.destination)
             ) > maxRoutingDistance
           )
             ? fitMap(prevState.viewport, [
                 geolocationPosition,
-                prevState.destination &&
-                  destinationToLatLng(prevState.destination),
+                prevState.destination && elementToLatLng(prevState.destination),
               ])
             : prevState.viewport;
         const updateBase = { ...prevState, geolocationPosition, viewport };
@@ -1415,7 +1414,7 @@ const App: React.FC = () => {
                     if (prevState.popupCoordinates != null) {
                       return {
                         ...prevState,
-                        origin: destinationToLatLng(prevState.popupCoordinates),
+                        origin: elementToLatLng(prevState.popupCoordinates),
                         isOriginExplicit: true,
                         popupCoordinates: null,
                       };
