@@ -31,6 +31,7 @@ import {
 } from "../olmap";
 
 import OLMapImages from "./OLMapImages";
+import { ReactComponent as HeightLimitSign } from "./HeightLimitSign.svg";
 
 interface VenueDialogProps {
   open: boolean;
@@ -126,6 +127,33 @@ const VenueDialog: React.FC<VenueDialogProps> = ({
             },
           }}
         />
+        {workplace.max_vehicle_height && (
+          <div
+            style={{
+              float: "left",
+              position: "relative",
+              width: "2em",
+              height: "2em",
+            }}
+          >
+            <HeightLimitSign style={{ width: "100%", height: "100%" }} />
+            <div
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                width: "100%",
+                height: "100%",
+                fontSize: "0.7em",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              {workplace.max_vehicle_height}
+            </div>
+          </div>
+        )}
         <Typography variant="body2" color="textSecondary" component="p">
           {workplace.delivery_instructions}
         </Typography>
