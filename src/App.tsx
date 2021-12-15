@@ -34,6 +34,7 @@ import {
   buildingHighlightLayer,
   allEntrancesLayers,
   venueLayers,
+  parkingLayers,
 } from "./map-style";
 import Pin, { pinAsSVG } from "./components/Pin";
 import { triangleAsSVG, triangleDotAsSVG } from "./components/Triangle";
@@ -102,6 +103,7 @@ interface State {
   venueDialogCollapsed: boolean;
   venueFeatures: FeatureCollection;
   unloadingPlace?: OlmapUnloadingPlace;
+  parkingData?: FeatureCollection;
 }
 
 const latLngToElement = (latLng: LatLng): ElementWithCoordinates => ({
@@ -338,6 +340,71 @@ const App: React.FC = () => {
     });
   }, [map.current, state.viewport]); // eslint-disable-line react-hooks/exhaustive-deps
   // XXX: state.routableTiles is missing above as we only use it as a cache here
+
+  // Fetch new data for the parking layer when viewport changes
+  useEffect(() => {
+    (async () => {
+      if (!map.current || !state.viewport.zoom) {
+        return; // Nothing to do yet
+      }
+      if (state.viewport.zoom < 12) return; // minzoom
+
+      const fetchGeoJSON = async (
+        layername: string,
+        bbox: string
+      ): Promise<FeatureCollection> => {
+        const response = await fetch(
+          "https://api.olmap.org/kartta.hel.fi/maps/featureloader.ashx",
+          {
+            method: "POST",
+            body: new URLSearchParams({
+              request: "select",
+              id: layername,
+              resolution: "1",
+              params: "{}",
+              where: `BBOX 'ENVELOPE(${bbox})'`,
+              sort: "",
+              gproj: "",
+              aproj: "",
+              maxfeatures: "50000",
+              skipfeatures: "",
+              ibbox: bbox,
+              capfeatures: "1",
+              outputType: "geojson",
+              srs: "EPSG:4326",
+            }),
+          }
+        );
+        const data = (await response.json()) as FeatureCollection;
+        return data;
+      };
+
+      const bounds = map.current.getMap().getBounds();
+      const bbox = `${bounds.getWest()},${bounds.getSouth()},${bounds.getEast()},${bounds.getNorth()}`;
+      const layernames = [
+        "pysakointipaikat_kuormauspaikat",
+        "pysakointipaikat_pysakointikielto",
+        "pysakointipaikat_sallitut_kiellon_ulkopuolella",
+      ];
+      const layers = await Promise.all(
+        layernames.map((layername) => fetchGeoJSON(layername, bbox))
+      );
+      const parkingData = {
+        type: "FeatureCollection",
+        features: emptyFeatureCollection.features.concat(
+          ...layers.map((layer) => layer.features)
+        ),
+      } as FeatureCollection;
+
+      setState((prevState) => ({
+        ...prevState,
+        parkingData,
+      }));
+    })().catch((error) => {
+      // eslint-disable-next-line no-console
+      console.error("Error while fetching parking data:", error);
+    });
+  }, [map.current, state.viewport]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     /**
@@ -1221,6 +1288,16 @@ const App: React.FC = () => {
               </Source>
             )
         )}
+        <Source id="parking" type="geojson" data={state.parkingData}>
+          {parkingLayers.map((layer) => (
+            <Layer
+              // eslint-disable-next-line react/jsx-props-no-spreading
+              {...layer}
+              key={layer.id}
+              source="parking"
+            />
+          ))}
+        </Source>
         <Source id="highlights" type="geojson" data={state.highlights}>
           <Layer
             // eslint-disable-next-line react/jsx-props-no-spreading
