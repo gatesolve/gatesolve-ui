@@ -62,6 +62,7 @@ import {
   OlmapUnloadingPlace,
   venueDataToUnloadingPlaces,
   venueDataToUnloadingPlaceEntrances,
+  olmapNoteToElement,
 } from "./olmap";
 
 import "./App.css";
@@ -666,7 +667,9 @@ const App: React.FC = () => {
         return; // Don't calculate routes until the inputs change
       }
 
-      const queries = [] as Array<[LatLng, ElementWithCoordinates, string?]>;
+      const queries = [] as Array<
+        [ElementWithCoordinates, ElementWithCoordinates, string?]
+      >;
       if (venueUnloadingPlaces.length) {
         // If the destination is the whole venue, route to all entrances of venueUnloadingPlaces
         if (state.destination.id === state.venue?.id) {
@@ -681,21 +684,22 @@ const App: React.FC = () => {
               // XXX: Always true, needed by Typescript:
               if (targetEntrance) {
                 queries.push([
-                  [
-                    Number(venueOrigin.image_note.lat),
-                    Number(venueOrigin.image_note.lon),
-                  ],
+                  olmapNoteToElement(venueOrigin.image_note),
                   targetEntrance,
                   "delivery-walking",
                 ]);
               }
               venueOrigin.access_points?.forEach((access_point) => {
                 queries.push([
-                  [Number(access_point.lat), Number(access_point.lon)],
                   latLngToElement([
-                    Number(venueOrigin.image_note.lat) + 0.000001,
-                    Number(venueOrigin.image_note.lon) + 0.000001,
+                    Number(access_point.lat),
+                    Number(access_point.lon),
                   ]),
+                  {
+                    ...olmapNoteToElement(venueOrigin.image_note),
+                    lat: Number(venueOrigin.image_note.lat) + 0.000001,
+                    lon: Number(venueOrigin.image_note.lon) + 0.000001,
+                  },
                   "delivery-car",
                 ]);
               });
@@ -706,21 +710,22 @@ const App: React.FC = () => {
           workplaceEntrance?.unloading_places?.forEach((venueOrigin) => {
             if (state.destination) {
               queries.push([
-                [
-                  Number(venueOrigin.image_note.lat),
-                  Number(venueOrigin.image_note.lon),
-                ],
+                olmapNoteToElement(venueOrigin.image_note),
                 state.destination,
                 "delivery-walking",
               ]);
             }
             venueOrigin.access_points?.forEach((access_point) => {
               queries.push([
-                [Number(access_point.lat), Number(access_point.lon)],
                 latLngToElement([
-                  Number(venueOrigin.image_note.lat) + 0.000001,
-                  Number(venueOrigin.image_note.lon) + 0.000001,
+                  Number(access_point.lat),
+                  Number(access_point.lon),
                 ]),
+                {
+                  ...olmapNoteToElement(venueOrigin.image_note),
+                  lat: Number(venueOrigin.image_note.lat) + 0.000001,
+                  lon: Number(venueOrigin.image_note.lon) + 0.000001,
+                },
                 "delivery-car",
               ]);
             });
@@ -729,7 +734,7 @@ const App: React.FC = () => {
       } else {
         targets.forEach((target) => {
           if (!origin) return; // Needed to convince Typescript
-          queries.push([origin, target]);
+          queries.push([latLngToElement(origin), target]);
         });
       }
 

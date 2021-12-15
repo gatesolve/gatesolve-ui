@@ -105,7 +105,7 @@ function extractGeometry(
 }
 
 export function geometryToGeoJSON(
-  origin?: [number, number],
+  origin?: ElementWithCoordinates,
   targets?: Array<ElementWithCoordinates>,
   entrances?: Array<ElementWithCoordinates>,
   routeGeometries?: RouteGeometries,
@@ -118,9 +118,11 @@ export function geometryToGeoJSON(
       type: "Feature",
       geometry: {
         type: "Point",
-        coordinates: [origin[1], origin[0]],
+        coordinates: [origin.lon, origin.lat],
       },
       properties: {
+        ...origin.tags,
+        "@id": `${origin.type}/${origin.id}`, // XXX should be full url
         "@color": originColor,
       },
     });
@@ -131,9 +133,11 @@ export function geometryToGeoJSON(
         type: "Feature",
         geometry: {
           type: "Point",
-          coordinates: [target.lon, target.lat],
+          coordinates: [target.lon, target.lat], // XXX should be full url
         },
         properties: {
+          ...target.tags,
+          "@id": `${target.type}/${target.id}`,
           "@color": targetColor,
         },
       });
@@ -216,7 +220,7 @@ export function geometryToGeoJSON(
 }
 
 export default async function calculatePlan(
-  queries: Array<[[number, number], ElementWithCoordinates, string?]>,
+  queries: Array<[ElementWithCoordinates, ElementWithCoordinates, string?]>,
   callback: (f: FeatureCollection) => void
 ): Promise<void> {
   const { Planner } = await import(
@@ -231,7 +235,7 @@ export default async function calculatePlan(
     planner
       .setProfileID(`${protocol}://${process.env.PUBLIC_URL}/delivery.json`)
       .query({
-        from: { latitude: origin[0], longitude: origin[1] },
+        from: { latitude: origin.lat, longitude: origin.lon },
         to: { latitude: target.lat, longitude: target.lon },
       })
       .take(1)

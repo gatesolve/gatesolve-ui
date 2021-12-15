@@ -94,6 +94,15 @@ export const olmapNewNoteURL = (target: ElementWithCoordinates): string => {
   return `https://app.olmap.org/#/Notes/new/${target.id}/photo/@${target.lat},${target.lon}`;
 };
 
+export const olmapNoteToElement = (
+  note: OlmapNote
+): ElementWithCoordinates => ({
+  lat: Number(note.lat),
+  lon: Number(note.lon),
+  id: note.id,
+  type: "olmap",
+});
+
 const deliveryTypePriorities = {
   main: 2,
   yes: 1,
