@@ -103,7 +103,7 @@ interface State {
   unloadingPlace?: OlmapUnloadingPlace;
 }
 
-const latLngToDestination = (latLng: LatLng): ElementWithCoordinates => ({
+const latLngToElement = (latLng: LatLng): ElementWithCoordinates => ({
   id: -1,
   type: "node",
   lat: latLng[0],
@@ -364,7 +364,7 @@ const App: React.FC = () => {
           ...prevState,
           origin,
           isOriginExplicit: origin != null,
-          destination: destination && latLngToDestination(destination),
+          destination: destination && latLngToElement(destination),
           viewport: { ...prevState.viewport, ...viewport },
         })
       );
@@ -692,7 +692,7 @@ const App: React.FC = () => {
               venueOrigin.access_points?.forEach((access_point) => {
                 queries.push([
                   [Number(access_point.lat), Number(access_point.lon)],
-                  latLngToDestination([
+                  latLngToElement([
                     Number(venueOrigin.image_note.lat) + 0.000001,
                     Number(venueOrigin.image_note.lon) + 0.000001,
                   ]),
@@ -717,7 +717,7 @@ const App: React.FC = () => {
             venueOrigin.access_points?.forEach((access_point) => {
               queries.push([
                 [Number(access_point.lat), Number(access_point.lon)],
-                latLngToDestination([
+                latLngToElement([
                   Number(venueOrigin.image_note.lat) + 0.000001,
                   Number(venueOrigin.image_note.lon) + 0.000001,
                 ]),
@@ -857,7 +857,7 @@ const App: React.FC = () => {
         type: "FeatureCollection",
         features: [],
       };
-      const clickCoordinates = latLngToDestination([
+      const clickCoordinates = latLngToElement([
         event.lngLat.lat,
         event.lngLat.lng,
       ]);
@@ -1290,7 +1290,7 @@ const App: React.FC = () => {
               setState(
                 (prevState): State => ({
                   ...prevState,
-                  destination: latLngToDestination([lngLat.lat, lngLat.lng]),
+                  destination: latLngToElement([lngLat.lat, lngLat.lng]),
                 })
               );
             }}
