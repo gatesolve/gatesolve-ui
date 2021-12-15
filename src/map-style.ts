@@ -53,7 +53,7 @@ const venueSymbolLayer: LayerProps = {
     "text-halo-width": 2,
   },
   layout: {
-    "text-field": ["get", "@label"],
+    "text-field": ["get", "@venue-label"],
     "text-anchor": "center",
     "text-font": ["Klokantech Noto Sans Regular"],
     "text-size": 20,

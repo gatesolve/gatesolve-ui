@@ -62,6 +62,7 @@ import {
   OlmapUnloadingPlace,
   venueDataToUnloadingPlaces,
   venueDataToUnloadingPlaceEntrances,
+  olmapNoteToElement,
 } from "./olmap";
 
 import "./App.css";
@@ -103,16 +104,16 @@ interface State {
   unloadingPlace?: OlmapUnloadingPlace;
 }
 
-const latLngToDestination = (latLng: LatLng): ElementWithCoordinates => ({
+const latLngToElement = (latLng: LatLng): ElementWithCoordinates => ({
   id: -1,
   type: "node",
   lat: latLng[0],
   lon: latLng[1],
 });
 
-const destinationToLatLng = (destination: ElementWithCoordinates): LatLng => [
-  destination.lat,
-  destination.lon,
+const elementToLatLng = (element: ElementWithCoordinates): LatLng => [
+  element.lat,
+  element.lon,
 ];
 
 const geoJsonToElement = (feature: Feature<Point>): ElementWithCoordinates => {
@@ -364,7 +365,7 @@ const App: React.FC = () => {
           ...prevState,
           origin,
           isOriginExplicit: origin != null,
-          destination: destination && latLngToDestination(destination),
+          destination: destination && latLngToElement(destination),
           viewport: { ...prevState.viewport, ...viewport },
         })
       );
@@ -561,7 +562,7 @@ const App: React.FC = () => {
         }
       } else if (
         !state.origin ||
-        distance(state.origin, destinationToLatLng(state.destination)) >=
+        distance(state.origin, elementToLatLng(state.destination)) >=
           maxRoutingDistance
       ) {
         let target;
@@ -594,7 +595,7 @@ const App: React.FC = () => {
         !venueUnloadingPlaces.length &&
         origin &&
         origin === state.origin &&
-        distance(origin, destinationToLatLng(state.destination)) >=
+        distance(origin, elementToLatLng(state.destination)) >=
           maxRoutingDistance
       ) {
         const message = state.isOriginExplicit
@@ -620,7 +621,7 @@ const App: React.FC = () => {
                         isOriginExplicit: false,
                         viewport: fitMap(prevState.viewport, [
                           prevState.destination &&
-                            destinationToLatLng(prevState.destination),
+                            elementToLatLng(prevState.destination),
                         ]),
                       })
                     );
@@ -666,7 +667,9 @@ const App: React.FC = () => {
         return; // Don't calculate routes until the inputs change
       }
 
-      const queries = [] as Array<[LatLng, ElementWithCoordinates, string?]>;
+      const queries = [] as Array<
+        [ElementWithCoordinates, ElementWithCoordinates, string?]
+      >;
       if (venueUnloadingPlaces.length) {
         // If the destination is the whole venue, route to all entrances of venueUnloadingPlaces
         if (state.destination.id === state.venue?.id) {
@@ -681,21 +684,22 @@ const App: React.FC = () => {
               // XXX: Always true, needed by Typescript:
               if (targetEntrance) {
                 queries.push([
-                  [
-                    Number(venueOrigin.image_note.lat),
-                    Number(venueOrigin.image_note.lon),
-                  ],
+                  olmapNoteToElement(venueOrigin.image_note),
                   targetEntrance,
                   "delivery-walking",
                 ]);
               }
               venueOrigin.access_points?.forEach((access_point) => {
                 queries.push([
-                  [Number(access_point.lat), Number(access_point.lon)],
-                  latLngToDestination([
-                    Number(venueOrigin.image_note.lat) + 0.000001,
-                    Number(venueOrigin.image_note.lon) + 0.000001,
+                  latLngToElement([
+                    Number(access_point.lat),
+                    Number(access_point.lon),
                   ]),
+                  {
+                    ...olmapNoteToElement(venueOrigin.image_note),
+                    lat: Number(venueOrigin.image_note.lat) + 0.000001,
+                    lon: Number(venueOrigin.image_note.lon) + 0.000001,
+                  },
                   "delivery-car",
                 ]);
               });
@@ -706,21 +710,22 @@ const App: React.FC = () => {
           workplaceEntrance?.unloading_places?.forEach((venueOrigin) => {
             if (state.destination) {
               queries.push([
-                [
-                  Number(venueOrigin.image_note.lat),
-                  Number(venueOrigin.image_note.lon),
-                ],
+                olmapNoteToElement(venueOrigin.image_note),
                 state.destination,
                 "delivery-walking",
               ]);
             }
             venueOrigin.access_points?.forEach((access_point) => {
               queries.push([
-                [Number(access_point.lat), Number(access_point.lon)],
-                latLngToDestination([
-                  Number(venueOrigin.image_note.lat) + 0.000001,
-                  Number(venueOrigin.image_note.lon) + 0.000001,
+                latLngToElement([
+                  Number(access_point.lat),
+                  Number(access_point.lon),
                 ]),
+                {
+                  ...olmapNoteToElement(venueOrigin.image_note),
+                  lat: Number(venueOrigin.image_note.lat) + 0.000001,
+                  lon: Number(venueOrigin.image_note.lon) + 0.000001,
+                },
                 "delivery-car",
               ]);
             });
@@ -729,7 +734,7 @@ const App: React.FC = () => {
       } else {
         targets.forEach((target) => {
           if (!origin) return; // Needed to convince Typescript
-          queries.push([origin, target]);
+          queries.push([latLngToElement(origin), target]);
         });
       }
 
@@ -799,16 +804,16 @@ const App: React.FC = () => {
     ) {
       setState((prevState): State => {
         const destinationLatLng =
-          state.destination && destinationToLatLng(state.destination);
+          state.destination && elementToLatLng(state.destination);
         const routingMarkers =
           prevState.origin &&
           destinationLatLng &&
           distance(prevState.origin, destinationLatLng) < maxRoutingDistance
             ? [prevState.origin, destinationLatLng]
             : [destinationLatLng];
-        const entranceMarkers = state.entrances?.map(destinationToLatLng) || [];
+        const entranceMarkers = state.entrances?.map(elementToLatLng) || [];
         const venueMarker =
-          (state.venue && [destinationToLatLng(state.venue)]) || [];
+          (state.venue && [elementToLatLng(state.venue)]) || [];
         const unloadingPlaces = venueDataToUnloadingPlaces(
           state.venueOlmapData
         );
@@ -857,10 +862,18 @@ const App: React.FC = () => {
         type: "FeatureCollection",
         features: [],
       };
-      const clickCoordinates = latLngToDestination([
+      const clickCoordinates = latLngToElement([
         event.lngLat.lat,
         event.lngLat.lng,
       ]);
+
+      // If an OLMap element was clicked, show details in the popup.
+      if (feature?.properties["@id"]?.startsWith("olmap")) {
+        return {
+          ...prevState,
+          editingNote: feature.properties["@id"].split("/").reverse()[0],
+        };
+      }
       // If an entrance was clicked, show details in the popup.
       if (feature?.properties.entrance) {
         const element = geoJsonToElement(feature);
@@ -971,13 +984,12 @@ const App: React.FC = () => {
             prevState.destination &&
             distance(
               geolocationPosition,
-              destinationToLatLng(prevState.destination)
+              elementToLatLng(prevState.destination)
             ) > maxRoutingDistance
           )
             ? fitMap(prevState.viewport, [
                 geolocationPosition,
-                prevState.destination &&
-                  destinationToLatLng(prevState.destination),
+                prevState.destination && elementToLatLng(prevState.destination),
               ])
             : prevState.viewport;
         const updateBase = { ...prevState, geolocationPosition, viewport };
@@ -1290,7 +1302,7 @@ const App: React.FC = () => {
               setState(
                 (prevState): State => ({
                   ...prevState,
-                  destination: latLngToDestination([lngLat.lat, lngLat.lng]),
+                  destination: latLngToElement([lngLat.lat, lngLat.lng]),
                 })
               );
             }}
@@ -1415,7 +1427,7 @@ const App: React.FC = () => {
                     if (prevState.popupCoordinates != null) {
                       return {
                         ...prevState,
-                        origin: destinationToLatLng(prevState.popupCoordinates),
+                        origin: elementToLatLng(prevState.popupCoordinates),
                         isOriginExplicit: true,
                         popupCoordinates: null,
                       };
