@@ -1486,6 +1486,14 @@ const App: React.FC = () => {
         open={state.venueDialogOpen}
         collapsed={state.venueDialogCollapsed}
         venueOlmapData={state.venueOlmapData}
+        onViewDetails={(olmapNote) => {
+          setState((prevState): State => {
+            return {
+              ...prevState,
+              editingNote: olmapNote.id,
+            };
+          });
+        }}
         onEntranceSelected={(entranceId): void => {
           setState((prevState): State => {
             const entranceFeatures = prevState.venueFeatures.features.filter(

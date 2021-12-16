@@ -1,15 +1,8 @@
 import React from "react";
 import {
-  Avatar,
-  Button,
   IconButton,
   DialogTitle,
   DialogContent,
-  Card,
-  CardActions,
-  CardContent,
-  CardHeader,
-  CardMedia,
   Typography,
   Drawer,
 } from "@material-ui/core";
@@ -25,12 +18,13 @@ import { romanize } from "romans";
 
 import {
   NetworkState,
+  OlmapNote,
   OlmapResponse,
   OlmapUnloadingPlace,
-  venueDataToUnloadingPlaces,
 } from "../olmap";
 
-import OLMapImages from "./OLMapImages";
+import EntranceCard from "./EntranceCard";
+
 import { ReactComponent as HeightLimitSign } from "./HeightLimitSign.svg";
 
 interface VenueDialogProps {
@@ -41,6 +35,7 @@ interface VenueDialogProps {
   onEntranceSelected: (entranceId: number) => void;
   onUnloadingPlaceSelected: (unloadingPlace: OlmapUnloadingPlace) => void;
   onCollapsingToggled: () => void;
+  onViewDetails: (note: OlmapNote) => void;
 }
 
 const VenueDialog: React.FC<VenueDialogProps> = ({
@@ -51,6 +46,7 @@ const VenueDialog: React.FC<VenueDialogProps> = ({
   onEntranceSelected,
   onUnloadingPlaceSelected,
   onCollapsingToggled,
+  onViewDetails,
 }) => {
   if (
     venueOlmapData?.state !== "success" ||
@@ -58,18 +54,8 @@ const VenueDialog: React.FC<VenueDialogProps> = ({
   ) {
     return null;
   }
-  const imageNotes = venueOlmapData.response.image_notes;
   const { workplace } = venueOlmapData.response;
   const workplaceEntrances = workplace.workplace_entrances;
-
-  const workplaceAdditionalImageNotes = imageNotes.filter(
-    (note) => note.image && note.tags.find((x) => x === "Workplace")
-  );
-  const workplaceProfileImages = workplace.image_note.image
-    ? [workplace.image_note]
-    : workplaceAdditionalImageNotes;
-
-  const unloadingPlaces = venueDataToUnloadingPlaces(venueOlmapData);
 
   return (
     <Drawer
@@ -115,18 +101,10 @@ const VenueDialog: React.FC<VenueDialogProps> = ({
         style={{
           display: collapsed ? "none" : "block",
           overflow: "auto",
+          textAlign: "left",
+          paddingTop: 0,
         }}
       >
-        <OLMapImages
-          onImageClick={() => {}}
-          olmapData={{
-            state: "success",
-            response: {
-              ...venueOlmapData.response,
-              image_notes: workplaceProfileImages,
-            },
-          }}
-        />
         {workplace.max_vehicle_height && (
           <div
             style={{
@@ -158,134 +136,15 @@ const VenueDialog: React.FC<VenueDialogProps> = ({
           {workplace.delivery_instructions}
         </Typography>
         {workplaceEntrances.map((workplaceEntrance, index) => (
-          <Card
+          <EntranceCard
             key={workplaceEntrance.id}
-            style={{ marginTop: "1em" }}
-            variant="outlined"
-          >
-            <CardMedia
-              component="img"
-              image={workplaceEntrance.image_note.image}
-              style={{
-                width: "50%",
-                height: "auto",
-                float: "right",
-              }}
-            />
-            <CardHeader
-              avatar={
-                <Avatar
-                  style={{
-                    background: "#af8dbc",
-                    color: "#af8dbc",
-                    textShadow: `
-0      -1px 0.5px white,
-1px    -1px 0.5px white,
-1px    0    0.5px white,
-1px    1px  0.5px white,
-0      1px  0.5px white,
--1px   1px  0.5px white,
--1px   0    0.5px white,
--1px   -1px 0.5px white,
-2px    -0.5px 0.5px white,
-2px    0.5px  0.5px white,
--2px   -0.5px 0.5px white,
--2px   0.5px  0.5px white,
--0.5px 2px 0.5px white,
-0.5px  2px 0.5px white,
--0.5px -2px 0.5px white,
-0.5px  -2px 0.5px white,
--1.5px    1.5px  0.5px white,
-1.5px    -1.5px  0.5px white,
--1.5px -1.5px 0.5px white,
-1.5px    1.5px  0.5px white,
-2px    0px 0.5px white,
-0px    2px  0.5px white,
--2px   0px 0.5px white,
-0px    -2px  0.5px white`,
-                    font: '30px "Noto Sans"',
-                  }}
-                >
-                  <span>{romanize(index + 1)}</span>
-                </Avatar>
-              }
-              title={`${[
-                workplaceEntrance.description,
-                workplaceEntrance.delivery_types.join("; "),
-              ]
-                .filter((x) => x)
-                .join(": ")}`}
-              subheader={
-                workplaceEntrance.delivery_hours || workplace.delivery_hours
-              }
-              // The following backgrounds are in case a long word overlaps the floated photo
-              titleTypographyProps={{
-                style: { background: "rgba(255,255,255,0.5)" },
-              }}
-              subheaderTypographyProps={{
-                style: { background: "rgba(255,255,255,0.5)" },
-              }}
-            />
-            <CardContent>
-              <Typography variant="body2" color="textSecondary" component="p">
-                {workplaceEntrance.delivery_instructions}
-              </Typography>
-            </CardContent>
-            <CardActions>
-              <Button
-                variant="contained"
-                size="small"
-                style={{ backgroundColor: "#64be14", color: "#fff" }}
-                type="button"
-                aria-label="Set destination"
-                onClick={(): void =>
-                  onEntranceSelected(
-                    workplaceEntrance.entrance_data.osm_feature
-                  )
-                }
-              >
-                Destination
-              </Button>
-            </CardActions>
-          </Card>
-        ))}
-        {unloadingPlaces.map((unloadingPlace) => (
-          <Card
-            key={unloadingPlace.id}
-            style={{ marginTop: "1em" }}
-            variant="outlined"
-          >
-            <CardMedia
-              component="img"
-              image={unloadingPlace.image_note.image}
-              style={{
-                width: "50%",
-                height: "auto",
-                float: "right",
-              }}
-            />
-            <CardHeader
-              title={unloadingPlace.as_osm_tags["parking:condition"]}
-              subheader={unloadingPlace.opening_hours}
-            />
-            <CardContent>
-              <Typography variant="body2" color="textSecondary" component="p">
-                {unloadingPlace.description}
-              </Typography>
-            </CardContent>
-            <CardActions>
-              <Button
-                variant="contained"
-                size="small"
-                style={{ backgroundColor: "#00afff", color: "#fff" }}
-                type="button"
-                aria-label="Set origin"
-                onClick={(): void => onUnloadingPlaceSelected(unloadingPlace)}
-              >
-                Origin
-              </Button>
-            </CardActions>
-          </Card>
+            workplaceEntrance={workplaceEntrance}
+            workplace={workplace}
+            onEntranceSelected={onEntranceSelected}
+            onUnloadingPlaceSelected={onUnloadingPlaceSelected}
+            onViewDetails={onViewDetails}
+            label={romanize(index + 1)}
+          />
         ))}
       </DialogContent>
     </Drawer>
