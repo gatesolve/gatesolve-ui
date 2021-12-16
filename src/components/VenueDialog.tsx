@@ -26,6 +26,7 @@ import {
   NetworkState,
   OlmapResponse,
   OlmapUnloadingPlace,
+  OlmapWorkplaceEntrance,
   venueDataToUnloadingPlaces,
 } from "../olmap";
 
@@ -39,6 +40,7 @@ interface VenueDialogProps {
   onEntranceSelected: (entranceId: number) => void;
   onUnloadingPlaceSelected: (unloadingPlace: OlmapUnloadingPlace) => void;
   onCollapsingToggled: () => void;
+  onViewDetails: (workplaceEntrance: OlmapWorkplaceEntrance) => void;
 }
 
 const VenueDialog: React.FC<VenueDialogProps> = ({
@@ -49,6 +51,7 @@ const VenueDialog: React.FC<VenueDialogProps> = ({
   onEntranceSelected,
   onUnloadingPlaceSelected,
   onCollapsingToggled,
+  onViewDetails,
 }) => {
   if (
     venueOlmapData?.state !== "success" ||
@@ -226,6 +229,16 @@ const VenueDialog: React.FC<VenueDialogProps> = ({
                 }
               >
                 Destination
+              </Button>
+              <Button
+                variant="contained"
+                size="small"
+                style={{ backgroundColor: "#ff5000", color: "#fff" }}
+                type="button"
+                aria-label="View details"
+                onClick={(): void => onViewDetails(workplaceEntrance)}
+              >
+                View details
               </Button>
             </CardActions>
           </Card>
