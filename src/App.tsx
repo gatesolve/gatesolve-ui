@@ -23,8 +23,10 @@ import {
 import { MapboxGeoJSONFeature } from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 // eslint-disable-next-line import/no-extraneous-dependencies
-import { Feature, FeatureCollection, Point } from "geojson";
+import { Feature, FeatureCollection, Point, Position } from "geojson";
 import { ReactAutosuggestGeocoder } from "react-autosuggest-geocoder";
+
+import proj4 from "proj4";
 
 import {
   routePointLayer,
@@ -71,6 +73,16 @@ import "./components/PinMarker.css";
 import VenueDialog from "./components/VenueDialog";
 
 const maxRoutingDistance = 200; // in meters
+
+const epsg3879 = proj4(
+  "+proj=tmerc +lat_0=0 +lon_0=25 +k=1 +x_0=25500000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
+);
+const toEpsg3879 = (position: Position): Position => {
+  return epsg3879.forward(position);
+};
+const fromEpsg3879 = (position: Position): Position => {
+  return epsg3879.inverse(position);
+};
 
 // XXX: WebMercatorViewportOptions only indirectly exported by @math.gl/web-mercator
 // XXX: TypeScript 4.3.5 confused if re-using an out-of-scope type name
@@ -351,7 +363,8 @@ const App: React.FC = () => {
 
       const fetchGeoJSON = async (
         layername: string,
-        bbox: string
+        bbox: string,
+        ibbox: string
       ): Promise<FeatureCollection> => {
         const response = await fetch(
           "https://api.olmap.org/kartta.hel.fi/maps/featureloader.ashx",
@@ -362,16 +375,16 @@ const App: React.FC = () => {
               id: layername,
               resolution: "1",
               params: "{}",
-              where: `BBOX 'ENVELOPE(${bbox})'`,
+              where: `BBOX 'ENVELOPE(${ibbox})'`,
               sort: "",
               gproj: "",
               aproj: "",
               maxfeatures: "50000",
               skipfeatures: "",
-              ibbox: bbox,
+              ibbox,
               capfeatures: "1",
               outputType: "geojson",
-              srs: "EPSG:4326",
+              srs: "EPSG:3879",
             }),
           }
         );
@@ -381,19 +394,51 @@ const App: React.FC = () => {
 
       const bounds = map.current.getMap().getBounds();
       const bbox = `${bounds.getWest()},${bounds.getSouth()},${bounds.getEast()},${bounds.getNorth()}`;
+      const southWest = toEpsg3879([bounds.getWest(), bounds.getSouth()]);
+      const northEast = toEpsg3879([bounds.getEast(), bounds.getNorth()]);
+      const ibbox = `${Math.floor(southWest[0])},${Math.floor(
+        southWest[1]
+      )},${Math.floor(northEast[0])},${Math.floor(northEast[1])}`;
       const layernames = [
         "pysakointipaikat_kuormauspaikat",
         "pysakointipaikat_pysakointikielto",
         "pysakointipaikat_sallitut_kiellon_ulkopuolella",
       ];
       const layers = await Promise.all(
-        layernames.map((layername) => fetchGeoJSON(layername, bbox))
+        layernames.map((layername) => fetchGeoJSON(layername, bbox, ibbox))
       );
+      const features = emptyFeatureCollection.features.concat(
+        ...layers.map((layer) => layer.features)
+      );
+      const projectedFeatures = features.map((feature) => {
+        if (feature.geometry.type === "Point") {
+          return {
+            ...feature,
+            geometry: {
+              ...feature.geometry,
+              coordinates: fromEpsg3879(feature.geometry.coordinates),
+            },
+          };
+        }
+        if (feature.geometry.type === "Polygon") {
+          return {
+            ...feature,
+            geometry: {
+              ...feature.geometry,
+              coordinates: feature.geometry.coordinates.map(
+                (ring: Position[]): Position[] =>
+                  ring.map(
+                    (position: Position): Position => fromEpsg3879(position)
+                  )
+              ),
+            },
+          };
+        }
+        return feature; // XXX other geometry types not projected
+      });
       const parkingData = {
         type: "FeatureCollection",
-        features: emptyFeatureCollection.features.concat(
-          ...layers.map((layer) => layer.features)
-        ),
+        features: projectedFeatures,
       } as FeatureCollection;
 
       setState((prevState) => ({
