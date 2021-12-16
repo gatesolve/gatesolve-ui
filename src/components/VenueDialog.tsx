@@ -105,6 +105,8 @@ const VenueDialog: React.FC<VenueDialogProps> = ({
         style={{
           display: collapsed ? "none" : "block",
           overflow: "auto",
+          textAlign: "left",
+          paddingTop: 0,
         }}
       >
         {workplace.max_vehicle_height && (
@@ -140,13 +142,21 @@ const VenueDialog: React.FC<VenueDialogProps> = ({
         {workplaceEntrances.map((workplaceEntrance, index) => (
           <Card
             key={workplaceEntrance.id}
-            style={{ marginTop: "1em" }}
             variant="outlined"
+            square
+            style={{
+              padding: "8px",
+              borderLeft: "none",
+              borderRight: "none",
+              borderBottom: "none",
+            }}
           >
             <CardHeader
+              style={{ padding: 0 }}
               avatar={
                 <Avatar
                   style={{
+                    marginRight: 0,
                     background: "#af8dbc",
                     color: "#af8dbc",
                     textShadow: `
@@ -197,12 +207,12 @@ const VenueDialog: React.FC<VenueDialogProps> = ({
                 style: { background: "rgba(255,255,255,0.5)" },
               }}
             />
-            <CardContent>
+            <CardContent style={{ padding: 0 }}>
               <Typography variant="body2" color="textSecondary" component="p">
                 {workplaceEntrance.delivery_instructions}
               </Typography>
             </CardContent>
-            <CardActions>
+            <CardActions style={{ padding: 0 }}>
               <Button
                 variant="contained"
                 size="small"
@@ -221,11 +231,7 @@ const VenueDialog: React.FC<VenueDialogProps> = ({
           </Card>
         ))}
         {unloadingPlaces.map((unloadingPlace) => (
-          <Card
-            key={unloadingPlace.id}
-            style={{ marginTop: "1em" }}
-            variant="outlined"
-          >
+          <Card key={unloadingPlace.id} variant="outlined">
             <CardHeader
               title={unloadingPlace.as_osm_tags["parking:condition"]}
               subheader={unloadingPlace.opening_hours}
