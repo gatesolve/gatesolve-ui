@@ -1,13 +1,8 @@
 import React from "react";
 import {
-  Button,
   IconButton,
   DialogTitle,
   DialogContent,
-  Card,
-  CardActions,
-  CardContent,
-  CardHeader,
   Typography,
   Drawer,
 } from "@material-ui/core";
@@ -26,7 +21,6 @@ import {
   OlmapResponse,
   OlmapUnloadingPlace,
   OlmapWorkplaceEntrance,
-  venueDataToUnloadingPlaces,
 } from "../olmap";
 
 import EntranceCard from "./EntranceCard";
@@ -62,8 +56,6 @@ const VenueDialog: React.FC<VenueDialogProps> = ({
   }
   const { workplace } = venueOlmapData.response;
   const workplaceEntrances = workplace.workplace_entrances;
-
-  const unloadingPlaces = venueDataToUnloadingPlaces(venueOlmapData);
 
   return (
     <Drawer
@@ -149,34 +141,10 @@ const VenueDialog: React.FC<VenueDialogProps> = ({
             workplaceEntrance={workplaceEntrance}
             workplace={workplace}
             onEntranceSelected={onEntranceSelected}
+            onUnloadingPlaceSelected={onUnloadingPlaceSelected}
             onViewDetails={onViewDetails}
             label={romanize(index + 1)}
           />
-        ))}
-        {unloadingPlaces.map((unloadingPlace) => (
-          <Card key={unloadingPlace.id} variant="outlined">
-            <CardHeader
-              title={unloadingPlace.as_osm_tags["parking:condition"]}
-              subheader={unloadingPlace.opening_hours}
-            />
-            <CardContent>
-              <Typography variant="body2" color="textSecondary" component="p">
-                {unloadingPlace.description}
-              </Typography>
-            </CardContent>
-            <CardActions>
-              <Button
-                variant="contained"
-                size="small"
-                style={{ backgroundColor: "#00afff", color: "#fff" }}
-                type="button"
-                aria-label="Set origin"
-                onClick={(): void => onUnloadingPlaceSelected(unloadingPlace)}
-              >
-                Origin
-              </Button>
-            </CardActions>
-          </Card>
         ))}
       </DialogContent>
     </Drawer>

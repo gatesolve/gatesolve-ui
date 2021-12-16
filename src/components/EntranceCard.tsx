@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Avatar,
   Button,
@@ -10,7 +10,11 @@ import {
 } from "@material-ui/core";
 import "@fontsource/noto-sans/400.css";
 
-import { OlmapWorkplaceEntrance, OlmapWorkplace } from "../olmap";
+import {
+  OlmapUnloadingPlace,
+  OlmapWorkplaceEntrance,
+  OlmapWorkplace,
+} from "../olmap";
 
 interface EntranceCardProps {
   workplaceEntrance: OlmapWorkplaceEntrance;
@@ -18,6 +22,7 @@ interface EntranceCardProps {
   label: string;
   onEntranceSelected: (entranceId: number) => void;
   onViewDetails: (workplaceEntrance: OlmapWorkplaceEntrance) => void;
+  onUnloadingPlaceSelected: (unloadingPlace: OlmapUnloadingPlace) => void;
 }
 
 const EntranceCard: React.FC<EntranceCardProps> = ({
@@ -25,8 +30,10 @@ const EntranceCard: React.FC<EntranceCardProps> = ({
   workplace,
   label,
   onEntranceSelected,
+  onUnloadingPlaceSelected,
   onViewDetails,
 }) => {
+  const [collapsed, setCollapsed] = useState(true);
   return (
     <Card
       variant="outlined"
@@ -120,7 +127,45 @@ const EntranceCard: React.FC<EntranceCardProps> = ({
         >
           View details
         </Button>
+        <Button
+          variant="text"
+          size="small"
+          style={{ color: "#00afff" }}
+          type="button"
+          aria-label={
+            collapsed ? "Show unloading places" : "Hide unloading places"
+          }
+          onClick={(): void => setCollapsed(!collapsed)}
+        >
+          {collapsed ? "Show parking" : "Hide parking"}
+        </Button>
       </CardActions>
+      {!collapsed &&
+        workplaceEntrance.unloading_places.map((unloadingPlace) => (
+          <Card
+            key={unloadingPlace.id}
+            variant="outlined"
+            style={{ margin: "8px", padding: "4px" }}
+          >
+            <CardContent style={{ padding: 0 }}>
+              <Typography variant="body2" color="textSecondary" component="p">
+                {unloadingPlace.description}
+              </Typography>
+            </CardContent>
+            <CardActions style={{ padding: 0 }}>
+              <Button
+                variant="contained"
+                size="small"
+                style={{ backgroundColor: "#00afff", color: "#fff" }}
+                type="button"
+                aria-label="Set origin"
+                onClick={(): void => onUnloadingPlaceSelected(unloadingPlace)}
+              >
+                Origin
+              </Button>
+            </CardActions>
+          </Card>
+        ))}
     </Card>
   );
 };
