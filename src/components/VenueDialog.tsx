@@ -9,7 +9,6 @@ import {
   CardActions,
   CardContent,
   CardHeader,
-  CardMedia,
   Typography,
   Drawer,
 } from "@material-ui/core";
@@ -30,7 +29,6 @@ import {
   venueDataToUnloadingPlaces,
 } from "../olmap";
 
-import OLMapImages from "./OLMapImages";
 import { ReactComponent as HeightLimitSign } from "./HeightLimitSign.svg";
 
 interface VenueDialogProps {
@@ -58,16 +56,8 @@ const VenueDialog: React.FC<VenueDialogProps> = ({
   ) {
     return null;
   }
-  const imageNotes = venueOlmapData.response.image_notes;
   const { workplace } = venueOlmapData.response;
   const workplaceEntrances = workplace.workplace_entrances;
-
-  const workplaceAdditionalImageNotes = imageNotes.filter(
-    (note) => note.image && note.tags.find((x) => x === "Workplace")
-  );
-  const workplaceProfileImages = workplace.image_note.image
-    ? [workplace.image_note]
-    : workplaceAdditionalImageNotes;
 
   const unloadingPlaces = venueDataToUnloadingPlaces(venueOlmapData);
 
@@ -117,16 +107,6 @@ const VenueDialog: React.FC<VenueDialogProps> = ({
           overflow: "auto",
         }}
       >
-        <OLMapImages
-          onImageClick={() => {}}
-          olmapData={{
-            state: "success",
-            response: {
-              ...venueOlmapData.response,
-              image_notes: workplaceProfileImages,
-            },
-          }}
-        />
         {workplace.max_vehicle_height && (
           <div
             style={{
@@ -163,15 +143,6 @@ const VenueDialog: React.FC<VenueDialogProps> = ({
             style={{ marginTop: "1em" }}
             variant="outlined"
           >
-            <CardMedia
-              component="img"
-              image={workplaceEntrance.image_note.image}
-              style={{
-                width: "50%",
-                height: "auto",
-                float: "right",
-              }}
-            />
             <CardHeader
               avatar={
                 <Avatar
@@ -255,15 +226,6 @@ const VenueDialog: React.FC<VenueDialogProps> = ({
             style={{ marginTop: "1em" }}
             variant="outlined"
           >
-            <CardMedia
-              component="img"
-              image={unloadingPlace.image_note.image}
-              style={{
-                width: "50%",
-                height: "auto",
-                float: "right",
-              }}
-            />
             <CardHeader
               title={unloadingPlace.as_osm_tags["parking:condition"]}
               subheader={unloadingPlace.opening_hours}
