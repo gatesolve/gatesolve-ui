@@ -18,9 +18,9 @@ import { romanize } from "romans";
 
 import {
   NetworkState,
+  OlmapNote,
   OlmapResponse,
   OlmapUnloadingPlace,
-  OlmapWorkplaceEntrance,
 } from "../olmap";
 
 import EntranceCard from "./EntranceCard";
@@ -35,7 +35,7 @@ interface VenueDialogProps {
   onEntranceSelected: (entranceId: number) => void;
   onUnloadingPlaceSelected: (unloadingPlace: OlmapUnloadingPlace) => void;
   onCollapsingToggled: () => void;
-  onViewDetails: (workplaceEntrance: OlmapWorkplaceEntrance) => void;
+  onViewDetails: (note: OlmapNote) => void;
 }
 
 const VenueDialog: React.FC<VenueDialogProps> = ({

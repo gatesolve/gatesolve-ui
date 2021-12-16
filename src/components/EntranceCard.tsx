@@ -11,6 +11,7 @@ import {
 import "@fontsource/noto-sans/400.css";
 
 import {
+  OlmapNote,
   OlmapUnloadingPlace,
   OlmapWorkplaceEntrance,
   OlmapWorkplace,
@@ -21,8 +22,8 @@ interface EntranceCardProps {
   workplace: OlmapWorkplace;
   label: string;
   onEntranceSelected: (entranceId: number) => void;
-  onViewDetails: (workplaceEntrance: OlmapWorkplaceEntrance) => void;
   onUnloadingPlaceSelected: (unloadingPlace: OlmapUnloadingPlace) => void;
+  onViewDetails: (note: OlmapNote) => void;
 }
 
 const EntranceCard: React.FC<EntranceCardProps> = ({
@@ -123,7 +124,7 @@ const EntranceCard: React.FC<EntranceCardProps> = ({
           style={{ backgroundColor: "#ff5000", color: "#fff" }}
           type="button"
           aria-label="View details"
-          onClick={(): void => onViewDetails(workplaceEntrance)}
+          onClick={(): void => onViewDetails(workplaceEntrance.image_note)}
         >
           View details
         </Button>
@@ -162,6 +163,16 @@ const EntranceCard: React.FC<EntranceCardProps> = ({
                 onClick={(): void => onUnloadingPlaceSelected(unloadingPlace)}
               >
                 Origin
+              </Button>
+              <Button
+                variant="contained"
+                size="small"
+                style={{ backgroundColor: "#ff5000", color: "#fff" }}
+                type="button"
+                aria-label="View details"
+                onClick={(): void => onViewDetails(unloadingPlace.image_note)}
+              >
+                View details
               </Button>
             </CardActions>
           </Card>

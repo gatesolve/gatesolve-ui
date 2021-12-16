@@ -1486,11 +1486,11 @@ const App: React.FC = () => {
         open={state.venueDialogOpen}
         collapsed={state.venueDialogCollapsed}
         venueOlmapData={state.venueOlmapData}
-        onViewDetails={(workplaceEntrance) => {
+        onViewDetails={(olmapNote) => {
           setState((prevState): State => {
             return {
               ...prevState,
-              editingNote: workplaceEntrance.image_note.id,
+              editingNote: olmapNote.id,
             };
           });
         }}
