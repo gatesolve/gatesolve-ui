@@ -26,8 +26,6 @@ import "mapbox-gl/dist/mapbox-gl.css";
 import { Feature, FeatureCollection, Point, Position } from "geojson";
 import { ReactAutosuggestGeocoder } from "react-autosuggest-geocoder";
 
-import proj4 from "proj4";
-
 import {
   routePointLayer,
   routePointSymbolLayer,
@@ -67,22 +65,13 @@ import {
   venueDataToUnloadingPlaceEntrances,
   olmapNoteToElement,
 } from "./olmap";
+import { fromEpsg3879, toEpsg3879 } from "./projections";
 
 import "./App.css";
 import "./components/PinMarker.css";
 import VenueDialog from "./components/VenueDialog";
 
 const maxRoutingDistance = 200; // in meters
-
-const epsg3879 = proj4(
-  "+proj=tmerc +lat_0=0 +lon_0=25 +k=1 +x_0=25500000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
-);
-const toEpsg3879 = (position: Position): Position => {
-  return epsg3879.forward(position);
-};
-const fromEpsg3879 = (position: Position): Position => {
-  return epsg3879.inverse(position);
-};
 
 // XXX: WebMercatorViewportOptions only indirectly exported by @math.gl/web-mercator
 // XXX: TypeScript 4.3.5 confused if re-using an out-of-scope type name
