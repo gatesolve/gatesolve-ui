@@ -48,6 +48,7 @@ import {
   queryEntrances,
   queryMatchingStreet,
   ElementWithCoordinates,
+  Tags,
 } from "./overpass";
 import { addImageSVG, getMapSize } from "./mapbox-utils";
 import routableTilesToGeoJSON from "./RoutableTilesToGeoJSON";
@@ -968,6 +969,26 @@ const App: React.FC = () => {
         event.lngLat.lng,
       ]);
 
+      // If parking restriction was clicked, show details in the popup.
+      if (feature?.source === "parking") {
+        return {
+          ...prevState,
+          popupCoordinates: {
+            type: "node",
+            id: -1,
+            lat: event.lngLat.lat,
+            lon: event.lngLat.lng,
+            tags: {
+              "":
+                feature.properties["hel:luokka_nimi"] ===
+                "Pysäköinti sallittu pysäköintikieltoajan ulkopuolella"
+                  ? `Pysäköintikielto ${feature.properties["hel:voimassaolo"]}`
+                  : feature.properties["hel:tyyppi"],
+            } as Tags,
+          },
+          highlights: noHighlights,
+        };
+      }
       // If an OLMap element was clicked, show details in the popup.
       if (feature?.properties["@id"]?.startsWith("olmap")) {
         return {
