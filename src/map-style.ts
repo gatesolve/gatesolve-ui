@@ -169,6 +169,80 @@ export const parkingPoints: LayerProps = {
 
 export const parkingLayers: Array<LayerProps> = [parkingAreas, parkingPoints];
 
+const tunnelLines: LayerProps = {
+  id: "tunnel-line",
+  type: "line",
+  minzoom: 12,
+  layout: {
+    "line-cap": "round",
+    "line-join": "round",
+  },
+  paint: {
+    "line-opacity": 0.8,
+    "line-width": 3,
+    "line-color": [
+      "step",
+      ["to-number", ["get", "layer"]],
+      "#000000",
+      -4,
+      "#770000",
+      -3,
+      "#ff0000",
+      -2,
+      "#ff7700",
+      -1,
+      "#ffff00",
+    ],
+  },
+};
+
+const tunnelPoints: LayerProps = {
+  id: "tunnel-point",
+  type: "circle",
+  minzoom: 12,
+  paint: {
+    "circle-radius": [
+      "interpolate",
+      ["linear"],
+      ["zoom"],
+      12, // At zoom 12 or less,
+      1, // circle radius is 1.
+      14, // At zoom 14,
+      2, // circle radius is 2.
+      15, // At zoom 15 or more,
+      5, // circle radius is 5.
+    ],
+    "circle-opacity": 0.8,
+    "circle-color": "#000000",
+  },
+  filter: ["==", "Point", ["geometry-type"]],
+};
+
+const tunnelPointSymbols: LayerProps = {
+  id: "tunnel-point-symbol",
+  type: "symbol",
+  minzoom: 12,
+  paint: {
+    "text-color": "#000",
+    "text-halo-color": "#fff",
+    "text-halo-width": 1,
+  },
+  layout: {
+    "text-field": coalesce(get("name"), get("ref"), get("description"), ""),
+    "text-anchor": "right",
+    "text-font": ["Klokantech Noto Sans Regular"],
+    "text-size": 12,
+    "text-offset": [-0.5, 0],
+  },
+  filter: ["==", "Point", ["geometry-type"]],
+};
+
+export const tunnelLayers: Array<LayerProps> = [
+  tunnelLines,
+  tunnelPoints,
+  tunnelPointSymbols,
+];
+
 const entrancePoints: LayerProps = {
   id: "entrance-point",
   type: "circle",

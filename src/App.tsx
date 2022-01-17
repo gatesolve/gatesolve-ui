@@ -35,6 +35,7 @@ import {
   allEntrancesLayers,
   venueLayers,
   parkingLayers,
+  tunnelLayers,
 } from "./map-style";
 import Pin, { pinAsSVG } from "./components/Pin";
 import { triangleAsSVG, triangleDotAsSVG } from "./components/Triangle";
@@ -47,6 +48,7 @@ import {
   queryNodesById,
   queryEntrances,
   queryMatchingStreet,
+  queryTunnels,
   ElementWithCoordinates,
   Tags,
 } from "./overpass";
@@ -106,6 +108,7 @@ interface State {
   venueFeatures: FeatureCollection;
   unloadingPlace?: OlmapUnloadingPlace;
   parkingData?: FeatureCollection;
+  tunnelData?: FeatureCollection;
 }
 
 const latLngToElement = (latLng: LatLng): ElementWithCoordinates => ({
@@ -438,6 +441,27 @@ const App: React.FC = () => {
     })().catch((error) => {
       // eslint-disable-next-line no-console
       console.error("Error while fetching parking data:", error);
+    });
+  }, [map.current, state.viewport]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Fetch new data for the tunnel layer when viewport changes
+  useEffect(() => {
+    (async () => {
+      if (!map.current || !state.viewport.zoom) {
+        return; // Nothing to do yet
+      }
+      if (state.viewport.zoom < 12) return; // minzoom
+
+      const bounds = map.current.getMap().getBounds();
+      const bbox = `${bounds.getWest()},${bounds.getSouth()},${bounds.getEast()},${bounds.getNorth()}`;
+      const tunnelData = await queryTunnels(bbox);
+      setState((prevState) => ({
+        ...prevState,
+        tunnelData,
+      }));
+    })().catch((error) => {
+      // eslint-disable-next-line no-console
+      console.error("Error while fetching tunnel data:", error);
     });
   }, [map.current, state.viewport]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -1362,6 +1386,16 @@ const App: React.FC = () => {
               {...layer}
               key={layer.id}
               source="parking"
+            />
+          ))}
+        </Source>
+        <Source id="tunnels" type="geojson" data={state.tunnelData}>
+          {tunnelLayers.map((layer) => (
+            <Layer
+              // eslint-disable-next-line react/jsx-props-no-spreading
+              {...layer}
+              key={layer.id}
+              source="tunnels"
             />
           ))}
         </Source>
