@@ -111,6 +111,7 @@ interface State {
   parkingData?: FeatureCollection;
   tunnelData?: FeatureCollection;
   showTunnels: boolean;
+  restrictions?: Array<ElementWithCoordinates>;
 }
 
 const latLngToElement = (latLng: LatLng): ElementWithCoordinates => ({
@@ -1713,6 +1714,7 @@ const App: React.FC = () => {
         open={state.venueDialogOpen}
         collapsed={state.venueDialogCollapsed}
         venueOlmapData={state.venueOlmapData}
+        restrictions={state.route}
         onViewDetails={(olmapNote) => {
           setState((prevState): State => {
             return {
@@ -1790,6 +1792,12 @@ const App: React.FC = () => {
             venueDialogCollapsed: !state.venueDialogCollapsed,
           }))
         }
+        onRestrictionSelected={(feature) => {
+          setState((prevState) => ({
+            ...prevState,
+            popupCoordinates: geoJsonToElement(feature),
+          }));
+        }}
       />
     </div>
   );
