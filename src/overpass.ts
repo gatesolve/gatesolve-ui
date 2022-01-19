@@ -1,4 +1,6 @@
-import type { Feature, FeatureCollection, MultiLineString } from "geojson";
+import type { FeatureCollection, MultiLineString } from "geojson";
+
+import osmtogeojson from "osmtogeojson";
 
 const OVERPASS_INTERPRETER =
   process.env.REACT_APP_OVERPASS_INTERPRETER?.replace(/\?$/, "") ||
@@ -158,8 +160,9 @@ const buildTunnelsQuery = () => `
   node[layer~"^-[123456789]"][entrance];
   node[layer~"^-[123456789]"]["parking:condition"=loading];
 );
-convert item ::=::,::geom=geom(),_osm_type=type();
-out geom;
+out body;
+>;
+out skel qt;
 `;
 
 export const queryTunnels = async (
@@ -170,17 +173,17 @@ export const queryTunnels = async (
   url.searchParams.append("bbox", bbox);
   const response = await fetch(url.toString());
   const body = (await response.json()) as OverpassResponse;
-  const items = body.elements as Array<ElementWithCoordinates & Feature>;
-  const features = items.map(
-    (item) =>
-      ({
-        type: "Feature",
-        geometry: item.geometry,
-        properties: item?.tags,
-      } as Feature)
-  );
+  const geojson = osmtogeojson(body) as FeatureCollection;
   return {
-    type: "FeatureCollection",
-    features,
+    ...geojson,
+    features: geojson.features.map((feature) => {
+      const properties = { ...feature.properties };
+      properties["@id"] = properties.id;
+      delete properties.id;
+      return {
+        ...feature,
+        properties,
+      };
+    }),
   };
 };

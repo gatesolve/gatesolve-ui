@@ -1036,8 +1036,11 @@ const App: React.FC = () => {
           editingNote: feature.properties["@id"].split("/").reverse()[0],
         };
       }
-      // If an entrance was clicked, show details in the popup.
-      if (feature?.properties.entrance) {
+      // If an entrance or a loading place was clicked, show details in the popup.
+      if (
+        feature?.properties.entrance ||
+        feature?.properties["parking:condition"] === "loading"
+      ) {
         const element = geoJsonToElement(feature);
         return {
           ...prevState,
