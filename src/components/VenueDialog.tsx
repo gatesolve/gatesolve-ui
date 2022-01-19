@@ -85,33 +85,15 @@ const VenueDialog: React.FC<VenueDialogProps> = ({
         >
           {collapsed ? <ExpandIcon /> : <CollapseIcon />}
         </IconButton>
-        {workplace.as_osm_tags.name}
-        <IconButton
-          style={{
-            position: "absolute",
-            top: "8px",
-            right: "8px",
-          }}
-          onClick={onClose}
-        >
-          <CloseIcon />
-        </IconButton>
-      </DialogTitle>
-      <DialogContent
-        style={{
-          display: collapsed ? "none" : "block",
-          overflow: "auto",
-          textAlign: "left",
-          paddingTop: 0,
-        }}
-      >
         {workplace.max_vehicle_height && (
           <div
             style={{
-              float: "left",
+              display: "inline-block",
               position: "relative",
               width: "2em",
               height: "2em",
+              verticalAlign: "middle",
+              marginRight: "0.5em",
             }}
           >
             <HeightLimitSign style={{ width: "100%", height: "100%" }} />
@@ -132,6 +114,26 @@ const VenueDialog: React.FC<VenueDialogProps> = ({
             </div>
           </div>
         )}
+        {workplace.as_osm_tags.name}
+        <IconButton
+          style={{
+            position: "absolute",
+            top: "8px",
+            right: "8px",
+          }}
+          onClick={onClose}
+        >
+          <CloseIcon />
+        </IconButton>
+      </DialogTitle>
+      <DialogContent
+        style={{
+          display: collapsed ? "none" : "block",
+          overflow: "auto",
+          textAlign: "left",
+          paddingTop: 0,
+        }}
+      >
         <Typography variant="body2" color="textSecondary" component="p">
           {workplace.delivery_instructions}
         </Typography>
