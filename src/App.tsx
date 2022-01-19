@@ -35,6 +35,7 @@ import {
   allEntrancesLayers,
   venueLayers,
   parkingLayers,
+  tunnelLayers,
 } from "./map-style";
 import Pin, { pinAsSVG } from "./components/Pin";
 import { triangleAsSVG, triangleDotAsSVG } from "./components/Triangle";
@@ -42,11 +43,13 @@ import OLMapDialog from "./components/OLMapDialog";
 import OLMapImages from "./components/OLMapImages";
 import UserPosition from "./components/UserPosition";
 import GeolocateControl from "./components/GeolocateControl";
+import TunnelsControl from "./components/TunnelsControl";
 import calculatePlan, { geometryToGeoJSON } from "./planner";
 import {
   queryNodesById,
   queryEntrances,
   queryMatchingStreet,
+  queryTunnels,
   ElementWithCoordinates,
   Tags,
 } from "./overpass";
@@ -106,6 +109,8 @@ interface State {
   venueFeatures: FeatureCollection;
   unloadingPlace?: OlmapUnloadingPlace;
   parkingData?: FeatureCollection;
+  tunnelData?: FeatureCollection;
+  showTunnels: boolean;
 }
 
 const latLngToElement = (latLng: LatLng): ElementWithCoordinates => ({
@@ -156,6 +161,7 @@ const initialState: State = {
   venueDialogOpen: false,
   venueDialogCollapsed: false,
   venueFeatures: emptyFeatureCollection,
+  showTunnels: false,
 };
 
 const metropolitanAreaCenter = [60.17066815612902, 24.941510260105133];
@@ -440,6 +446,28 @@ const App: React.FC = () => {
       console.error("Error while fetching parking data:", error);
     });
   }, [map.current, state.viewport]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Fetch new data for the tunnel layer when viewport changes
+  useEffect(() => {
+    (async () => {
+      if (!map.current || !state.viewport.zoom) {
+        return; // Nothing to do yet
+      }
+      if (state.viewport.zoom < 12) return; // minzoom
+      if (!state.showTunnels) return;
+
+      const bounds = map.current.getMap().getBounds();
+      const bbox = `${bounds.getWest()},${bounds.getSouth()},${bounds.getEast()},${bounds.getNorth()}`;
+      const tunnelData = await queryTunnels(bbox);
+      setState((prevState) => ({
+        ...prevState,
+        tunnelData,
+      }));
+    })().catch((error) => {
+      // eslint-disable-next-line no-console
+      console.error("Error while fetching tunnel data:", error);
+    });
+  }, [map.current, state.viewport, state.showTunnels]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     /**
@@ -1008,8 +1036,11 @@ const App: React.FC = () => {
           editingNote: feature.properties["@id"].split("/").reverse()[0],
         };
       }
-      // If an entrance was clicked, show details in the popup.
-      if (feature?.properties.entrance) {
+      // If an entrance or a loading place was clicked, show details in the popup.
+      if (
+        feature?.properties.entrance ||
+        feature?.properties["parking:condition"] === "loading"
+      ) {
         const element = geoJsonToElement(feature);
         return {
           ...prevState,
@@ -1324,6 +1355,16 @@ const App: React.FC = () => {
           }}
           onGeolocate={onGeolocate}
         />
+        <TunnelsControl
+          dataTestId="tunnels-control"
+          enabled={state.showTunnels}
+          setEnabled={(enabled: boolean): void => {
+            setState((prevState) => ({
+              ...prevState,
+              showTunnels: enabled,
+            }));
+          }}
+        />
         {state.geolocationPosition != null && (
           <Marker
             offset={[-20, -20]}
@@ -1355,7 +1396,11 @@ const App: React.FC = () => {
               </Source>
             )
         )}
-        <Source id="parking" type="geojson" data={state.parkingData}>
+        <Source
+          id="parking"
+          type="geojson"
+          data={state.parkingData || emptyFeatureCollection}
+        >
           {parkingLayers.map((layer) => (
             <Layer
               // eslint-disable-next-line react/jsx-props-no-spreading
@@ -1364,6 +1409,21 @@ const App: React.FC = () => {
               source="parking"
             />
           ))}
+        </Source>
+        <Source
+          id="tunnels"
+          type="geojson"
+          data={state.tunnelData || emptyFeatureCollection}
+        >
+          {state.showTunnels &&
+            tunnelLayers.map((layer) => (
+              <Layer
+                // eslint-disable-next-line react/jsx-props-no-spreading
+                {...layer}
+                key={layer.id}
+                source="tunnels"
+              />
+            ))}
         </Source>
         <Source id="highlights" type="geojson" data={state.highlights}>
           <Layer

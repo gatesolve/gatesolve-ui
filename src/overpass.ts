@@ -1,4 +1,6 @@
-import type { MultiLineString } from "geojson";
+import type { FeatureCollection, MultiLineString } from "geojson";
+
+import osmtogeojson from "osmtogeojson";
 
 const OVERPASS_INTERPRETER =
   process.env.REACT_APP_OVERPASS_INTERPRETER?.replace(/\?$/, "") ||
@@ -148,4 +150,40 @@ export const queryNodesById = async (
   const response = await fetch(url.toString());
   const body = (await response.json()) as OverpassResponse;
   return body.elements as Array<ElementWithCoordinates>;
+};
+
+const buildTunnelsQuery = () => `
+[out:json][timeout:25][bbox];
+(
+  way[layer~"^-[123456789]"][highway!~"^(footway|steps|corridor|cycleway)"][highway][tunnel];
+  node[layer~"^-[123456789]"][barrier=gate];
+  node[layer~"^-[123456789]"][entrance];
+  node[layer~"^-[123456789]"]["parking:condition"=loading];
+);
+out body;
+>;
+out skel qt;
+`;
+
+export const queryTunnels = async (
+  bbox: string
+): Promise<FeatureCollection> => {
+  const url = new URL(OVERPASS_INTERPRETER);
+  url.searchParams.append("data", buildTunnelsQuery());
+  url.searchParams.append("bbox", bbox);
+  const response = await fetch(url.toString());
+  const body = (await response.json()) as OverpassResponse;
+  const geojson = osmtogeojson(body) as FeatureCollection;
+  return {
+    ...geojson,
+    features: geojson.features.map((feature) => {
+      const properties = { ...feature.properties };
+      properties["@id"] = properties.id;
+      delete properties.id;
+      return {
+        ...feature,
+        properties,
+      };
+    }),
+  };
 };

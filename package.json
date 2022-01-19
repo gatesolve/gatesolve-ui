@@ -26,6 +26,7 @@
     "@urbica/react-map-gl": "^1.14.3",
     "mapbox-gl": "^1.13.1",
     "notistack": "^1.0.10",
+    "osmtogeojson": "^3.0.0-beta.4",
     "plannerjs": "https://github.com/gatesolve/planner.js#build-for-gatesolve",
     "proj4": "^2.7.5",
     "react": "^17.0.2",
