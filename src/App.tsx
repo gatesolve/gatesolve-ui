@@ -75,7 +75,7 @@ import "./App.css";
 import "./components/PinMarker.css";
 import VenueDialog from "./components/VenueDialog";
 
-const maxRoutingDistance = 200; // in meters
+const maxRoutingDistance = 500; // in meters
 
 // XXX: WebMercatorViewportOptions only indirectly exported by @math.gl/web-mercator
 // XXX: TypeScript 4.3.5 confused if re-using an out-of-scope type name
