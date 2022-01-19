@@ -43,6 +43,7 @@ import OLMapDialog from "./components/OLMapDialog";
 import OLMapImages from "./components/OLMapImages";
 import UserPosition from "./components/UserPosition";
 import GeolocateControl from "./components/GeolocateControl";
+import TunnelsControl from "./components/TunnelsControl";
 import calculatePlan, { geometryToGeoJSON } from "./planner";
 import {
   queryNodesById,
@@ -109,6 +110,7 @@ interface State {
   unloadingPlace?: OlmapUnloadingPlace;
   parkingData?: FeatureCollection;
   tunnelData?: FeatureCollection;
+  showTunnels: boolean;
 }
 
 const latLngToElement = (latLng: LatLng): ElementWithCoordinates => ({
@@ -159,6 +161,7 @@ const initialState: State = {
   venueDialogOpen: false,
   venueDialogCollapsed: false,
   venueFeatures: emptyFeatureCollection,
+  showTunnels: false,
 };
 
 const metropolitanAreaCenter = [60.17066815612902, 24.941510260105133];
@@ -451,6 +454,7 @@ const App: React.FC = () => {
         return; // Nothing to do yet
       }
       if (state.viewport.zoom < 12) return; // minzoom
+      if (!state.showTunnels) return;
 
       const bounds = map.current.getMap().getBounds();
       const bbox = `${bounds.getWest()},${bounds.getSouth()},${bounds.getEast()},${bounds.getNorth()}`;
@@ -463,7 +467,7 @@ const App: React.FC = () => {
       // eslint-disable-next-line no-console
       console.error("Error while fetching tunnel data:", error);
     });
-  }, [map.current, state.viewport]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [map.current, state.viewport, state.showTunnels]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     /**
@@ -1348,6 +1352,16 @@ const App: React.FC = () => {
           }}
           onGeolocate={onGeolocate}
         />
+        <TunnelsControl
+          dataTestId="tunnels-control"
+          enabled={state.showTunnels}
+          setEnabled={(enabled: boolean): void => {
+            setState((prevState) => ({
+              ...prevState,
+              showTunnels: enabled,
+            }));
+          }}
+        />
         {state.geolocationPosition != null && (
           <Marker
             offset={[-20, -20]}
@@ -1379,7 +1393,11 @@ const App: React.FC = () => {
               </Source>
             )
         )}
-        <Source id="parking" type="geojson" data={state.parkingData}>
+        <Source
+          id="parking"
+          type="geojson"
+          data={state.parkingData || emptyFeatureCollection}
+        >
           {parkingLayers.map((layer) => (
             <Layer
               // eslint-disable-next-line react/jsx-props-no-spreading
@@ -1389,15 +1407,20 @@ const App: React.FC = () => {
             />
           ))}
         </Source>
-        <Source id="tunnels" type="geojson" data={state.tunnelData}>
-          {tunnelLayers.map((layer) => (
-            <Layer
-              // eslint-disable-next-line react/jsx-props-no-spreading
-              {...layer}
-              key={layer.id}
-              source="tunnels"
-            />
-          ))}
+        <Source
+          id="tunnels"
+          type="geojson"
+          data={state.tunnelData || emptyFeatureCollection}
+        >
+          {state.showTunnels &&
+            tunnelLayers.map((layer) => (
+              <Layer
+                // eslint-disable-next-line react/jsx-props-no-spreading
+                {...layer}
+                key={layer.id}
+                source="tunnels"
+              />
+            ))}
         </Source>
         <Source id="highlights" type="geojson" data={state.highlights}>
           <Layer
