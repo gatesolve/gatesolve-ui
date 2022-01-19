@@ -971,6 +971,22 @@ const App: React.FC = () => {
 
       // If parking restriction was clicked, show details in the popup.
       if (feature?.source === "parking") {
+        const tags = {} as Record<string, string>;
+
+        if (
+          feature.properties["hel:luokka_nimi"] ===
+          "Pysäköinti sallittu pysäköintikieltoajan ulkopuolella"
+        ) {
+          tags["Pysäköintikielto"] =
+            feature.properties["hel:voimassaolo"] || "";
+        } else {
+          tags[feature.properties["hel:tyyppi"]] = "";
+        }
+
+        if (feature.properties["hel:paikat_ala"]) {
+          tags["Henkilöautoja"] = feature.properties["hel:paikat_ala"];
+        }
+
         return {
           ...prevState,
           popupCoordinates: {
@@ -978,13 +994,7 @@ const App: React.FC = () => {
             id: -1,
             lat: event.lngLat.lat,
             lon: event.lngLat.lng,
-            tags: {
-              "":
-                feature.properties["hel:luokka_nimi"] ===
-                "Pysäköinti sallittu pysäköintikieltoajan ulkopuolella"
-                  ? `Pysäköintikielto ${feature.properties["hel:voimassaolo"]}`
-                  : feature.properties["hel:tyyppi"],
-            } as Tags,
+            tags: tags as Tags,
           },
           highlights: noHighlights,
         };
