@@ -135,6 +135,40 @@ export const buildingHighlightLayer: LayerProps = {
   },
 };
 
+const parkingAreas: LayerProps = {
+  id: "parking-area",
+  type: "fill",
+  minzoom: 12,
+  paint: {
+    "fill-opacity": 0.5,
+    "fill-color": "#00afff",
+  },
+};
+
+export const parkingPoints: LayerProps = {
+  id: "parking-point",
+  type: "circle",
+  minzoom: 12,
+  paint: {
+    "circle-radius": [
+      "interpolate",
+      ["linear"],
+      ["zoom"],
+      12, // At zoom 12 or less,
+      1, // circle radius is 1.
+      14, // At zoom 14,
+      2, // circle radius is 2.
+      15, // At zoom 15 or more,
+      5, // circle radius is 5.
+    ],
+    "circle-opacity": 0.8,
+    "circle-color": "#00afff",
+  },
+  filter: ["==", "Point", ["geometry-type"]],
+};
+
+export const parkingLayers: Array<LayerProps> = [parkingAreas, parkingPoints];
+
 const entrancePoints: LayerProps = {
   id: "entrance-point",
   type: "circle",

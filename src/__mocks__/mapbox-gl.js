@@ -8,6 +8,11 @@ LngLatBounds.prototype.toArray = () => [
   [180, 90],
 ];
 
+LngLatBounds.prototype.getWest = () => -180;
+LngLatBounds.prototype.getEast = () => 180;
+LngLatBounds.prototype.getNorth = () => 90;
+LngLatBounds.prototype.getSouth = () => -90;
+
 // Map
 function Map() {
   this._sources = {};

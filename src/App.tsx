@@ -23,7 +23,7 @@ import {
 import { MapboxGeoJSONFeature } from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 // eslint-disable-next-line import/no-extraneous-dependencies
-import { Feature, FeatureCollection, Point } from "geojson";
+import { Feature, FeatureCollection, Point, Position } from "geojson";
 import { ReactAutosuggestGeocoder } from "react-autosuggest-geocoder";
 
 import {
@@ -34,6 +34,7 @@ import {
   buildingHighlightLayer,
   allEntrancesLayers,
   venueLayers,
+  parkingLayers,
 } from "./map-style";
 import Pin, { pinAsSVG } from "./components/Pin";
 import { triangleAsSVG, triangleDotAsSVG } from "./components/Triangle";
@@ -47,6 +48,7 @@ import {
   queryEntrances,
   queryMatchingStreet,
   ElementWithCoordinates,
+  Tags,
 } from "./overpass";
 import { addImageSVG, getMapSize } from "./mapbox-utils";
 import routableTilesToGeoJSON from "./RoutableTilesToGeoJSON";
@@ -64,6 +66,7 @@ import {
   venueDataToUnloadingPlaceEntrances,
   olmapNoteToElement,
 } from "./olmap";
+import { fromEpsg3879, toEpsg3879 } from "./projections";
 
 import "./App.css";
 import "./components/PinMarker.css";
@@ -102,6 +105,7 @@ interface State {
   venueDialogCollapsed: boolean;
   venueFeatures: FeatureCollection;
   unloadingPlace?: OlmapUnloadingPlace;
+  parkingData?: FeatureCollection;
 }
 
 const latLngToElement = (latLng: LatLng): ElementWithCoordinates => ({
@@ -338,6 +342,104 @@ const App: React.FC = () => {
     });
   }, [map.current, state.viewport]); // eslint-disable-line react-hooks/exhaustive-deps
   // XXX: state.routableTiles is missing above as we only use it as a cache here
+
+  // Fetch new data for the parking layer when viewport changes
+  useEffect(() => {
+    (async () => {
+      if (!map.current || !state.viewport.zoom) {
+        return; // Nothing to do yet
+      }
+      if (state.viewport.zoom < 12) return; // minzoom
+
+      const fetchGeoJSON = async (
+        layername: string,
+        bbox: string,
+        ibbox: string
+      ): Promise<FeatureCollection> => {
+        const response = await fetch(
+          "https://api.olmap.org/kartta.hel.fi/maps/featureloader.ashx",
+          {
+            method: "POST",
+            body: new URLSearchParams({
+              request: "select",
+              id: layername,
+              resolution: "1",
+              params: "{}",
+              where: `BBOX 'ENVELOPE(${ibbox})'`,
+              sort: "",
+              gproj: "",
+              aproj: "",
+              maxfeatures: "50000",
+              skipfeatures: "",
+              ibbox,
+              capfeatures: "1",
+              outputType: "geojson",
+              srs: "EPSG:3879",
+            }),
+          }
+        );
+        const data = (await response.json()) as FeatureCollection;
+        return data;
+      };
+
+      const bounds = map.current.getMap().getBounds();
+      const bbox = `${bounds.getWest()},${bounds.getSouth()},${bounds.getEast()},${bounds.getNorth()}`;
+      const southWest = toEpsg3879([bounds.getWest(), bounds.getSouth()]);
+      const northEast = toEpsg3879([bounds.getEast(), bounds.getNorth()]);
+      const ibbox = `${Math.floor(southWest[0])},${Math.floor(
+        southWest[1]
+      )},${Math.floor(northEast[0])},${Math.floor(northEast[1])}`;
+      const layernames = [
+        "pysakointipaikat_kuormauspaikat",
+        "pysakointipaikat_pysakointikielto",
+        "pysakointipaikat_sallitut_kiellon_ulkopuolella",
+      ];
+      const layers = await Promise.all(
+        layernames.map((layername) => fetchGeoJSON(layername, bbox, ibbox))
+      );
+      const features = emptyFeatureCollection.features.concat(
+        ...layers.map((layer) => layer.features)
+      );
+      const projectedFeatures = features.map((feature) => {
+        if (feature.geometry.type === "Point") {
+          return {
+            ...feature,
+            geometry: {
+              ...feature.geometry,
+              coordinates: fromEpsg3879(feature.geometry.coordinates),
+            },
+          };
+        }
+        if (feature.geometry.type === "Polygon") {
+          return {
+            ...feature,
+            geometry: {
+              ...feature.geometry,
+              coordinates: feature.geometry.coordinates.map(
+                (ring: Position[]): Position[] =>
+                  ring.map(
+                    (position: Position): Position => fromEpsg3879(position)
+                  )
+              ),
+            },
+          };
+        }
+        return feature; // XXX other geometry types not projected
+      });
+      const parkingData = {
+        type: "FeatureCollection",
+        features: projectedFeatures,
+      } as FeatureCollection;
+
+      setState((prevState) => ({
+        ...prevState,
+        parkingData,
+      }));
+    })().catch((error) => {
+      // eslint-disable-next-line no-console
+      console.error("Error while fetching parking data:", error);
+    });
+  }, [map.current, state.viewport]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     /**
@@ -867,6 +969,38 @@ const App: React.FC = () => {
         event.lngLat.lng,
       ]);
 
+      // If parking restriction was clicked, show details in the popup.
+      if (feature?.source === "parking") {
+        const tags = {} as Record<string, string>;
+
+        if (
+          feature.properties["hel:luokka_nimi"] ===
+          "Pysäköinti sallittu pysäköintikieltoajan ulkopuolella"
+        ) {
+          tags["Pysäköintikielto"] =
+            feature.properties["hel:voimassaolo"] || "";
+        } else {
+          tags[feature.properties["hel:tyyppi"]] = "";
+        }
+
+        if (feature.properties["hel:paikat_ala"]) {
+          tags["Henkilöautoja"] = feature.properties["hel:paikat_ala"];
+        }
+
+        tags["ID"] = feature.properties["hel:id"];
+
+        return {
+          ...prevState,
+          popupCoordinates: {
+            type: "node",
+            id: -1,
+            lat: event.lngLat.lat,
+            lon: event.lngLat.lng,
+            tags: tags as Tags,
+          },
+          highlights: noHighlights,
+        };
+      }
       // If an OLMap element was clicked, show details in the popup.
       if (feature?.properties["@id"]?.startsWith("olmap")) {
         return {
@@ -1221,6 +1355,16 @@ const App: React.FC = () => {
               </Source>
             )
         )}
+        <Source id="parking" type="geojson" data={state.parkingData}>
+          {parkingLayers.map((layer) => (
+            <Layer
+              // eslint-disable-next-line react/jsx-props-no-spreading
+              {...layer}
+              key={layer.id}
+              source="parking"
+            />
+          ))}
+        </Source>
         <Source id="highlights" type="geojson" data={state.highlights}>
           <Layer
             // eslint-disable-next-line react/jsx-props-no-spreading
