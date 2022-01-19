@@ -987,6 +987,8 @@ const App: React.FC = () => {
           tags["Henkilöautoja"] = feature.properties["hel:paikat_ala"];
         }
 
+        tags["ID"] = feature.properties["hel:id"];
+
         return {
           ...prevState,
           popupCoordinates: {
