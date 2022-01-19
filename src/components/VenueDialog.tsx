@@ -193,7 +193,7 @@ const VenueDialog: React.FC<VenueDialogProps> = ({
               </button>
             ))}
         <Typography variant="body2" color="textSecondary" component="p">
-          {workplace.delivery_instructions}
+          {workplace.delivery_instructions_translated}
         </Typography>
         <div style={{ clear: "both" }} />
         {workplaceEntrances.map((workplaceEntrance, index) => (

@@ -51,6 +51,7 @@ export interface OlmapWorkplace {
   type: number;
   delivery_hours: string;
   delivery_instructions: string;
+  delivery_instructions_translated: string;
   workplace_entrances: Array<OlmapWorkplaceEntrance>;
   image_note: OlmapNote;
   max_vehicle_height: string;
@@ -59,12 +60,14 @@ export interface OlmapWorkplace {
 export interface OlmapWorkplaceEntrance {
   id: number;
   description: string;
+  description_translated: string;
   deliveries: "main" | "yes" | "no" | "" | null;
   delivery_types: Array<string>;
   image_note: OlmapNote;
   entrance_data: OlmapEntranceData;
   delivery_hours: string;
   delivery_instructions: string;
+  delivery_instructions_translated: string;
   workplace: number;
   entrance: number;
   unloading_places: Array<OlmapUnloadingPlace>;
@@ -80,6 +83,7 @@ export interface OlmapUnloadingPlace {
   osm_feature: number;
   image_note: OlmapNote;
   description: string;
+  description_translated: string;
   opening_hours: string;
   entrances: Array<number>;
   access_points: Array<{ lat: number; lon: number }>;
@@ -131,7 +135,7 @@ export const fetchOlmapData = async (
   }
   try {
     const response = await fetch(
-      `https://api.olmap.org/rest/osm_features/${osmId}/`
+      `https://api.olmap.org/rest/osm_features/${osmId}/?language=en`
     );
     try {
       const data = await response.json();
