@@ -1467,6 +1467,7 @@ const App: React.FC = () => {
             open={state.popupCoordinates != null}
             latitude={state.popupCoordinates?.lat || null}
             longitude={state.popupCoordinates?.lon || null}
+            maxWidth="260px"
             closeButton={false}
             closeOnClick={false}
           >
@@ -1612,6 +1613,28 @@ const App: React.FC = () => {
                 }
               >
                 Destination
+              </Button>
+              <span style={{ padding: "5px" }} />
+              <Button
+                data-testid="google-maps-button"
+                variant="contained"
+                size="small"
+                style={{ backgroundColor: "#db4437", color: "#fff" }}
+                type="button"
+                aria-label="Open Google Maps"
+                target="_blank"
+                rel="noreferrer"
+                href={`https://www.google.com/maps/dir/?api=1&destination=${state?.popupCoordinates.lat},${state?.popupCoordinates.lon}&travelmode=driving`}
+                onClick={(): void =>
+                  setState((prevState): State => {
+                    return {
+                      ...prevState,
+                      popupCoordinates: null,
+                    };
+                  })
+                }
+              >
+                Google
               </Button>
             </div>
           </Popup>
