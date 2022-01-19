@@ -1467,6 +1467,7 @@ const App: React.FC = () => {
             open={state.popupCoordinates != null}
             latitude={state.popupCoordinates?.lat || null}
             longitude={state.popupCoordinates?.lon || null}
+            maxWidth="260px"
             closeButton={false}
             closeOnClick={false}
           >
