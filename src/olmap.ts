@@ -128,14 +128,15 @@ const processOlmapData = (data: OlmapResponse): OlmapResponse => {
 };
 
 export const fetchOlmapData = async (
-  osmId: number
+  osmId: number,
+  locale: string
 ): Promise<NetworkState<OlmapResponse> | undefined> => {
   if (osmId === -1) {
     return undefined;
   }
   try {
     const response = await fetch(
-      `https://api.olmap.org/rest/osm_features/${osmId}/?language=en`
+      `https://api.olmap.org/rest/osm_features/${osmId}/?language=${locale}`
     );
     try {
       const data = await response.json();
