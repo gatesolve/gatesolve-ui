@@ -5,6 +5,7 @@ import {
   DialogContent,
   Typography,
   Drawer,
+  NativeSelect,
 } from "@material-ui/core";
 import "@fontsource/noto-sans/400.css";
 
@@ -39,13 +40,20 @@ interface VenueDialogProps {
   collapsed: boolean;
   venueOlmapData?: NetworkState<OlmapResponse>;
   restrictions?: FeatureCollection;
+  locale: string;
   onClose: () => void;
   onEntranceSelected: (entranceId: number) => void;
   onUnloadingPlaceSelected: (unloadingPlace: OlmapUnloadingPlace) => void;
   onCollapsingToggled: () => void;
   onViewDetails: (note: OlmapNote) => void;
   onRestrictionSelected: (element: Feature<Point>) => void;
+  onLocaleSelected: (locale: string) => void;
 }
+
+const localesAvailable =
+  "English|en,Finnish|fi,Swedish|sv,Afrikaans|af,Albanian|sq,Amharic|am,Arabic|ar,Armenian|hy,Azerbaijani|az,Basque|eu,Belarusian|be,Bengali|bn,Bosnian|bs,Bulgarian|bg,Catalan|ca,Cebuano|ceb,Chinese (Simplified)|zh-CN,Chinese (Traditional)|zh-TW,Corsican|co,Croatian|hr,Czech|cs,Danish|da,Dutch|nl,Esperanto|eo,Estonian|et,French|fr,Frisian|fy,Galician|gl,Georgian|ka,German|de,Greek|el,Gujarati|gu,Haitian Creole|ht,Hausa|ha,Hawaiian|haw,Hebrew|he,Hindi|hi,Hmong|hmn,Hungarian|hu,Icelandic|is,Igbo|ig,Indonesian|id,Irish|ga,Italian|it,Japanese|ja,Javanese|jv,Kannada|kn,Kazakh|kk,Khmer|km,Kinyarwanda|rw,Korean|ko,Kurdish|ku,Kyrgyz|ky,Lao|lo,Latvian|lv,Lithuanian|lt,Luxembourgish|lb,Macedonian|mk,Malagasy|mg,Malay|ms,Malayalam|ml,Maltese|mt,Maori|mi,Marathi|mr,Mongolian|mn,Myanmar (Burmese)|my,Nepali|ne,Norwegian|no,Nyanja (Chichewa)|ny,Odia (Oriya)|or,Pashto|ps,Persian|fa,Polish|pl,Portuguese (Portugal, Brazil)|pt,Punjabi|pa,Romanian|ro,Russian|ru,Samoan|sm,Scots Gaelic|gd,Serbian|sr,Sesotho|st,Shona|sn,Sindhi|sd,Sinhala (Sinhalese)|si,Slovak|sk,Slovenian|sl,Somali|so,Spanish|es,Sundanese|su,Swahili|sw,Tagalog (Filipino)|tl,Tajik|tg,Tamil|ta,Tatar|tt,Telugu|te,Thai|th,Turkish|tr,Turkmen|tk,Ukrainian|uk,Urdu|ur,Uyghur|ug,Uzbek|uz,Vietnamese|vi,Welsh|cy,Xhosa|xh,Yiddish|yi,Yoruba|yo,Zulu|zu"
+    .split(",")
+    .map((entry) => entry.split("|"));
 
 const getHeightRestriction = (
   tags: GeoJsonProperties
@@ -55,17 +63,56 @@ const getHeightRestriction = (
   return restriction as number | string | undefined;
 };
 
+const translatedText = (
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  record: any,
+  fieldName: string,
+  onLocaleSelected: (locale: string) => void
+) => {
+  return (
+    <>
+      {record[`${fieldName}_translated`]}
+      {record[`${fieldName}_translated`] !== record[fieldName] && (
+        <span>
+          {" "}
+          {
+            // eslint-disable-next-line jsx-a11y/anchor-is-valid
+            <a
+              href="#"
+              style={{
+                display: "inline",
+                color: "#aaa",
+                background: "none",
+                border: "none",
+                textDecoration: "none",
+              }}
+              onClick={(event): void => {
+                event.preventDefault();
+                onLocaleSelected(record[`${fieldName}_language`]);
+              }}
+            >
+              Translated by Google. View original.
+            </a>
+          }
+        </span>
+      )}
+    </>
+  );
+};
+
 const VenueDialog: React.FC<VenueDialogProps> = ({
   open,
   collapsed,
   venueOlmapData,
   restrictions,
+  locale,
   onClose,
   onEntranceSelected,
   onUnloadingPlaceSelected,
   onCollapsingToggled,
   onViewDetails,
   onRestrictionSelected,
+  onLocaleSelected,
 }) => {
   if (
     venueOlmapData?.state !== "success" ||
@@ -153,6 +200,27 @@ const VenueDialog: React.FC<VenueDialogProps> = ({
           paddingTop: 0,
         }}
       >
+        <div style={{ float: "right" }}>
+          <NativeSelect
+            inputProps={{
+              id: "locale",
+              name: "locale",
+            }}
+            onChange={(event) => {
+              const selectedLocale = event.target.value;
+              if (selectedLocale !== locale) {
+                onLocaleSelected(selectedLocale);
+              }
+            }}
+            style={{ paddingTop: 0, maxWidth: 90 }}
+          >
+            {localesAvailable.map(([name, code]) => (
+              <option key={code} value={code} selected={locale === code}>
+                {name}
+              </option>
+            ))}
+          </NativeSelect>
+        </div>
         {restrictions &&
           restrictions.features
             .filter((feature) => getHeightRestriction(feature.properties))
@@ -193,7 +261,7 @@ const VenueDialog: React.FC<VenueDialogProps> = ({
               </button>
             ))}
         <Typography variant="body2" color="textSecondary" component="p">
-          {workplace.delivery_instructions}
+          {translatedText(workplace, "delivery_instructions", onLocaleSelected)}
         </Typography>
         <div style={{ clear: "both" }} />
         {workplaceEntrances.map((workplaceEntrance, index) => (

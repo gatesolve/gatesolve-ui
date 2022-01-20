@@ -112,6 +112,7 @@ interface State {
   tunnelData?: FeatureCollection;
   showTunnels: boolean;
   restrictions?: Array<ElementWithCoordinates>;
+  locale: string;
 }
 
 const latLngToElement = (latLng: LatLng): ElementWithCoordinates => ({
@@ -163,6 +164,7 @@ const initialState: State = {
   venueDialogCollapsed: false,
   venueFeatures: emptyFeatureCollection,
   showTunnels: false,
+  locale: "en",
 };
 
 const metropolitanAreaCenter = [60.17066815612902, 24.941510260105133];
@@ -560,7 +562,7 @@ const App: React.FC = () => {
           );
           // FIXME: If state already had the same entrances, no need to re-set
         } else if (state.destination.id === state.venue?.id) {
-          venueOlmapData = await fetchOlmapData(state.venue.id);
+          venueOlmapData = await fetchOlmapData(state.venue.id, state.locale);
           venueFeatures = emptyFeatureCollection;
           if (venueOlmapData?.state === "success") {
             const workplaceEntrances =
@@ -911,7 +913,10 @@ const App: React.FC = () => {
         };
       });
       // Fetch new data
-      const olmapData = await fetchOlmapData(state.popupCoordinates.id);
+      const olmapData = await fetchOlmapData(
+        state.popupCoordinates.id,
+        state.locale
+      );
       setState((prevState: State): State => {
         if (prevState.popupCoordinates !== state.popupCoordinates) {
           return prevState;
@@ -925,7 +930,7 @@ const App: React.FC = () => {
       // eslint-disable-next-line no-console
       console.error("Error while fetching OLMap notes:", error);
     });
-  }, [state.popupCoordinates]);
+  }, [state.popupCoordinates, state.locale]);
 
   // When we receive OLMap data for a venue and the dialog opens, zoom the map to fit
   useEffect(() => {
@@ -1715,6 +1720,7 @@ const App: React.FC = () => {
         collapsed={state.venueDialogCollapsed}
         venueOlmapData={state.venueOlmapData}
         restrictions={state.route}
+        locale={state.locale}
         onViewDetails={(olmapNote) => {
           setState((prevState): State => {
             return {
@@ -1796,6 +1802,16 @@ const App: React.FC = () => {
           setState((prevState) => ({
             ...prevState,
             popupCoordinates: geoJsonToElement(feature),
+          }));
+        }}
+        onLocaleSelected={async (locale) => {
+          const venueOlmapData = state.venue?.id
+            ? await fetchOlmapData(state.venue.id, locale)
+            : undefined;
+          setState((prevState) => ({
+            ...prevState,
+            locale,
+            venueOlmapData,
           }));
         }}
       />
