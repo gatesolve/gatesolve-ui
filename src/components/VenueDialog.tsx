@@ -63,6 +63,43 @@ const getHeightRestriction = (
   return restriction as number | string | undefined;
 };
 
+const translatedText = (
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  record: any,
+  fieldName: string,
+  onLocaleSelected: (locale: string) => void
+) => {
+  return (
+    <>
+      {record[`${fieldName}_translated`]}
+      {record[`${fieldName}_translated`] !== record[fieldName] && (
+        <span>
+          {" "}
+          {
+            // eslint-disable-next-line jsx-a11y/anchor-is-valid
+            <a
+              href="#"
+              style={{
+                display: "inline",
+                color: "#aaa",
+                background: "none",
+                border: "none",
+                textDecoration: "none",
+              }}
+              onClick={(event): void => {
+                event.preventDefault();
+                onLocaleSelected(record[`${fieldName}_language`]);
+              }}
+            >
+              Translated by Google. View original.
+            </a>
+          }
+        </span>
+      )}
+    </>
+  );
+};
+
 const VenueDialog: React.FC<VenueDialogProps> = ({
   open,
   collapsed,
@@ -177,11 +214,8 @@ const VenueDialog: React.FC<VenueDialogProps> = ({
             }}
             style={{ paddingTop: 0, maxWidth: 90 }}
           >
-            <option key="selected" value={locale} selected>
-              {localesAvailable.filter(([, code]) => code === locale)[0][0]}
-            </option>
             {localesAvailable.map(([name, code]) => (
-              <option key={code} value={code}>
+              <option key={code} value={code} selected={locale === code}>
                 {name}
               </option>
             ))}
@@ -227,7 +261,7 @@ const VenueDialog: React.FC<VenueDialogProps> = ({
               </button>
             ))}
         <Typography variant="body2" color="textSecondary" component="p">
-          {workplace.delivery_instructions_translated}
+          {translatedText(workplace, "delivery_instructions", onLocaleSelected)}
         </Typography>
         <div style={{ clear: "both" }} />
         {workplaceEntrances.map((workplaceEntrance, index) => (

@@ -51,6 +51,7 @@ export interface OlmapWorkplace {
   type: number;
   delivery_hours: string;
   delivery_instructions: string;
+  delivery_instructions_language: string;
   delivery_instructions_translated: string;
   workplace_entrances: Array<OlmapWorkplaceEntrance>;
   image_note: OlmapNote;
@@ -60,6 +61,7 @@ export interface OlmapWorkplace {
 export interface OlmapWorkplaceEntrance {
   id: number;
   description: string;
+  description_language: string;
   description_translated: string;
   deliveries: "main" | "yes" | "no" | "" | null;
   delivery_types: Array<string>;
@@ -67,6 +69,7 @@ export interface OlmapWorkplaceEntrance {
   entrance_data: OlmapEntranceData;
   delivery_hours: string;
   delivery_instructions: string;
+  delivery_instructions_language: string;
   delivery_instructions_translated: string;
   workplace: number;
   entrance: number;
@@ -83,6 +86,7 @@ export interface OlmapUnloadingPlace {
   osm_feature: number;
   image_note: OlmapNote;
   description: string;
+  description_language: string;
   description_translated: string;
   opening_hours: string;
   entrances: Array<number>;
