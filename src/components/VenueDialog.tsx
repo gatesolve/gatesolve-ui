@@ -273,6 +273,9 @@ const VenueDialog: React.FC<VenueDialogProps> = ({
             onUnloadingPlaceSelected={onUnloadingPlaceSelected}
             onViewDetails={onViewDetails}
             label={romanize(index + 1)}
+            translateComponent={(record, fieldName) =>
+              translatedText(record, fieldName, onLocaleSelected)
+            }
           />
         ))}
       </DialogContent>

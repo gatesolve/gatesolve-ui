@@ -21,6 +21,8 @@ interface EntranceCardProps {
   workplaceEntrance: OlmapWorkplaceEntrance;
   workplace: OlmapWorkplace;
   label: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  translateComponent: (record: any, fieldName: string) => JSX.Element;
   onEntranceSelected: (entranceId: number) => void;
   onUnloadingPlaceSelected: (unloadingPlace: OlmapUnloadingPlace) => void;
   onViewDetails: (note: OlmapNote) => void;
@@ -30,6 +32,7 @@ const EntranceCard: React.FC<EntranceCardProps> = ({
   workplaceEntrance,
   workplace,
   label,
+  translateComponent,
   onEntranceSelected,
   onUnloadingPlaceSelected,
   onViewDetails,
@@ -85,12 +88,15 @@ const EntranceCard: React.FC<EntranceCardProps> = ({
             <span>{label}</span>
           </Avatar>
         }
-        title={`${[
-          workplaceEntrance.description_translated,
-          workplaceEntrance.delivery_types.join("; "),
-        ]
-          .filter((x) => x)
-          .join(": ")}`}
+        title={
+          <>
+            {translateComponent(workplaceEntrance, "description")}
+            {workplaceEntrance.description && workplaceEntrance.delivery_types
+              ? ": "
+              : ""}
+            {workplaceEntrance.delivery_types.join("; ")}
+          </>
+        }
         subheader={workplaceEntrance.delivery_hours || workplace.delivery_hours}
         // The following backgrounds are in case a long word overlaps the floated photo
         titleTypographyProps={{
@@ -102,7 +108,7 @@ const EntranceCard: React.FC<EntranceCardProps> = ({
       />
       <CardContent style={{ padding: 0 }}>
         <Typography variant="body2" color="textSecondary" component="p">
-          {workplaceEntrance.delivery_instructions_translated}
+          {translateComponent(workplaceEntrance, "delivery_instructions")}
         </Typography>
       </CardContent>
       <CardActions style={{ padding: 0 }}>
@@ -150,7 +156,7 @@ const EntranceCard: React.FC<EntranceCardProps> = ({
           >
             <CardContent style={{ padding: 0 }}>
               <Typography variant="body2" color="textSecondary" component="p">
-                {unloadingPlace.description_translated}
+                {translateComponent(unloadingPlace, "description")}
               </Typography>
             </CardContent>
             <CardActions style={{ padding: 0 }}>
