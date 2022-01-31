@@ -1317,7 +1317,7 @@ const App: React.FC = () => {
         // eslint-disable-next-line react/jsx-props-no-spreading
         {...state.viewport}
         style={{ width: "100%", height: "90%" }}
-        mapStyle="https://raw.githubusercontent.com/HSLdevcom/hsl-map-style/master/simple-style.json"
+        mapStyle="https://raw.githubusercontent.com/HSLdevcom/hsl-map-style/master-old/simple-style.json"
         dragRotate={false}
         transformRequest={transformRequest}
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
