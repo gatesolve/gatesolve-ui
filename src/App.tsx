@@ -543,6 +543,7 @@ const App: React.FC = () => {
 
       // If state.entrances already has our destination, copy instead of fetching
       if (
+        state.destination.id !== -1 &&
         state.entrances?.find(
           (entrance) => entrance.id === state.destination?.id
         )
