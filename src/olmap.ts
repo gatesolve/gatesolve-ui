@@ -47,7 +47,7 @@ export interface OlmapNote {
 export interface OlmapWorkplace {
   id: number;
   as_osm_tags: Record<string, string>;
-  osm_feature: number;
+  osm_feature?: number;
   type: number;
   delivery_hours: string;
   delivery_instructions: string;
@@ -77,13 +77,13 @@ export interface OlmapWorkplaceEntrance {
 }
 
 export interface OlmapEntranceData {
-  osm_feature: number;
+  osm_feature?: number;
 }
 
 export interface OlmapUnloadingPlace {
   id: number;
   as_osm_tags: Record<string, string>;
-  osm_feature: number;
+  osm_feature?: number;
   image_note: OlmapNote;
   description: string;
   description_language: string;
@@ -215,10 +215,14 @@ const venueDataToUnloadingPlaceData = (
       const foundEntrances = unloadingPlaceEntrances[unloadingPlace.id];
       const newEntrance = workplaceEntrance.entrance_data.osm_feature;
       if (foundEntrances) {
-        foundEntrances.push(newEntrance);
+        if (newEntrance) foundEntrances.push(newEntrance);
         return [];
       }
-      unloadingPlaceEntrances[unloadingPlace.id] = [newEntrance];
+      if (newEntrance) {
+        unloadingPlaceEntrances[unloadingPlace.id] = [newEntrance];
+      } else {
+        unloadingPlaceEntrances[unloadingPlace.id] = [];
+      }
       return [unloadingPlace];
     })
   );

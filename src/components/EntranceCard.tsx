@@ -112,9 +112,10 @@ const EntranceCard: React.FC<EntranceCardProps> = ({
           style={{ backgroundColor: "#64be14", color: "#fff" }}
           type="button"
           aria-label="Set destination"
-          onClick={(): void =>
-            onEntranceSelected(workplaceEntrance.entrance_data.osm_feature)
-          }
+          onClick={(): void => {
+            const osmId = workplaceEntrance.entrance_data.osm_feature;
+            if (osmId) onEntranceSelected(osmId);
+          }}
         >
           Destination
         </Button>
