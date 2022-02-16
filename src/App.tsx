@@ -568,9 +568,15 @@ const App: React.FC = () => {
           if (venueOlmapData?.state === "success") {
             const workplaceEntrances =
               venueOlmapData.response.workplace?.workplace_entrances;
-            const entranceIds = workplaceEntrances?.map(
-              (workplaceEntrance) => workplaceEntrance.entrance_data.osm_feature
-            );
+            const isPresent = <T extends unknown>(
+              x: T | undefined | null
+            ): x is T => x !== undefined && x !== null;
+            const entranceIds: Array<number> | undefined = workplaceEntrances
+              ?.map(
+                (workplaceEntrance) =>
+                  workplaceEntrance.entrance_data.osm_feature
+              )
+              .filter(isPresent);
             result = await queryNodesById(entranceIds || []);
             if (venueOlmapData.response.workplace?.workplace_entrances) {
               const workplaceEntrancesInBoth =
