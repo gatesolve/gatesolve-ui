@@ -33,7 +33,7 @@ export interface OlmapResponse {
   id: number;
   associated_entrances: Array<number>;
   image_notes: Array<OlmapNote>;
-  workplace?: OlmapWorkplace;
+  workplace: OlmapWorkplace | null;
 }
 
 export interface OlmapNote {
@@ -47,7 +47,7 @@ export interface OlmapNote {
 export interface OlmapWorkplace {
   id: number;
   as_osm_tags: Record<string, string>;
-  osm_feature?: number;
+  osm_feature: number | null;
   type: number;
   delivery_hours: string;
   delivery_instructions: string;
@@ -77,13 +77,13 @@ export interface OlmapWorkplaceEntrance {
 }
 
 export interface OlmapEntranceData {
-  osm_feature?: number;
+  osm_feature: number | null;
 }
 
 export interface OlmapUnloadingPlace {
   id: number;
   as_osm_tags: Record<string, string>;
-  osm_feature?: number;
+  osm_feature: number | null;
   image_note: OlmapNote;
   description: string;
   description_language: string;
