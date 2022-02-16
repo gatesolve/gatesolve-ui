@@ -1,15 +1,15 @@
 {
   "files": {
     "App.css": "/static/css/App.59988e90.chunk.css",
-    "App.js": "/static/js/App.192933f2.chunk.js",
-    "App.js.map": "/static/js/App.192933f2.chunk.js.map",
+    "App.js": "/static/js/App.8c80af44.chunk.js",
+    "App.js.map": "/static/js/App.8c80af44.chunk.js.map",
     "main.css": "/static/css/main.4a4137e4.chunk.css",
     "main.js": "/static/js/main.59f036a3.chunk.js",
     "main.js.map": "/static/js/main.59f036a3.chunk.js.map",
     "planner-config.js": "/static/js/planner-config.0f6f5950.chunk.js",
     "planner-config.js.map": "/static/js/planner-config.0f6f5950.chunk.js.map",
-    "runtime-main.js": "/static/js/runtime-main.37108ddb.js",
-    "runtime-main.js.map": "/static/js/runtime-main.37108ddb.js.map",
+    "runtime-main.js": "/static/js/runtime-main.6a636a35.js",
+    "runtime-main.js.map": "/static/js/runtime-main.6a636a35.js.map",
     "static/js/4.88a45b00.chunk.js": "/static/js/4.88a45b00.chunk.js",
     "static/js/4.88a45b00.chunk.js.map": "/static/js/4.88a45b00.chunk.js.map",
     "static/js/5.cbcbda30.chunk.js": "/static/js/5.cbcbda30.chunk.js",
@@ -31,7 +31,7 @@
     "static/media/400.css": "/static/media/noto-sans-vietnamese-400-normal.ba1bf47c.woff2"
   },
   "entrypoints": [
-    "static/js/runtime-main.37108ddb.js",
+    "static/js/runtime-main.6a636a35.js",
     "static/js/5.cbcbda30.chunk.js",
     "static/css/main.4a4137e4.chunk.css",
     "static/js/main.59f036a3.chunk.js"
