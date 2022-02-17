@@ -15,10 +15,8 @@ import AddCommentIcon from "@material-ui/icons/AddComment";
 import { useSnackbar } from "notistack";
 import MapGL, { Popup, Source, Layer, Marker } from "@urbica/react-map-gl";
 import { WebMercatorViewport } from "@math.gl/web-mercator";
-import {
-  distance as turfDistance,
-  nearestPointOnLine as turfNearestPointOnLine,
-} from "@turf/turf";
+import turfDistance from "@turf/distance";
+import turfNearestPointOnLine from "@turf/nearest-point-on-line";
 import { MapboxGeoJSONFeature } from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 // eslint-disable-next-line import/no-extraneous-dependencies
