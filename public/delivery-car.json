@@ -1390,7 +1390,7 @@
         "hasObject": "osm:Gate"
       },
       "concludes": {
-        "isObstacle": true
+        "isObstacle": false
       },
       "hasOrder": 4
     },
