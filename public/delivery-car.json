@@ -66,7 +66,7 @@
       "@type": "@id"
     }
   },
-  "rdfs:label": "example car profile",
+  "rdfs:label": "delivery car profile",
   "hasMaxSpeed": 130,
   "usePublicTransport": false,
   "hasAccessRules": [
@@ -106,7 +106,7 @@
         "hasObject": "osm:NoAccess"
       },
       "concludes": {
-        "hasAccess": false
+        "hasAccess": true
       },
       "hasOrder": 2
     },
@@ -116,7 +116,7 @@
         "hasObject": "osm:Agricultural"
       },
       "concludes": {
-        "hasAccess": false
+        "hasAccess": true
       },
       "hasOrder": 2
     },
@@ -126,7 +126,7 @@
         "hasObject": "osm:Forestry"
       },
       "concludes": {
-        "hasAccess": false
+        "hasAccess": true
       },
       "hasOrder": 2
     },
@@ -146,7 +146,7 @@
         "hasObject": "osm:Private"
       },
       "concludes": {
-        "hasAccess": false
+        "hasAccess": true
       },
       "hasOrder": 2
     },
@@ -206,7 +206,7 @@
         "hasObject": "osm:NoAccess"
       },
       "concludes": {
-        "hasAccess": false
+        "hasAccess": true
       },
       "hasOrder": 3
     },
@@ -216,7 +216,7 @@
         "hasObject": "osm:Agricultural"
       },
       "concludes": {
-        "hasAccess": false
+        "hasAccess": true
       },
       "hasOrder": 3
     },
@@ -226,7 +226,7 @@
         "hasObject": "osm:Forestry"
       },
       "concludes": {
-        "hasAccess": false
+        "hasAccess": true
       },
       "hasOrder": 3
     },
@@ -246,7 +246,7 @@
         "hasObject": "osm:Private"
       },
       "concludes": {
-        "hasAccess": false
+        "hasAccess": true
       },
       "hasOrder": 3
     },
@@ -306,7 +306,7 @@
         "hasObject": "osm:NoAccess"
       },
       "concludes": {
-        "hasAccess": false
+        "hasAccess": true
       },
       "hasOrder": 4
     },
@@ -316,7 +316,7 @@
         "hasObject": "osm:Agricultural"
       },
       "concludes": {
-        "hasAccess": false
+        "hasAccess": true
       },
       "hasOrder": 4
     },
@@ -326,7 +326,7 @@
         "hasObject": "osm:Forestry"
       },
       "concludes": {
-        "hasAccess": false
+        "hasAccess": true
       },
       "hasOrder": 4
     },
@@ -346,7 +346,7 @@
         "hasObject": "osm:Private"
       },
       "concludes": {
-        "hasAccess": false
+        "hasAccess": true
       },
       "hasOrder": 4
     },
@@ -396,7 +396,7 @@
         "hasObject": "osm:NoAccess"
       },
       "concludes": {
-        "hasAccess": false
+        "hasAccess": true
       },
       "hasOrder": 5
     },
@@ -406,7 +406,7 @@
         "hasObject": "osm:Agricultural"
       },
       "concludes": {
-        "hasAccess": false
+        "hasAccess": true
       },
       "hasOrder": 5
     },
@@ -416,7 +416,7 @@
         "hasObject": "osm:Forestry"
       },
       "concludes": {
-        "hasAccess": false
+        "hasAccess": true
       },
       "hasOrder": 5
     },
@@ -436,7 +436,7 @@
         "hasObject": "osm:Private"
       },
       "concludes": {
-        "hasAccess": false
+        "hasAccess": true
       },
       "hasOrder": 5
     },
@@ -852,7 +852,7 @@
         "hasObject": "osm:Grade5"
       },
       "concludes": {
-        "hasPriority": 0.2
+        "hasPriority": 1
       },
       "hasOrder": 0
     },
@@ -862,7 +862,7 @@
         "hasObject": "osm:Private"
       },
       "concludes": {
-        "hasPriority": 0.15
+        "hasPriority": 1
       },
       "hasOrder": 1
     },
@@ -872,7 +872,7 @@
         "hasObject": "osm:Destination"
       },
       "concludes": {
-        "hasPriority": 0.15
+        "hasPriority": 1
       },
       "hasOrder": 1
     },
@@ -882,7 +882,7 @@
         "hasObject": "osm:Delivery"
       },
       "concludes": {
-        "hasPriority": 0.15
+        "hasPriority": 1
       },
       "hasOrder": 1
     },
@@ -892,7 +892,7 @@
         "hasObject": "osm:Customers"
       },
       "concludes": {
-        "hasPriority": 0.15
+        "hasPriority": 1
       },
       "hasOrder": 1
     },
@@ -902,7 +902,7 @@
         "hasObject": "osm:Private"
       },
       "concludes": {
-        "hasPriority": 0.15
+        "hasPriority": 1
       },
       "hasOrder": 2
     },
@@ -912,7 +912,7 @@
         "hasObject": "osm:Destination"
       },
       "concludes": {
-        "hasPriority": 0.15
+        "hasPriority": 1
       },
       "hasOrder": 2
     },
@@ -922,7 +922,7 @@
         "hasObject": "osm:Delivery"
       },
       "concludes": {
-        "hasPriority": 0.15
+        "hasPriority": 1
       },
       "hasOrder": 2
     },
@@ -932,7 +932,7 @@
         "hasObject": "osm:Customers"
       },
       "concludes": {
-        "hasPriority": 0.15
+        "hasPriority": 1
       },
       "hasOrder": 2
     },
@@ -942,7 +942,7 @@
         "hasObject": "osm:Private"
       },
       "concludes": {
-        "hasPriority": 0.15
+        "hasPriority": 1
       },
       "hasOrder": 3
     },
@@ -952,7 +952,7 @@
         "hasObject": "osm:Destination"
       },
       "concludes": {
-        "hasPriority": 0.15
+        "hasPriority": 1
       },
       "hasOrder": 3
     },
@@ -962,7 +962,7 @@
         "hasObject": "osm:Delivery"
       },
       "concludes": {
-        "hasPriority": 0.15
+        "hasPriority": 1
       },
       "hasOrder": 3
     },
@@ -972,7 +972,7 @@
         "hasObject": "osm:Customers"
       },
       "concludes": {
-        "hasPriority": 0.15
+        "hasPriority": 1
       },
       "hasOrder": 3
     },
@@ -982,7 +982,7 @@
         "hasObject": "osm:Private"
       },
       "concludes": {
-        "hasPriority": 0.15
+        "hasPriority": 1
       },
       "hasOrder": 4
     },
@@ -992,7 +992,7 @@
         "hasObject": "osm:Destination"
       },
       "concludes": {
-        "hasPriority": 0.15
+        "hasPriority": 1
       },
       "hasOrder": 4
     },
@@ -1002,7 +1002,7 @@
         "hasObject": "osm:Delivery"
       },
       "concludes": {
-        "hasPriority": 0.15
+        "hasPriority": 1
       },
       "hasOrder": 4
     },
@@ -1012,7 +1012,7 @@
         "hasObject": "osm:Customers"
       },
       "concludes": {
-        "hasPriority": 0.15
+        "hasPriority": 1
       },
       "hasOrder": 4
     },
@@ -1022,7 +1022,7 @@
         "hasObject": "osm:VeryBadSmoothness"
       },
       "concludes": {
-        "hasPriority": 0.3
+        "hasPriority": 1
       },
       "hasOrder": 5
     },
@@ -1032,7 +1032,7 @@
         "hasObject": "osm:HorribleSmoothness"
       },
       "concludes": {
-        "hasPriority": 0.15
+        "hasPriority": 1
       },
       "hasOrder": 5
     },
@@ -1042,7 +1042,7 @@
         "hasObject": "osm:VeryHorribleSmoothness"
       },
       "concludes": {
-        "hasPriority": 0.1
+        "hasPriority": 1
       },
       "hasOrder": 5
     },
@@ -1052,7 +1052,7 @@
         "hasObject": "osm:Impassable"
       },
       "concludes": {
-        "hasPriority": 0.1
+        "hasPriority": 1
       },
       "hasOrder": 5
     },
@@ -1062,7 +1062,7 @@
         "hasObject": "osm:Motorway"
       },
       "concludes": {
-        "hasPriority": 1.1
+        "hasPriority": 1
       },
       "hasOrder": 6
     },
@@ -1072,7 +1072,7 @@
         "hasObject": "osm:MotorwayLink"
       },
       "concludes": {
-        "hasPriority": 1.05
+        "hasPriority": 1
       },
       "hasOrder": 6
     },
@@ -1082,7 +1082,7 @@
         "hasObject": "osm:Trunk"
       },
       "concludes": {
-        "hasPriority": 1.0
+        "hasPriority": 1
       },
       "hasOrder": 6
     },
@@ -1092,7 +1092,7 @@
         "hasObject": "osm:TrunkLink"
       },
       "concludes": {
-        "hasPriority": 0.95
+        "hasPriority": 1
       },
       "hasOrder": 6
     },
@@ -1102,7 +1102,7 @@
         "hasObject": "osm:Primary"
       },
       "concludes": {
-        "hasPriority": 1.0
+        "hasPriority": 1
       },
       "hasOrder": 6
     },
@@ -1112,7 +1112,7 @@
         "hasObject": "osm:PrimaryLink"
       },
       "concludes": {
-        "hasPriority": 0.95
+        "hasPriority": 1
       },
       "hasOrder": 6
     },
@@ -1122,7 +1122,7 @@
         "hasObject": "osm:Secondary"
       },
       "concludes": {
-        "hasPriority": 0.95
+        "hasPriority": 1
       },
       "hasOrder": 6
     },
@@ -1132,7 +1132,7 @@
         "hasObject": "osm:SecondaryLink"
       },
       "concludes": {
-        "hasPriority": 0.9
+        "hasPriority": 1
       },
       "hasOrder": 6
     },
@@ -1142,7 +1142,7 @@
         "hasObject": "osm:Tertiary"
       },
       "concludes": {
-        "hasPriority": 0.9
+        "hasPriority": 1
       },
       "hasOrder": 6
     },
@@ -1152,7 +1152,7 @@
         "hasObject": "osm:TertiaryLink"
       },
       "concludes": {
-        "hasPriority": 0.85
+        "hasPriority": 1
       },
       "hasOrder": 6
     },
@@ -1162,7 +1162,7 @@
         "hasObject": "osm:Unclassified"
       },
       "concludes": {
-        "hasPriority": 0.7
+        "hasPriority": 1
       },
       "hasOrder": 6
     },
@@ -1172,7 +1172,7 @@
         "hasObject": "osm:Road"
       },
       "concludes": {
-        "hasPriority": 0.7
+        "hasPriority": 1
       },
       "hasOrder": 6
     },
@@ -1182,7 +1182,7 @@
         "hasObject": "osm:Residential"
       },
       "concludes": {
-        "hasPriority": 0.7
+        "hasPriority": 1
       },
       "hasOrder": 6
     },
@@ -1192,7 +1192,7 @@
         "hasObject": "osm:Track"
       },
       "concludes": {
-        "hasPriority": 0.5
+        "hasPriority": 1
       },
       "hasOrder": 6
     },
@@ -1202,7 +1202,7 @@
         "hasObject": "osm:Service"
       },
       "concludes": {
-        "hasPriority": 0.5
+        "hasPriority": 1
       },
       "hasOrder": 6
     },
@@ -1212,13 +1212,13 @@
         "hasObject": "osm:LivingStreet"
       },
       "concludes": {
-        "hasPriority": 0.5
+        "hasPriority": 1
       },
       "hasOrder": 6
     },
     {
       "concludes": {
-        "hasPriority": 0.7
+        "hasPriority": 1
       },
       "hasOrder": 100
     }
@@ -1230,7 +1230,7 @@
         "hasObject": "osm:NoAccess"
       },
       "concludes": {
-        "isObstacle": true
+        "isObstacle": false
       },
       "hasOrder": 0
     },
@@ -1240,7 +1240,7 @@
         "hasObject": "osm:Agricultural"
       },
       "concludes": {
-        "isObstacle": true
+        "isObstacle": false
       },
       "hasOrder": 0
     },
@@ -1250,7 +1250,7 @@
         "hasObject": "osm:Forestry"
       },
       "concludes": {
-        "isObstacle": true
+        "isObstacle": false
       },
       "hasOrder": 0
     },
@@ -1260,7 +1260,7 @@
         "hasObject": "osm:NoAccess"
       },
       "concludes": {
-        "isObstacle": true
+        "isObstacle": false
       },
       "hasOrder": 1
     },
@@ -1270,7 +1270,7 @@
         "hasObject": "osm:Agricultural"
       },
       "concludes": {
-        "isObstacle": true
+        "isObstacle": false
       },
       "hasOrder": 1
     },
@@ -1280,7 +1280,7 @@
         "hasObject": "osm:Forestry"
       },
       "concludes": {
-        "isObstacle": true
+        "isObstacle": false
       },
       "hasOrder": 1
     },
@@ -1290,7 +1290,7 @@
         "hasObject": "osm:NoAccess"
       },
       "concludes": {
-        "isObstacle": true
+        "isObstacle": false
       },
       "hasOrder": 2
     },
@@ -1300,7 +1300,7 @@
         "hasObject": "osm:Agricultural"
       },
       "concludes": {
-        "isObstacle": true
+        "isObstacle": false
       },
       "hasOrder": 2
     },
@@ -1310,7 +1310,7 @@
         "hasObject": "osm:Forestry"
       },
       "concludes": {
-        "isObstacle": true
+        "isObstacle": false
       },
       "hasOrder": 2
     },
@@ -1320,7 +1320,7 @@
         "hasObject": "osm:NoAccess"
       },
       "concludes": {
-        "isObstacle": true
+        "isObstacle": false
       },
       "hasOrder": 3
     },
@@ -1330,7 +1330,7 @@
         "hasObject": "osm:Agricultural"
       },
       "concludes": {
-        "isObstacle": true
+        "isObstacle": false
       },
       "hasOrder": 3
     },
@@ -1340,7 +1340,7 @@
         "hasObject": "osm:Forestry"
       },
       "concludes": {
-        "isObstacle": true
+        "isObstacle": false
       },
       "hasOrder": 3
     },
@@ -1438,7 +1438,7 @@
         "hasObject": "osm:Entrance"
       },
       "concludes": {
-        "hasObstacleTime": 5
+        "hasObstacleTime": 0
       },
       "hasOrder": 0
     },
@@ -1448,7 +1448,7 @@
         "hasObject": "osm:Gate"
       },
       "concludes": {
-        "hasObstacleTime": 15
+        "hasObstacleTime": 0
       },
       "hasOrder": 0
     },
@@ -1458,7 +1458,7 @@
         "hasObject": "osm:LiftGate"
       },
       "concludes": {
-        "hasObstacleTime": 15
+        "hasObstacleTime": 0
       },
       "hasOrder": 0
     },
@@ -1468,7 +1468,7 @@
         "hasObject": "osm:SwingGate"
       },
       "concludes": {
-        "hasObstacleTime": 30
+        "hasObstacleTime": 0
       },
       "hasOrder": 0
     },
@@ -1478,7 +1478,7 @@
         "hasObject": "osm:TollBooth"
       },
       "concludes": {
-        "hasObstacleTime": 25
+        "hasObstacleTime": 0
       },
       "hasOrder": 0
     },
@@ -1487,7 +1487,7 @@
         "hasPredicate": "osm:barrier"
       },
       "concludes": {
-        "hasObstacleTime": 25
+        "hasObstacleTime": 0
       },
       "hasOrder": 1
     },
@@ -1497,7 +1497,7 @@
         "hasObject": "osm:TrafficSignals"
       },
       "concludes": {
-        "hasObstacleTime": 30
+        "hasObstacleTime": 0
       },
       "hasOrder": 2
     },
@@ -1507,7 +1507,7 @@
         "hasObject": "osm:Unmarked"
       },
       "concludes": {
-        "hasObstacleTime": 1
+        "hasObstacleTime": 0
       },
       "hasOrder": 3
     },
@@ -1517,7 +1517,7 @@
         "hasObject": "osm:Uncontrolled"
       },
       "concludes": {
-        "hasObstacleTime": 5
+        "hasObstacleTime": 0
       },
       "hasOrder": 3
     },
@@ -1527,7 +1527,7 @@
         "hasObject": "osm:Uncontrolled"
       },
       "concludes": {
-        "hasObstacleTime": 5
+        "hasObstacleTime": 0
       },
       "hasOrder": 3
     },
@@ -1537,7 +1537,7 @@
         "hasObject": "osm:HighwayCrossing"
       },
       "concludes": {
-        "hasObstacleTime": 15
+        "hasObstacleTime": 0
       },
       "hasOrder": 4
     },
@@ -1547,7 +1547,7 @@
         "hasObject": "osm:Stop"
       },
       "concludes": {
-        "hasObstacleTime": 15
+        "hasObstacleTime": 0
       },
       "hasOrder": 4
     },
@@ -1557,7 +1557,7 @@
         "hasObject": "osm:GiveWay"
       },
       "concludes": {
-        "hasObstacleTime": 10
+        "hasObstacleTime": 0
       },
       "hasOrder": 4
     },
