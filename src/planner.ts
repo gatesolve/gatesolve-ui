@@ -233,7 +233,7 @@ export default async function calculatePlan(
     // XXX setProfileID requires URL to start with scheme, so guess
     const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
     planner
-      .setProfileID(`${protocol}://${process.env.PUBLIC_URL}/delivery.json`)
+      .setProfileID(`${protocol}://${process.env.PUBLIC_URL}/${profile}.json`)
       .query({
         from: { latitude: origin.lat, longitude: origin.lon },
         to: { latitude: target.lat, longitude: target.lon },
