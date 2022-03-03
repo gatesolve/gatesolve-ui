@@ -67,6 +67,7 @@ import {
   olmapNoteToElement,
 } from "./olmap";
 import { fromEpsg3879, toEpsg3879 } from "./projections";
+import { filterBlacklistedParking } from "./util/hardcoded-data";
 
 import "./App.css";
 import "./components/PinMarker.css";
@@ -406,7 +407,8 @@ const App: React.FC = () => {
       const features = emptyFeatureCollection.features.concat(
         ...layers.map((layer) => layer.features)
       );
-      const projectedFeatures = features.map((feature) => {
+      const filteredFeatures = filterBlacklistedParking(features);
+      const projectedFeatures = filteredFeatures.map((feature) => {
         if (feature.geometry.type === "Point") {
           return {
             ...feature,
