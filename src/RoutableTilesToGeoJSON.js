@@ -1,10 +1,8 @@
 // Original source: https://github.com/openplannerteam/leaflet-routable-tiles/blob/master/lib/RoutableTilesToGeoJSON.js
 
-import {
-  bearing as turfBearing,
-  lineString as turfLineString,
-  booleanClockwise as turfBooleanClockwise,
-} from "@turf/turf";
+import turfBearing from "@turf/bearing";
+import { lineString as turfLineString } from "@turf/helpers";
+import turfBooleanClockwise from "@turf/boolean-clockwise";
 
 import { triplesToTags } from "./routable-tiles";
 

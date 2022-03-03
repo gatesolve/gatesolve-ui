@@ -1,6 +1,8 @@
 import React from "react";
-import { IconButton, Dialog, DialogTitle } from "@material-ui/core";
-import { Close as CloseIcon } from "@material-ui/icons";
+import IconButton from "@material-ui/core/IconButton";
+import Dialog from "@material-ui/core/Dialog";
+import DialogTitle from "@material-ui/core/DialogTitle";
+import CloseIcon from "@material-ui/icons/Close";
 
 import { olmapNoteURL } from "../olmap";
 

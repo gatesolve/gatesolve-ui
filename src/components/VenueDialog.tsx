@@ -1,19 +1,15 @@
 import React from "react";
-import {
-  IconButton,
-  DialogTitle,
-  DialogContent,
-  Typography,
-  Drawer,
-  NativeSelect,
-} from "@material-ui/core";
+import IconButton from "@material-ui/core/IconButton";
+import DialogTitle from "@material-ui/core/DialogTitle";
+import DialogContent from "@material-ui/core/DialogContent";
+import Typography from "@material-ui/core/Typography";
+import Drawer from "@material-ui/core/Drawer";
+import NativeSelect from "@material-ui/core/NativeSelect";
 import "@fontsource/noto-sans/400.css";
 
-import {
-  Close as CloseIcon,
-  ExpandLess as ExpandIcon, // https://material.io/components/sheets-bottom
-  ExpandMore as CollapseIcon,
-} from "@material-ui/icons";
+import CloseIcon from "@material-ui/icons/Close";
+import ExpandIcon from "@material-ui/icons/ExpandLess"; // https://material.io/components/sheets-bottom
+import CollapseIcon from "@material-ui/icons/ExpandMore";
 
 import { romanize } from "romans";
 

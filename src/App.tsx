@@ -8,18 +8,15 @@ import React, {
 import { useRouteMatch, useHistory } from "react-router-dom";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { match } from "react-router-dom";
-import { Button, IconButton } from "@material-ui/core";
-import {
-  Close as CloseIcon,
-  AddComment as AddCommentIcon,
-} from "@material-ui/icons";
+import Button from "@material-ui/core/Button";
+import IconButton from "@material-ui/core/IconButton";
+import CloseIcon from "@material-ui/icons/Close";
+import AddCommentIcon from "@material-ui/icons/AddComment";
 import { useSnackbar } from "notistack";
 import MapGL, { Popup, Source, Layer, Marker } from "@urbica/react-map-gl";
 import { WebMercatorViewport } from "@math.gl/web-mercator";
-import {
-  distance as turfDistance,
-  nearestPointOnLine as turfNearestPointOnLine,
-} from "@turf/turf";
+import turfDistance from "@turf/distance";
+import turfNearestPointOnLine from "@turf/nearest-point-on-line";
 import { MapboxGeoJSONFeature } from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 // eslint-disable-next-line import/no-extraneous-dependencies
