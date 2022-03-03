@@ -67,7 +67,7 @@
     }
   },
   "rdfs:label": "delivery car profile",
-  "hasMaxSpeed": 130,
+  "hasMaxSpeed": 10,
   "usePublicTransport": false,
   "hasAccessRules": [
     {
