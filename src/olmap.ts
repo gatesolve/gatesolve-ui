@@ -78,6 +78,7 @@ export interface OlmapWorkplaceEntrance {
 
 export interface OlmapEntranceData {
   osm_feature: number | null;
+  as_osm_tags: Record<string, string>;
 }
 
 export interface OlmapUnloadingPlace {
@@ -183,6 +184,10 @@ export const venueDataToGeoJSON = (
   }
   const features = [] as Array<Feature<Geometry, GeoJsonProperties>>;
   osmData.forEach((entrance, index) => {
+    const id =
+      entrance.type === "olmap"
+        ? `olmap/${entrance.id}`
+        : `http://www.openstreetmap.org/${entrance.type}/${entrance.id}`;
     features.push({
       type: "Feature",
       geometry: {
@@ -190,7 +195,7 @@ export const venueDataToGeoJSON = (
         coordinates: [entrance.lon, entrance.lat],
       },
       properties: {
-        "@id": `http://www.openstreetmap.org/${entrance.type}/${entrance.id}`,
+        "@id": id,
         ...entrance.tags,
         "@venue-label": romanize(index + 1),
       },
@@ -213,7 +218,9 @@ const venueDataToUnloadingPlaceData = (
   const unloadingPlaces = workplaceEntrances.flatMap((workplaceEntrance) =>
     workplaceEntrance.unloading_places.flatMap((unloadingPlace) => {
       const foundEntrances = unloadingPlaceEntrances[unloadingPlace.id];
-      const newEntrance = workplaceEntrance.entrance_data.osm_feature;
+      const newEntrance =
+        workplaceEntrance.entrance_data.osm_feature ||
+        workplaceEntrance.image_note.id;
       if (foundEntrances) {
         if (newEntrance) foundEntrances.push(newEntrance);
         return [];

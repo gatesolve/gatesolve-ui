@@ -145,8 +145,9 @@ export const queryNodesById = async (
   ids: Array<number>
 ): Promise<Array<ElementWithCoordinates>> => {
   const url = new URL(OVERPASS_INTERPRETER);
-  if (!ids.length) return [];
-  url.searchParams.append("data", buildQueryNodesById(ids));
+  const validIds = ids.filter((id) => id > 0);
+  if (!validIds.length) return [];
+  url.searchParams.append("data", buildQueryNodesById(validIds));
   const response = await fetch(url.toString());
   const body = (await response.json()) as OverpassResponse;
   return body.elements as Array<ElementWithCoordinates>;
