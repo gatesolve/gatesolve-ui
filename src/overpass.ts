@@ -21,12 +21,17 @@ export interface Osm3S {
 export type Element =
   | ElementWithCoordinates
   | ElementWithGeometry
+  | ElementWithCenter
   | (ElementCore & Partial<Coordinates>);
 
 export type ElementWithCoordinates = ElementCore & Coordinates;
 
 export type ElementWithGeometry = ElementCore & {
   geometry: Array<Coordinates>;
+};
+
+export type ElementWithCenter = ElementCore & {
+  center: Coordinates;
 };
 
 interface ElementCore {
@@ -151,6 +156,28 @@ export const queryNodesById = async (
   const response = await fetch(url.toString());
   const body = (await response.json()) as OverpassResponse;
   return body.elements as Array<ElementWithCoordinates>;
+};
+
+const buildQueryElementCentersById = (
+  type: string,
+  ids: Array<number>
+): string => `
+  [out:json][timeout:25];
+  ${type}(id:${ids.join(",")});
+  out center;
+`;
+
+export const queryElementCentersById = async (
+  type: "way" | "relation",
+  ids: Array<number>
+): Promise<Array<ElementWithCenter>> => {
+  const url = new URL(OVERPASS_INTERPRETER);
+  const validIds = ids.filter((id) => id > 0);
+  if (!validIds.length) return [];
+  url.searchParams.append("data", buildQueryElementCentersById(type, validIds));
+  const response = await fetch(url.toString());
+  const body = (await response.json()) as OverpassResponse;
+  return body.elements as Array<ElementWithCenter>;
 };
 
 const buildTunnelsQuery = () => `

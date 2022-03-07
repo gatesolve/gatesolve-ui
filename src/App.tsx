@@ -44,6 +44,7 @@ import TunnelsControl from "./components/TunnelsControl";
 import calculatePlan, { geometryToGeoJSON } from "./planner";
 import {
   queryNodesById,
+  queryElementCentersById,
   queryEntrances,
   queryMatchingStreet,
   queryTunnels,
@@ -269,8 +270,8 @@ const App: React.FC = () => {
   }) as match<{ query: string }>;
 
   const urlMatchOsm = useRouteMatch({
-    path: "/osm/node/:id?",
-  }) as match<{ id: string }>;
+    path: "/osm/:type?/:id?",
+  }) as match<{ type: string; id: string }>;
 
   const [state, setState] = useState(initialState);
 
@@ -1257,10 +1258,20 @@ const App: React.FC = () => {
   // Handle /osm/node/ deeplinks as if such a geocoding result was selected
   useEffect(() => {
     (async () => {
-      const id = urlMatchOsm?.params.id;
-      if (!id) return;
+      if (!urlMatchOsm) return;
+      const type = urlMatchOsm?.params.type;
+      const id = Number(urlMatchOsm?.params.id);
 
-      const elements = await queryNodesById([Number(id)]);
+      if (["node", "way", "relation"].indexOf(type) === -1 || !(id > 0)) {
+        // eslint-disable-next-line no-alert
+        alert("Broken link");
+        return;
+      }
+
+      const elements =
+        type === "node"
+          ? await queryNodesById([id])
+          : await queryElementCentersById(type as "way" | "relation", [id]);
       if (!elements.length) {
         // eslint-disable-next-line no-alert
         alert("Linked map feature not found");
@@ -1276,9 +1287,13 @@ const App: React.FC = () => {
             ? `${tags.name}, ${address}`
             : tags.name || address
         );
+        const coordinates =
+          "center" in element
+            ? [element.center.lon, element.center.lat]
+            : [element.lon, element.lat];
         selectSuggestion({
           geometry: {
-            coordinates: [element.lon, element.lat],
+            coordinates,
           },
           properties: {
             source_id: `node:${element.id}`,
