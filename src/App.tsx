@@ -1423,6 +1423,7 @@ const App: React.FC = () => {
                     key={`${layer.id}-${coords}`}
                     id={`${layer.id}-${coords}`}
                     source={`source-${coords}`}
+                    before="housenum_label"
                   />
                 ))}
               </Source>
@@ -1439,6 +1440,7 @@ const App: React.FC = () => {
               {...layer}
               key={layer.id}
               source="parking"
+              before="housenum_label"
             />
           ))}
         </Source>
@@ -1454,6 +1456,7 @@ const App: React.FC = () => {
                 {...layer}
                 key={layer.id}
                 source="tunnels"
+                before="road_street_label_fisv"
               />
             ))}
         </Source>
@@ -1462,6 +1465,7 @@ const App: React.FC = () => {
             // eslint-disable-next-line react/jsx-props-no-spreading
             {...buildingHighlightLayer}
             source="highlights"
+            before="housenum_label"
           />
         </Source>
 
@@ -1483,24 +1487,27 @@ const App: React.FC = () => {
               {...layer}
               key={layer.id}
               source="route"
-              before="building-highlight"
+              before="venue-symbol"
             />
           ))}
           <Layer
             // eslint-disable-next-line react/jsx-props-no-spreading
             {...routeImaginaryLineLayer}
             source="route"
+            before="venue-symbol"
           />
 
           <Layer
             // eslint-disable-next-line react/jsx-props-no-spreading
             {...routePointLayer}
             source="route"
+            before="venue-symbol"
           />
           <Layer
             // eslint-disable-next-line react/jsx-props-no-spreading
             {...routePointSymbolLayer}
             source="route"
+            before="venue-symbol"
           />
         </Source>
         {state.origin && (
