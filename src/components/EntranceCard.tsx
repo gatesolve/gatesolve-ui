@@ -84,7 +84,8 @@ const EntranceCard: React.FC<EntranceCardProps> = ({
           </Avatar>
         }
         title={`${[
-          workplaceEntrance.description_translated,
+          workplaceEntrance.description_translated ||
+            workplaceEntrance.description,
           workplaceEntrance.delivery_types.join("; "),
         ]
           .filter((x) => x)
@@ -100,7 +101,8 @@ const EntranceCard: React.FC<EntranceCardProps> = ({
       />
       <CardContent style={{ padding: 0 }}>
         <Typography variant="body2" color="textSecondary" component="p">
-          {workplaceEntrance.delivery_instructions_translated}
+          {workplaceEntrance.delivery_instructions_translated ||
+            workplaceEntrance.delivery_instructions}
         </Typography>
       </CardContent>
       <CardActions style={{ padding: 0 }}>
@@ -151,7 +153,8 @@ const EntranceCard: React.FC<EntranceCardProps> = ({
           >
             <CardContent style={{ padding: 0 }}>
               <Typography variant="body2" color="textSecondary" component="p">
-                {unloadingPlace.description_translated}
+                {unloadingPlace.description_translated ||
+                  unloadingPlace.description}
               </Typography>
             </CardContent>
             <CardActions style={{ padding: 0 }}>
