@@ -60,7 +60,6 @@ import {
   OlmapResponse,
   NetworkState,
   venueDataToGeoJSON,
-  OlmapWorkplaceEntrance,
   OlmapUnloadingPlace,
   venueDataToUnloadingPlaces,
   venueDataToUnloadingPlaceEntrances,
@@ -567,19 +566,13 @@ const App: React.FC = () => {
           if (venueOlmapData?.state === "success") {
             const workplaceEntrances =
               venueOlmapData.response.workplace?.workplace_entrances;
-            const isPresent = <T extends unknown>(
-              x: T | undefined | null
-            ): x is T => x !== undefined && x !== null;
-            const entranceIds: Array<number> | undefined = workplaceEntrances
-              ?.map(
+            const entranceIds: Array<number> | undefined =
+              workplaceEntrances?.map(
                 (workplaceEntrance) =>
-                  workplaceEntrance.entrance_data.osm_feature
-              )
-              .filter(isPresent);
+                  workplaceEntrance.entrance_data.osm_feature || 0
+              );
             result = await queryNodesById(entranceIds || []);
             if (venueOlmapData.response.workplace?.workplace_entrances) {
-              const workplaceEntrancesInBoth =
-                [] as Array<OlmapWorkplaceEntrance>;
               const osmEntrancesInOrder = [] as Array<ElementWithCoordinates>;
               workplaceEntrances?.forEach((workplaceEntrance) => {
                 const osmEntrance = result.find(
@@ -587,16 +580,22 @@ const App: React.FC = () => {
                     node.id === workplaceEntrance.entrance_data.osm_feature
                 );
                 if (osmEntrance) {
-                  workplaceEntrancesInBoth.push(workplaceEntrance);
                   osmEntrancesInOrder.push(osmEntrance);
+                } else {
+                  osmEntrancesInOrder.push({
+                    lat: Number(workplaceEntrance.image_note.lat),
+                    lon: Number(workplaceEntrance.image_note.lon),
+                    id: workplaceEntrance.image_note.id,
+                    type: "olmap",
+                    tags: workplaceEntrance.entrance_data.as_osm_tags,
+                  });
                 }
               });
-              venueOlmapData.response.workplace.workplace_entrances =
-                workplaceEntrancesInBoth;
               venueFeatures = venueDataToGeoJSON(
                 venueOlmapData,
                 osmEntrancesInOrder
               );
+              result = osmEntrancesInOrder;
             }
           }
         }
@@ -681,7 +680,8 @@ const App: React.FC = () => {
           state.venueOlmapData.response.workplace?.workplace_entrances.find(
             (aWorkplaceEntrance) =>
               aWorkplaceEntrance.entrance_data.osm_feature ===
-              state.destination?.id
+                state.destination?.id ||
+              aWorkplaceEntrance.image_note.id === state.destination?.id
           )) ||
         undefined;
 
@@ -820,14 +820,16 @@ const App: React.FC = () => {
               const targetEntrance = state.entrances?.find(
                 (entrance) => entrance.id === target
               );
-              // XXX: Always true, needed by Typescript:
-              if (targetEntrance) {
+              // Walking route query from the unloading place to the entrance
+              // Skip if the entrance is only in OLMap and missing from OSM
+              if (targetEntrance && targetEntrance.type !== "olmap") {
                 queries.push([
                   olmapNoteToElement(venueOrigin.image_note),
                   targetEntrance,
                   "delivery-walking",
                 ]);
               }
+              // Car route query from access points to unloading place
               venueOrigin.access_points?.forEach((access_point) => {
                 queries.push([
                   latLngToElement([
@@ -847,13 +849,16 @@ const App: React.FC = () => {
         } else {
           // The destination is a specific entrance of the venue
           workplaceEntrance?.unloading_places?.forEach((venueOrigin) => {
-            if (state.destination) {
+            // Walking route query from the unloading place to the entrance
+            // Skip if the entrance is only in OLMap and missing from OSM
+            if (state.destination && state.destination.type !== "olmap") {
               queries.push([
                 olmapNoteToElement(venueOrigin.image_note),
                 state.destination,
                 "delivery-walking",
               ]);
             }
+            // Car route query from access points to unloading place
             venueOrigin.access_points?.forEach((access_point) => {
               queries.push([
                 latLngToElement([
@@ -1743,10 +1748,8 @@ const App: React.FC = () => {
                 feature.properties?.entrance
             );
 
-            const entrance = prevState.venueFeatures.features.find(
-              (feature) =>
-                feature.properties?.["@id"] ===
-                `http://www.openstreetmap.org/node/${entranceId}`
+            const entrance = prevState.venueFeatures.features.find((feature) =>
+              feature.properties?.["@id"].endsWith(`/${entranceId}`)
             );
             return {
               ...prevState,
