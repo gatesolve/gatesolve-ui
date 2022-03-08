@@ -2,3 +2,5 @@
 /route/* / 200
 /search/* / 200
 /osm/node/* / 200
+/osm/way/* / 200
+/osm/relation/* / 200
