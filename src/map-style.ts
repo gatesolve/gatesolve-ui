@@ -238,9 +238,9 @@ const tunnelPointSymbols: LayerProps = {
 };
 
 export const tunnelLayers: Array<LayerProps> = [
-  tunnelPointSymbols,
   tunnelPoints,
   tunnelLines,
+  tunnelPointSymbols,
 ];
 
 const entrancePoints: LayerProps = {
