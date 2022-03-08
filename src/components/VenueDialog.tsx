@@ -67,31 +67,32 @@ const translatedText = (
 ) => {
   return (
     <>
-      {record[`${fieldName}_translated`]}
-      {record[`${fieldName}_translated`] !== record[fieldName] && (
-        <span>
-          {" "}
-          {
-            // eslint-disable-next-line jsx-a11y/anchor-is-valid
-            <a
-              href="#"
-              style={{
-                display: "inline",
-                color: "#aaa",
-                background: "none",
-                border: "none",
-                textDecoration: "none",
-              }}
-              onClick={(event): void => {
-                event.preventDefault();
-                onLocaleSelected(record[`${fieldName}_language`]);
-              }}
-            >
-              Translated by Google. View original.
-            </a>
-          }
-        </span>
-      )}
+      {record[`${fieldName}_translated`] || record[fieldName]}
+      {record[`${fieldName}_translated`] &&
+        record[`${fieldName}_translated`] !== record[fieldName] && (
+          <span>
+            {" "}
+            {
+              // eslint-disable-next-line jsx-a11y/anchor-is-valid
+              <a
+                href="#"
+                style={{
+                  display: "inline",
+                  color: "#aaa",
+                  background: "none",
+                  border: "none",
+                  textDecoration: "none",
+                }}
+                onClick={(event): void => {
+                  event.preventDefault();
+                  onLocaleSelected("");
+                }}
+              >
+                Translated by Google. View original.
+              </a>
+            }
+          </span>
+        )}
     </>
   );
 };
@@ -210,6 +211,9 @@ const VenueDialog: React.FC<VenueDialogProps> = ({
             }}
             style={{ paddingTop: 0, maxWidth: 90 }}
           >
+            <option key="" value="" selected={locale === ""}>
+              {locale === "" ? "Translate" : "Original"}
+            </option>
             {localesAvailable.map(([name, code]) => (
               <option key={code} value={code} selected={locale === code}>
                 {name}

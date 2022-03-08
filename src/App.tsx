@@ -161,7 +161,7 @@ const initialState: State = {
   venueDialogCollapsed: false,
   venueFeatures: emptyFeatureCollection,
   showTunnels: false,
-  locale: "en",
+  locale: "", // Original texts untranslated
 };
 
 const metropolitanAreaCenter = [60.17066815612902, 24.941510260105133];
