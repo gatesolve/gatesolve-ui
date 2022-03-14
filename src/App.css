@@ -44,8 +44,13 @@
   margin: 1em;
 }
 
-.App .react-autosuggest__input {
+.App .react-autosuggest__input,
+.App .react-autosuggest__input:focus {
+  appearance: none;
   border: none !important;
+  font-size: 100%;
+  padding: 1em;
+  padding-left: 1rem;
 }
 
 .App .react-autosuggest__input--open {
@@ -54,7 +59,7 @@
 }
 
 .App .react-autosuggest__suggestions-container--open {
-  max-height: 10em;
+  max-height: 13em;
   overflow-y: auto;
   border-bottom-left-radius: 3px;
   border-bottom-right-radius: 3px;
@@ -69,7 +74,7 @@
   font-size: 75%;
   box-sizing: border-box;
   margin: 0;
-  padding: 0.5em 0em 0.5em 1.5em;
+  padding: 1em 0em 1em 1rem;
   text-align: left;
 }
 
