@@ -1751,6 +1751,7 @@ const App: React.FC = () => {
       <VenueDialog
         open={state.venueDialogOpen}
         collapsed={state.venueDialogCollapsed}
+        venue={state.venue}
         venueOlmapData={state.venueOlmapData}
         restrictions={state.route}
         locale={state.locale}

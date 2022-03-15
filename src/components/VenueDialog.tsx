@@ -7,6 +7,7 @@ import Drawer from "@material-ui/core/Drawer";
 import NativeSelect from "@material-ui/core/NativeSelect";
 import "@fontsource/noto-sans/400.css";
 
+import AddCommentIcon from "@material-ui/icons/AddComment";
 import CloseIcon from "@material-ui/icons/Close";
 import ExpandIcon from "@material-ui/icons/ExpandLess"; // https://material.io/components/sheets-bottom
 import CollapseIcon from "@material-ui/icons/ExpandMore";
@@ -27,6 +28,8 @@ import {
   OlmapUnloadingPlace,
 } from "../olmap";
 
+import type { ElementWithCoordinates } from "../overpass";
+
 import EntranceCard from "./EntranceCard";
 
 import { ReactComponent as HeightLimitSign } from "./HeightLimitSign.svg";
@@ -34,6 +37,7 @@ import { ReactComponent as HeightLimitSign } from "./HeightLimitSign.svg";
 interface VenueDialogProps {
   open: boolean;
   collapsed: boolean;
+  venue?: ElementWithCoordinates;
   venueOlmapData?: NetworkState<OlmapResponse>;
   restrictions?: FeatureCollection;
   locale: string;
@@ -100,6 +104,7 @@ const translatedText = (
 const VenueDialog: React.FC<VenueDialogProps> = ({
   open,
   collapsed,
+  venue,
   venueOlmapData,
   restrictions,
   locale,
@@ -148,6 +153,25 @@ const VenueDialog: React.FC<VenueDialogProps> = ({
         >
           {collapsed ? <ExpandIcon /> : <CollapseIcon />}
         </IconButton>
+        {venue && (
+          <IconButton
+            aria-label="Comment"
+            href={`https://app.olmap.org/#/ww/osm/${venue.type}/${venue.id}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              position: "absolute",
+              top: "8px",
+              left: "48px",
+            }}
+          >
+            <AddCommentIcon
+              style={{
+                color: "#ff5000",
+              }}
+            />
+          </IconButton>
+        )}
         {workplace.max_vehicle_height && (
           <div
             style={{
