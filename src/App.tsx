@@ -1212,6 +1212,7 @@ const App: React.FC = () => {
         type,
         id: Number(id),
         tags: {
+          name: suggestion.properties.name,
           "addr:street": suggestion.properties.street,
         },
       };
@@ -1221,7 +1222,7 @@ const App: React.FC = () => {
         destination,
         entrances: [],
         venue: destination,
-        venueDialogOpen: true, // Let the dialog open
+        venueDialogOpen: suggestion.properties.layer === "venue", // Open the dialog for venues
         venueDialogCollapsed: false,
         venueOlmapData: undefined, // Clear old data
         viewport: { ...prevState.viewport, ...viewport },
@@ -1296,8 +1297,10 @@ const App: React.FC = () => {
             coordinates,
           },
           properties: {
-            source_id: `node:${element.id}`,
+            source_id: `${element.type}:${element.id}`,
             street: tags["addr:street"],
+            name: tags.name,
+            layer: tags.name ? "venue" : undefined, // XXX assumes anything with a name is a venue
           },
         });
       }

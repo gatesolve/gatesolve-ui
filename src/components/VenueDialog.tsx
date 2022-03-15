@@ -116,14 +116,15 @@ const VenueDialog: React.FC<VenueDialogProps> = ({
   onRestrictionSelected,
   onLocaleSelected,
 }) => {
-  if (
-    venueOlmapData?.state !== "success" ||
-    !venueOlmapData.response.workplace
-  ) {
+  if (!venue || !open) {
     return null;
   }
-  const { workplace } = venueOlmapData.response;
-  const workplaceEntrances = workplace.workplace_entrances;
+
+  const workplace =
+    (venueOlmapData?.state === "success" &&
+      venueOlmapData.response.workplace) ||
+    undefined;
+  const workplaceEntrances = workplace?.workplace_entrances;
 
   return (
     <Drawer
@@ -143,16 +144,18 @@ const VenueDialog: React.FC<VenueDialogProps> = ({
       }}
     >
       <DialogTitle>
-        <IconButton
-          style={{
-            position: "absolute",
-            top: "8px",
-            left: "8px",
-          }}
-          onClick={() => onCollapsingToggled()}
-        >
-          {collapsed ? <ExpandIcon /> : <CollapseIcon />}
-        </IconButton>
+        {workplace && (
+          <IconButton
+            style={{
+              position: "absolute",
+              top: "8px",
+              left: "8px",
+            }}
+            onClick={() => onCollapsingToggled()}
+          >
+            {collapsed ? <ExpandIcon /> : <CollapseIcon />}
+          </IconButton>
+        )}
         {venue && (
           <IconButton
             aria-label="Comment"
@@ -172,7 +175,7 @@ const VenueDialog: React.FC<VenueDialogProps> = ({
             />
           </IconButton>
         )}
-        {workplace.max_vehicle_height && (
+        {workplace?.max_vehicle_height && (
           <div
             style={{
               display: "inline-block",
@@ -201,7 +204,7 @@ const VenueDialog: React.FC<VenueDialogProps> = ({
             </div>
           </div>
         )}
-        {workplace.as_osm_tags.name}
+        {workplace?.as_osm_tags.name || venue.tags?.name || ""}
         <IconButton
           style={{
             position: "absolute",
@@ -213,93 +216,99 @@ const VenueDialog: React.FC<VenueDialogProps> = ({
           <CloseIcon />
         </IconButton>
       </DialogTitle>
-      <DialogContent
-        style={{
-          display: collapsed ? "none" : "block",
-          overflow: "auto",
-          textAlign: "left",
-          paddingTop: 0,
-        }}
-      >
-        <div style={{ float: "right" }}>
-          <NativeSelect
-            inputProps={{
-              id: "locale",
-              name: "locale",
-            }}
-            onChange={(event) => {
-              const selectedLocale = event.target.value;
-              if (selectedLocale !== locale) {
-                onLocaleSelected(selectedLocale);
-              }
-            }}
-            style={{ paddingTop: 0, maxWidth: 90 }}
-          >
-            <option key="" value="" selected={locale === ""}>
-              {locale === "" ? "Translate" : "Original"}
-            </option>
-            {localesAvailable.map(([name, code]) => (
-              <option key={code} value={code} selected={locale === code}>
-                {name}
-              </option>
-            ))}
-          </NativeSelect>
-        </div>
-        {restrictions &&
-          restrictions.features
-            .filter((feature) => getHeightRestriction(feature.properties))
-            .map((feature) => (
-              <button
-                key={feature.properties?.["@id"]}
-                type="button"
-                style={{
-                  float: "left",
-                  position: "relative",
-                  width: "2em",
-                  height: "2em",
-                  border: "none",
-                  background: "none",
-                  padding: 0,
-                }}
-                onClick={() =>
-                  feature.geometry.type === "Point" &&
-                  onRestrictionSelected(feature as Feature<Point>)
+      {workplace && (
+        <DialogContent
+          style={{
+            display: collapsed ? "none" : "block",
+            overflow: "auto",
+            textAlign: "left",
+            paddingTop: 0,
+          }}
+        >
+          <div style={{ float: "right" }}>
+            <NativeSelect
+              inputProps={{
+                id: "locale",
+                name: "locale",
+              }}
+              onChange={(event) => {
+                const selectedLocale = event.target.value;
+                if (selectedLocale !== locale) {
+                  onLocaleSelected(selectedLocale);
                 }
-              >
-                <HeightLimitSign style={{ width: "100%", height: "100%" }} />
-                <div
+              }}
+              style={{ paddingTop: 0, maxWidth: 90 }}
+            >
+              <option key="" value="" selected={locale === ""}>
+                {locale === "" ? "Translate" : "Original"}
+              </option>
+              {localesAvailable.map(([name, code]) => (
+                <option key={code} value={code} selected={locale === code}>
+                  {name}
+                </option>
+              ))}
+            </NativeSelect>
+          </div>
+          {restrictions &&
+            restrictions.features
+              .filter((feature) => getHeightRestriction(feature.properties))
+              .map((feature) => (
+                <button
+                  key={feature.properties?.["@id"]}
+                  type="button"
                   style={{
-                    position: "absolute",
-                    top: 0,
-                    left: 0,
-                    width: "100%",
-                    height: "100%",
-                    fontSize: "0.7em",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
+                    float: "left",
+                    position: "relative",
+                    width: "2em",
+                    height: "2em",
+                    border: "none",
+                    background: "none",
+                    padding: 0,
                   }}
+                  onClick={() =>
+                    feature.geometry.type === "Point" &&
+                    onRestrictionSelected(feature as Feature<Point>)
+                  }
                 >
-                  {getHeightRestriction(feature.properties)}
-                </div>
-              </button>
-            ))}
-        <Typography variant="body2" color="textSecondary" component="p">
-          {translatedText(workplace, "delivery_instructions", onLocaleSelected)}
-        </Typography>
-        <div style={{ clear: "both" }} />
-        {workplaceEntrances.map((workplaceEntrance, index) => (
-          <EntranceCard
-            key={workplaceEntrance.id}
-            workplaceEntrance={workplaceEntrance}
-            workplace={workplace}
-            onEntranceSelected={onEntranceSelected}
-            onUnloadingPlaceSelected={onUnloadingPlaceSelected}
-            onViewDetails={onViewDetails}
-            label={romanize(index + 1)}
-          />
-        ))}
-      </DialogContent>
+                  <HeightLimitSign style={{ width: "100%", height: "100%" }} />
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      width: "100%",
+                      height: "100%",
+                      fontSize: "0.7em",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    {getHeightRestriction(feature.properties)}
+                  </div>
+                </button>
+              ))}
+          <Typography variant="body2" color="textSecondary" component="p">
+            {translatedText(
+              workplace,
+              "delivery_instructions",
+              onLocaleSelected
+            )}
+          </Typography>
+          <div style={{ clear: "both" }} />
+          {workplaceEntrances?.map((workplaceEntrance, index) => (
+            <EntranceCard
+              key={workplaceEntrance.id}
+              workplaceEntrance={workplaceEntrance}
+              workplace={workplace}
+              onEntranceSelected={onEntranceSelected}
+              onUnloadingPlaceSelected={onUnloadingPlaceSelected}
+              onViewDetails={onViewDetails}
+              label={romanize(index + 1)}
+            />
+          ))}
+        </DialogContent>
+      )}
     </Drawer>
   );
 };
