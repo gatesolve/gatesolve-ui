@@ -81,7 +81,25 @@ const routeLineLayer: LayerProps = {
     "line-width": 2,
     "line-color": ["get", "@color"],
   },
-  filter: ["!", ["coalesce", ["get", "@imaginary"], false]],
+  filter: ["!", ["coalesce", ["get", "@imaginary"], ["get", "@tunnel"], false]],
+};
+
+const routeTunnelLineLayer: LayerProps = {
+  id: "route-tunnel-line",
+  beforeId: "tunnel-line",
+  type: "line",
+  layout: {
+    "line-cap": "butt",
+    "line-join": "round",
+  },
+  paint: {
+    "line-opacity": ["coalesce", ["get", "@opacity"], 0.8],
+    "line-width": 1,
+    "line-gap-width": 6,
+    "line-dasharray": [10, 3],
+    "line-color": ["get", "@color"],
+  },
+  filter: ["coalesce", ["get", "@tunnel"]],
 };
 
 const routeLineInteractiveLayer: LayerProps = {
@@ -152,6 +170,7 @@ export const routePointSymbolLayer: LayerProps = {
 export const routeLayers: Array<LayerProps> = [
   routeLineLayer,
   routeLineInteractiveLayer,
+  routeTunnelLineLayer,
   routeImaginaryLineLayer,
   routePointLayer,
   routePointSymbolLayer,
