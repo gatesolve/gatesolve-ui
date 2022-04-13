@@ -121,6 +121,16 @@ export const routePointLayer: LayerProps = {
   filter: ["==", "Point", ["geometry-type"]],
 };
 
+export const routePointInteractiveLayer: LayerProps = {
+  id: "route-point-interactive",
+  type: "circle",
+  paint: {
+    "circle-opacity": 0,
+    "circle-radius": 15,
+  },
+  filter: ["==", "Point", ["geometry-type"]],
+};
+
 export const routePointSymbolLayer: LayerProps = {
   id: "route-point-symbol",
   type: "symbol",
@@ -145,6 +155,7 @@ export const routeLayers: Array<LayerProps> = [
   routeImaginaryLineLayer,
   routePointLayer,
   routePointSymbolLayer,
+  routePointInteractiveLayer,
 ];
 
 export const buildingHighlightLayer: LayerProps = {
