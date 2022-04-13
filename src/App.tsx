@@ -24,10 +24,7 @@ import { Feature, FeatureCollection, Point, Position } from "geojson";
 import { ReactAutosuggestGeocoder } from "react-autosuggest-geocoder";
 
 import {
-  routePointLayer,
-  routePointSymbolLayer,
-  routeLineLayers,
-  routeImaginaryLineLayer,
+  routeLayers,
   buildingHighlightLayer,
   allEntrancesLayers,
   venueLayers,
@@ -1485,7 +1482,7 @@ const App: React.FC = () => {
         </Source>
 
         <Source id="route" type="geojson" data={state.route}>
-          {routeLineLayers.map((layer) => (
+          {routeLayers.map((layer) => (
             <Layer
               // eslint-disable-next-line react/jsx-props-no-spreading
               {...layer}
@@ -1494,25 +1491,6 @@ const App: React.FC = () => {
               before="venue-symbol"
             />
           ))}
-          <Layer
-            // eslint-disable-next-line react/jsx-props-no-spreading
-            {...routeImaginaryLineLayer}
-            source="route"
-            before="venue-symbol"
-          />
-
-          <Layer
-            // eslint-disable-next-line react/jsx-props-no-spreading
-            {...routePointLayer}
-            source="route"
-            before="venue-symbol"
-          />
-          <Layer
-            // eslint-disable-next-line react/jsx-props-no-spreading
-            {...routePointSymbolLayer}
-            source="route"
-            before="venue-symbol"
-          />
         </Source>
         {state.origin && (
           <Marker
