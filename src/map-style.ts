@@ -84,7 +84,7 @@ const routeLineLayer: LayerProps = {
   filter: ["!", ["coalesce", ["get", "@imaginary"], false]],
 };
 
-const routeLineInteractive: LayerProps = {
+const routeLineInteractiveLayer: LayerProps = {
   id: "route-line-interactive",
   type: "line",
   paint: {
@@ -93,11 +93,6 @@ const routeLineInteractive: LayerProps = {
   },
   filter: ["coalesce", ["get", "@interactive"]],
 };
-
-export const routeLineLayers: Array<LayerProps> = [
-  routeLineLayer,
-  routeLineInteractive,
-];
 
 export const routeImaginaryLineLayer: LayerProps = {
   id: "route-imaginary-line",
@@ -125,6 +120,43 @@ export const routePointLayer: LayerProps = {
   },
   filter: ["==", "Point", ["geometry-type"]],
 };
+
+export const routePointInteractiveLayer: LayerProps = {
+  id: "route-point-interactive",
+  type: "circle",
+  paint: {
+    "circle-opacity": 0,
+    "circle-radius": 15,
+  },
+  filter: ["==", "Point", ["geometry-type"]],
+};
+
+export const routePointSymbolLayer: LayerProps = {
+  id: "route-point-symbol",
+  type: "symbol",
+  paint: {
+    "text-color": "#000",
+    "text-halo-color": "#fff",
+    "text-halo-width": 3,
+  },
+  layout: {
+    "text-field": ["get", "@label"],
+    "text-anchor": "center",
+    "text-font": ["Klokantech Noto Sans Regular"],
+    "text-size": 24,
+    "text-offset": [0, -0.05],
+  },
+  filter: ["==", "Point", ["geometry-type"]],
+};
+
+export const routeLayers: Array<LayerProps> = [
+  routeLineLayer,
+  routeLineInteractiveLayer,
+  routeImaginaryLineLayer,
+  routePointLayer,
+  routePointSymbolLayer,
+  routePointInteractiveLayer,
+];
 
 export const buildingHighlightLayer: LayerProps = {
   id: "building-highlight",
@@ -521,21 +553,3 @@ export const allEntrancesLayers: Array<LayerProps> = [
   entrancePoints, // smaller zoom levels
   entranceSymbols, // larger zoom levels
 ];
-
-export const routePointSymbolLayer: LayerProps = {
-  id: "route-point-symbol",
-  type: "symbol",
-  paint: {
-    "text-color": "#000",
-    "text-halo-color": "#fff",
-    "text-halo-width": 3,
-  },
-  layout: {
-    "text-field": ["get", "@label"],
-    "text-anchor": "center",
-    "text-font": ["Klokantech Noto Sans Regular"],
-    "text-size": 24,
-    "text-offset": [0, -0.05],
-  },
-  filter: ["==", "Point", ["geometry-type"]],
-};
