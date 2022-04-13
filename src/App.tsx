@@ -1069,7 +1069,8 @@ const App: React.FC = () => {
       // If a barrier or steps were clicked, show details in the popup.
       if (
         feature?.properties.barrier ||
-        feature?.properties.highway === "steps"
+        feature?.properties.highway === "steps" ||
+        feature?.properties["@obstacle"]
       ) {
         const id = feature.properties["@id"].split("/").reverse()[0];
         const [lon, lat] =
