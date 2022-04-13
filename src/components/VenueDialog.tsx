@@ -126,6 +126,14 @@ const VenueDialog: React.FC<VenueDialogProps> = ({
     undefined;
   const workplaceEntrances = workplace?.workplace_entrances;
 
+  const restrictionFeatureMap = new Map<string, Feature>();
+  restrictions?.features
+    .filter((feature) => getHeightRestriction(feature.properties))
+    .forEach((restriction) => {
+      restrictionFeatureMap.set(restriction.properties?.["@id"], restriction);
+    });
+  const restrictionFeatures = Array.from(restrictionFeatureMap.values());
+
   return (
     <Drawer
       open={open}
@@ -249,45 +257,42 @@ const VenueDialog: React.FC<VenueDialogProps> = ({
               ))}
             </NativeSelect>
           </div>
-          {restrictions &&
-            restrictions.features
-              .filter((feature) => getHeightRestriction(feature.properties))
-              .map((feature) => (
-                <button
-                  key={feature.properties?.["@id"]}
-                  type="button"
-                  style={{
-                    float: "left",
-                    position: "relative",
-                    width: "2em",
-                    height: "2em",
-                    border: "none",
-                    background: "none",
-                    padding: 0,
-                  }}
-                  onClick={() =>
-                    feature.geometry.type === "Point" &&
-                    onRestrictionSelected(feature as Feature<Point>)
-                  }
-                >
-                  <HeightLimitSign style={{ width: "100%", height: "100%" }} />
-                  <div
-                    style={{
-                      position: "absolute",
-                      top: 0,
-                      left: 0,
-                      width: "100%",
-                      height: "100%",
-                      fontSize: "0.7em",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
-                  >
-                    {getHeightRestriction(feature.properties)}
-                  </div>
-                </button>
-              ))}
+          {restrictionFeatures.map((feature) => (
+            <button
+              key={feature.properties?.["@id"]}
+              type="button"
+              style={{
+                float: "left",
+                position: "relative",
+                width: "2em",
+                height: "2em",
+                border: "none",
+                background: "none",
+                padding: 0,
+              }}
+              onClick={() =>
+                feature.geometry.type === "Point" &&
+                onRestrictionSelected(feature as Feature<Point>)
+              }
+            >
+              <HeightLimitSign style={{ width: "100%", height: "100%" }} />
+              <div
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  width: "100%",
+                  height: "100%",
+                  fontSize: "0.7em",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                {getHeightRestriction(feature.properties)}
+              </div>
+            </button>
+          ))}
           <Typography variant="body2" color="textSecondary" component="p">
             {translatedText(
               workplace,
