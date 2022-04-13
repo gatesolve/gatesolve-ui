@@ -24,6 +24,7 @@ function extractGeometry(
 ): RouteGeometries {
   const coordinates = [] as Array<[number, number]>;
   const obstacles = [] as Array<ElementWithCoordinates>;
+  const waysSeen = {} as { [id: string]: boolean };
   const obstacleWays = new Map<string, [Tags, Array<[number, number]>]>();
   const imaginaryWays = [] as Array<Array<[number, number]>>;
 
@@ -50,22 +51,44 @@ function extractGeometry(
       return; // guessed segment
     }
     const node = step.stopLocation;
+    const wayId = step.through;
+
+    // For each way seen, create an obstacle node if there's a height restriction
+    if (!waysSeen[wayId]) {
+      const wayContext = path.context[wayId];
+      const tags = triplesToTags(
+        wayId,
+        wayContext.definedTags,
+        wayContext.freeformTags
+      );
+      if (tags.height || tags.maxheight || tags["maxheight:physical"]) {
+        obstacles.push({
+          type: wayId,
+          id: wayId,
+          lon: step.startLocation.longitude as number,
+          lat: step.startLocation.latitude as number,
+          tags,
+        });
+      }
+    }
+    waysSeen[wayId] = true;
+
     if (
-      path.context[step.through]?.definedTags[
+      path.context[wayId]?.definedTags[
         "https://w3id.org/openstreetmap/terms#highway"
       ] === "https://w3id.org/openstreetmap/terms#Steps"
     ) {
-      if (!obstacleWays.has(step.through)) {
-        const wayContext = path.context[step.through];
+      if (!obstacleWays.has(wayId)) {
+        const wayContext = path.context[wayId];
         const tags = triplesToTags(
-          step.through,
+          wayId,
           wayContext.definedTags,
           wayContext.freeformTags
         );
-        obstacleWays.set(step.through, [tags, []]);
+        obstacleWays.set(wayId, [tags, []]);
       }
       obstacleWays
-        .get(step.through)?.[1]
+        .get(wayId)?.[1]
         .push(
           [
             step.startLocation.longitude as number,
@@ -210,6 +233,7 @@ export function geometryToGeoJSON(
         ...obstacle.tags,
         "@color": "#dc0451",
         "@label": "!",
+        "@obstacle": true,
       },
     });
   });
