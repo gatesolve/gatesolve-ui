@@ -53,6 +53,7 @@ export interface Tags {
   "addr:housenumber"?: string;
   "addr:street"?: string;
   name?: string;
+  tunnel?: string;
 }
 
 const buildEntranceQuery = (lat: number, lon: number): string => `

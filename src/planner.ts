@@ -76,7 +76,10 @@ function extractGeometry(
     if (
       path.context[wayId]?.definedTags[
         "https://w3id.org/openstreetmap/terms#highway"
-      ] === "https://w3id.org/openstreetmap/terms#Steps"
+      ] === "https://w3id.org/openstreetmap/terms#Steps" ||
+      path.context[wayId]?.freeformTags.find((tag: string) =>
+        tag.startsWith("tunnel=")
+      )
     ) {
       if (!obstacleWays.has(wayId)) {
         const wayContext = path.context[wayId];
@@ -195,18 +198,27 @@ export function geometryToGeoJSON(
     });
   }
   routeGeometries?.obstacleWays.forEach(([tags, geometry]) => {
+    const properties = tags.tunnel
+      ? {
+          ...tags,
+          "@color": "#000000",
+          "@opacity": 1,
+          "@tunnel": true,
+        }
+      : {
+          ...tags,
+          "@color": "#dc0451",
+          "@opacity": 1,
+          "@obstacle": true,
+          "@interactive": true,
+        };
     features.push({
       type: "Feature",
       geometry: {
         type: "LineString",
         coordinates: geometry,
       },
-      properties: {
-        ...tags,
-        "@color": "#dc0451",
-        "@opacity": 1,
-        "@interactive": true,
-      },
+      properties,
     });
   });
   if (routeGeometries?.imaginaryWays) {

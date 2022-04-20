@@ -1488,7 +1488,7 @@ const App: React.FC = () => {
               {...layer}
               key={layer.id}
               source="route"
-              before="venue-symbol"
+              before={layer.beforeId || "venue-symbol"}
             />
           ))}
         </Source>
