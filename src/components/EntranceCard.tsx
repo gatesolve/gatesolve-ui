@@ -15,19 +15,36 @@ import {
   OlmapWorkplace,
 } from "../olmap";
 
+import { translate } from "../translations";
+
 interface EntranceCardProps {
   workplaceEntrance: OlmapWorkplaceEntrance;
   workplace: OlmapWorkplace;
   label: string;
+  locale: string;
   onEntranceSelected: (entranceId: number) => void;
   onUnloadingPlaceSelected: (unloadingPlace: OlmapUnloadingPlace) => void;
   onViewDetails: (note: OlmapNote) => void;
 }
 
+const deliveryLabel = (
+  deliveriesType: OlmapWorkplaceEntrance["deliveries"],
+  locale: string
+) => {
+  if (deliveriesType === "main" || deliveriesType === "yes") {
+    return translate("Delivery entrance", locale);
+  }
+  if (deliveriesType === "no") {
+    return translate("Not for deliveries", locale);
+  }
+  return deliveriesType;
+};
+
 const EntranceCard: React.FC<EntranceCardProps> = ({
   workplaceEntrance,
   workplace,
   label,
+  locale,
   onEntranceSelected,
   onUnloadingPlaceSelected,
   onViewDetails,
@@ -84,6 +101,7 @@ const EntranceCard: React.FC<EntranceCardProps> = ({
           </Avatar>
         }
         title={`${[
+          deliveryLabel(workplaceEntrance.deliveries, locale),
           workplaceEntrance.description_translated ||
             workplaceEntrance.description,
           workplaceEntrance.delivery_types.join("; "),
@@ -93,7 +111,11 @@ const EntranceCard: React.FC<EntranceCardProps> = ({
         subheader={workplaceEntrance.delivery_hours || workplace.delivery_hours}
         // The following backgrounds are in case a long word overlaps the floated photo
         titleTypographyProps={{
-          style: { background: "rgba(255,255,255,0.5)" },
+          style: {
+            background: "rgba(255,255,255,0.5)",
+            fontWeight:
+              workplaceEntrance.deliveries === "main" ? "bold" : undefined,
+          },
         }}
         subheaderTypographyProps={{
           style: { background: "rgba(255,255,255,0.5)" },

@@ -310,6 +310,7 @@ const VenueDialog: React.FC<VenueDialogProps> = ({
               onUnloadingPlaceSelected={onUnloadingPlaceSelected}
               onViewDetails={onViewDetails}
               label={romanize(index + 1)}
+              locale={locale}
             />
           ))}
         </DialogContent>
