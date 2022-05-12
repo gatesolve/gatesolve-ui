@@ -40,6 +40,30 @@ const deliveryLabel = (
   return deliveriesType;
 };
 
+const entranceKeywords = (
+  entrance: OlmapWorkplaceEntrance,
+  locale: string
+): string => {
+  const tags = entrance.entrance_data.as_osm_tags;
+  const keywords = [];
+  if (Number(tags.layer) < 0) {
+    keywords.push(translate("underground", locale));
+  }
+  if (tags.door === "loadingdock") {
+    keywords.push(translate("loading dock", locale));
+  }
+  if (tags.entrance === "main" && !entrance.description) {
+    keywords.push(translate("main entrance", locale));
+  }
+  // XXX if the street, housenumber or unit varies between entrances
+  if (tags["addr:street"] && tags["addr:housenumber"] && tags["addr:unit"]) {
+    keywords.push(
+      `${tags["addr:street"]} ${tags["addr:housenumber"]} ${tags["addr:unit"]}`
+    );
+  }
+  return keywords.join(", ");
+};
+
 const EntranceCard: React.FC<EntranceCardProps> = ({
   workplaceEntrance,
   workplace,
@@ -100,15 +124,21 @@ const EntranceCard: React.FC<EntranceCardProps> = ({
             <span>{label}</span>
           </Avatar>
         }
-        title={`${[
-          deliveryLabel(workplaceEntrance.deliveries, locale),
+        title={[
+          !workplaceEntrance.delivery_types?.length &&
+            deliveryLabel(workplaceEntrance.deliveries, locale),
           workplaceEntrance.description_translated ||
             workplaceEntrance.description,
-          workplaceEntrance.delivery_types.join("; "),
+          workplaceEntrance.delivery_types.join(", "),
         ]
           .filter((x) => x)
-          .join(": ")}`}
-        subheader={workplaceEntrance.delivery_hours || workplace.delivery_hours}
+          .join(" - ")}
+        subheader={[
+          workplaceEntrance.delivery_hours || workplace.delivery_hours,
+          entranceKeywords(workplaceEntrance, locale),
+        ]
+          .filter((x) => x)
+          .join(" - ")}
         // The following backgrounds are in case a long word overlaps the floated photo
         titleTypographyProps={{
           style: {
