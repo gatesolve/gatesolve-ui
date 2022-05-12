@@ -121,7 +121,7 @@ const EntranceCard: React.FC<EntranceCardProps> = ({
           style: { background: "rgba(255,255,255,0.5)" },
         }}
       />
-      <CardContent style={{ padding: 0 }}>
+      <CardContent style={{ padding: 0, minHeight: "4px" }}>
         <Typography variant="body2" color="textSecondary" component="p">
           {workplaceEntrance.delivery_instructions_translated ||
             workplaceEntrance.delivery_instructions}
