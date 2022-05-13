@@ -293,7 +293,12 @@ const VenueDialog: React.FC<VenueDialogProps> = ({
               </div>
             </button>
           ))}
-          <Typography variant="body2" color="textSecondary" component="p">
+          <Typography
+            variant="body2"
+            color="textSecondary"
+            component="p"
+            style={{ paddingBottom: "4px" }}
+          >
             {translatedText(
               workplace,
               "delivery_instructions",
@@ -310,6 +315,7 @@ const VenueDialog: React.FC<VenueDialogProps> = ({
               onUnloadingPlaceSelected={onUnloadingPlaceSelected}
               onViewDetails={onViewDetails}
               label={romanize(index + 1)}
+              locale={locale}
             />
           ))}
         </DialogContent>
