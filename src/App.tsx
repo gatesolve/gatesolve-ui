@@ -16,6 +16,7 @@ import { useSnackbar } from "notistack";
 import MapGL, { Popup, Source, Layer, Marker } from "@urbica/react-map-gl";
 import { WebMercatorViewport } from "@math.gl/web-mercator";
 import turfDistance from "@turf/distance";
+import turfBboxPolygon from "@turf/bbox-polygon";
 import turfNearestPointOnLine from "@turf/nearest-point-on-line";
 import { MapboxGeoJSONFeature } from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
@@ -30,6 +31,7 @@ import {
   venueLayers,
   parkingLayers,
   tunnelLayers,
+  tunnelMaskLayers,
 } from "./map-style";
 import Pin, { pinAsSVG } from "./components/Pin";
 import { triangleAsSVG, triangleDotAsSVG } from "./components/Triangle";
@@ -108,6 +110,7 @@ interface State {
   unloadingPlace?: OlmapUnloadingPlace;
   parkingData?: FeatureCollection;
   tunnelData?: FeatureCollection;
+  viewportMaskFeature?: Feature;
   showTunnels: boolean;
   restrictions?: Array<ElementWithCoordinates>;
   locale: string;
@@ -474,6 +477,22 @@ const App: React.FC = () => {
       console.error("Error while fetching tunnel data:", error);
     });
   }, [map.current, state.viewport, state.showTunnels]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Create a "mask" layer and update it when viewport changes
+  useEffect(() => {
+    const bounds = map.current?.getMap().getBounds();
+    setState(
+      (prevState): State => ({
+        ...prevState,
+        viewportMaskFeature: turfBboxPolygon([
+          bounds.getWest(),
+          bounds.getSouth(),
+          bounds.getEast(),
+          bounds.getNorth(),
+        ]),
+      })
+    );
+  }, [state.viewport]);
 
   useEffect(() => {
     /**
@@ -1508,6 +1527,22 @@ const App: React.FC = () => {
               before="housenum_label"
             />
           ))}
+        </Source>
+        <Source
+          id="viewport"
+          type="geojson"
+          data={state.viewportMaskFeature || emptyFeatureCollection}
+        >
+          {state.showTunnels &&
+            tunnelMaskLayers.map((layer) => (
+              <Layer
+                // eslint-disable-next-line react/jsx-props-no-spreading
+                {...layer}
+                key={layer.id}
+                source="viewport"
+                before="road_street_label_fisv"
+              />
+            ))}
         </Source>
         <Source
           id="tunnels"

@@ -294,6 +294,17 @@ export const tunnelLayers: Array<LayerProps> = [
   tunnelPointSymbols,
 ];
 
+export const tunnelMaskLayers: Array<LayerProps> = [
+  {
+    id: "tunnel-mask",
+    type: "fill",
+    paint: {
+      "fill-opacity": 0.4,
+      "fill-color": "#ffffff",
+    },
+  },
+];
+
 const entrancePoints: LayerProps = {
   id: "entrance-point",
   type: "circle",
