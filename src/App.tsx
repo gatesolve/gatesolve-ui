@@ -1039,7 +1039,12 @@ const App: React.FC = () => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleMapClick = (event: any): void => {
     // Inspect the topmost feature under click
-    const feature = map.current?.getMap().queryRenderedFeatures(event.point)[0];
+    const feature = map.current
+      ?.getMap()
+      .queryRenderedFeatures(event.point)
+      .find(
+        (candidate: MapboxGeoJSONFeature) => candidate.source !== "viewport"
+      );
     setState((prevState): State => {
       // Typing needed as the compiler is not smart enough.
       const noHighlights: FeatureCollection = {
