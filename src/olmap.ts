@@ -129,20 +129,21 @@ const processOlmapData = (data: OlmapResponse): OlmapResponse => {
         deliveryTypePriorities[a.deliveries || "null"]
     );
   }
+  if (!data.image_notes) {
+    return {
+      image_notes: [data as unknown as OlmapNote],
+      id: data.id,
+      associated_entrances: [],
+    };
+  }
   return data;
 };
 
-export const fetchOlmapData = async (
-  osmId: number,
-  locale: string
-): Promise<NetworkState<OlmapResponse> | undefined> => {
-  if (osmId === -1) {
-    return undefined;
-  }
+const fetchOlmapUrl = async (
+  url: string
+): Promise<NetworkState<OlmapResponse>> => {
   try {
-    const response = await fetch(
-      `https://api.olmap.org/rest/osm_features/${osmId}/?language=${locale}`
-    );
+    const response = await fetch(url);
     try {
       const data = await response.json();
       if (!response.ok) {
@@ -169,6 +170,28 @@ export const fetchOlmapData = async (
       code: 0,
       detail: error,
     };
+  }
+};
+
+export const fetchOlmapData = async (
+  osmId?: number,
+  locale?: string,
+  olmapId?: number
+): Promise<NetworkState<OlmapResponse> | undefined> => {
+  try {
+    if (olmapId) {
+      return await fetchOlmapUrl(
+        `https://api.olmap.org/rest/osm_image_notes/${olmapId}/`
+      );
+    }
+    if (!osmId || osmId === -1) {
+      return undefined;
+    }
+    return await fetchOlmapUrl(
+      `https://api.olmap.org/rest/osm_features/${osmId}/?language=${locale}`
+    );
+  } finally {
+    // no-op
   }
 };
 

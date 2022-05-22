@@ -922,10 +922,14 @@ const App: React.FC = () => {
         };
       });
       // Fetch new data
-      const olmapData = await fetchOlmapData(
-        state.popupCoordinates.id,
-        state.locale
-      );
+      const olmapData =
+        state.popupCoordinates.type === "olmap"
+          ? await fetchOlmapData(
+              undefined,
+              state.locale,
+              state.popupCoordinates.id
+            )
+          : await fetchOlmapData(state.popupCoordinates.id, state.locale);
       setState((prevState: State): State => {
         if (prevState.popupCoordinates !== state.popupCoordinates) {
           return prevState;
@@ -1044,17 +1048,11 @@ const App: React.FC = () => {
           highlights: noHighlights,
         };
       }
-      // If an OLMap element was clicked, show details in the popup.
-      if (feature?.properties["@id"]?.startsWith("olmap")) {
-        return {
-          ...prevState,
-          editingNote: feature.properties["@id"].split("/").reverse()[0],
-        };
-      }
-      // If an entrance or a loading place was clicked, show details in the popup.
+      // If an entrance, a loading place or an OLMap element was clicked, show details in the popup.
       if (
         feature?.properties.entrance ||
-        feature?.properties["parking:condition"] === "loading"
+        feature?.properties["parking:condition"] === "loading" ||
+        feature?.properties["@id"]?.startsWith("olmap")
       ) {
         const element = geoJsonToElement(feature);
         return {
