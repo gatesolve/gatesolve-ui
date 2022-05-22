@@ -906,9 +906,16 @@ const App: React.FC = () => {
             ...geojson,
             features: geojson.features.concat(prevState.route.features),
           };
+          // Check if the route goes through some underground tunnels (not building passages)
+          const tunnels = geojson.features.find((feature) => {
+            const tunnel = feature.properties?.tunnel;
+            const layer = feature.properties?.layer;
+            return tunnel && Number(layer) < 0;
+          });
           return {
             ...prevState,
             route: extendedGeojson,
+            showTunnels: prevState.showTunnels || !!tunnels,
           };
         });
       });
