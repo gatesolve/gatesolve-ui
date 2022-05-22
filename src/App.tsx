@@ -82,6 +82,9 @@ type LatLng = [number, number];
 
 type ViewportState = Omit<WebMercatorViewportOptions2, "width" | "height">;
 
+// State is filled in phases: destination -> venue -> entrances
+// destination | venue -> entrances, venueOlmapData, venueFeatures
+// origin | entrances | unloadingPlace -> route
 interface State {
   viewport: ViewportState;
   isOriginExplicit: boolean;
@@ -269,6 +272,10 @@ const App: React.FC = () => {
   const urlMatchOsm = useRouteMatch({
     path: "/osm/:type?/:id?",
   }) as match<{ type: string; id: string }>;
+
+  const urlMatchOlmap = useRouteMatch({
+    path: "/olmap/workplace/:id?",
+  }) as match<{ id: string }>;
 
   const [state, setState] = useState(initialState);
 
@@ -559,7 +566,12 @@ const App: React.FC = () => {
           );
           // FIXME: If state already had the same entrances, no need to re-set
         } else if (state.destination.id === state.venue?.id) {
-          venueOlmapData = await fetchOlmapData(state.venue.id, state.locale);
+          venueOlmapData = await fetchOlmapData(
+            state.venue.type,
+            state.venue.id,
+            state.locale
+          );
+
           venueFeatures = emptyFeatureCollection;
           if (venueOlmapData?.state === "success") {
             const workplaceEntrances =
@@ -923,6 +935,7 @@ const App: React.FC = () => {
       });
       // Fetch new data
       const olmapData = await fetchOlmapData(
+        state.popupCoordinates.type,
         state.popupCoordinates.id,
         state.locale
       );
@@ -1254,12 +1267,12 @@ const App: React.FC = () => {
     });
   }, [urlMatchSearch, selectSuggestion]);
 
-  // Handle /osm/node/ deeplinks as if such a geocoding result was selected
+  // Handle /osm/(node|way|relation)/ deeplinks as if such a geocoding result was selected
   useEffect(() => {
     (async () => {
       if (!urlMatchOsm) return;
-      const type = urlMatchOsm?.params.type;
-      const id = Number(urlMatchOsm?.params.id);
+      const { type } = urlMatchOsm.params;
+      const id = Number(urlMatchOsm.params.id);
 
       if (["node", "way", "relation"].indexOf(type) === -1 || !(id > 0)) {
         // eslint-disable-next-line no-alert
@@ -1307,6 +1320,50 @@ const App: React.FC = () => {
       console.error("Error while resolving the OSM id from a link:", error);
     });
   }, [urlMatchOsm, selectSuggestion]);
+
+  // Handle /olmap/workplace/ deeplinks as if such a geocoding result was selected
+  useEffect(() => {
+    (async () => {
+      if (!urlMatchOlmap) return;
+      const id = Number(urlMatchOlmap.params.id);
+
+      if (!(id > 0)) {
+        // eslint-disable-next-line no-alert
+        alert("Broken link");
+        return;
+      }
+
+      const workplaceResponse = await fetchOlmapData("workplace", id, "");
+      if (
+        workplaceResponse?.state !== "success" ||
+        !workplaceResponse.response.workplace
+      ) {
+        // eslint-disable-next-line no-alert
+        alert("Linked OLMap workplace not found");
+      } else {
+        const { workplace } = workplaceResponse.response;
+        geocoder.current.update(workplace.as_osm_tags.name);
+        const coordinates = [
+          workplace.image_note.lon,
+          workplace.image_note.lat,
+        ];
+        selectSuggestion({
+          geometry: {
+            coordinates,
+          },
+          properties: {
+            source_id: `workplace:${workplace.id}`,
+            street: workplace.as_osm_tags["addr:street"],
+            name: workplace.as_osm_tags.name,
+            layer: "venue",
+          },
+        });
+      }
+    })().catch((error) => {
+      // eslint-disable-next-line no-console
+      console.error("Error while resolving the OLMap id from a link:", error);
+    });
+  }, [urlMatchOlmap, selectSuggestion]);
 
   return (
     <div data-testid="app" className="App">
@@ -1820,7 +1877,7 @@ const App: React.FC = () => {
         }}
         onLocaleSelected={async (locale) => {
           const venueOlmapData = state.venue?.id
-            ? await fetchOlmapData(state.venue.id, locale)
+            ? await fetchOlmapData(state.venue.type, state.venue.id, locale)
             : undefined;
           setState((prevState) => ({
             ...prevState,

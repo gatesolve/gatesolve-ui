@@ -31,7 +31,6 @@ export type NetworkState<T> =
 
 export interface OlmapResponse {
   id: number;
-  associated_entrances: Array<number>;
   image_notes: Array<OlmapNote>;
   workplace: OlmapWorkplace | null;
 }
@@ -48,29 +47,29 @@ export interface OlmapWorkplace {
   id: number;
   as_osm_tags: Record<string, string>;
   osm_feature: number | null;
-  type: number;
-  delivery_hours: string;
-  delivery_instructions: string;
-  delivery_instructions_language: string;
-  delivery_instructions_translated: string;
+  type?: number;
+  delivery_hours?: string;
+  delivery_instructions?: string;
+  delivery_instructions_language?: string;
+  delivery_instructions_translated?: string;
   workplace_entrances: Array<OlmapWorkplaceEntrance>;
   image_note: OlmapNote;
-  max_vehicle_height: string;
+  max_vehicle_height?: string;
 }
 
 export interface OlmapWorkplaceEntrance {
   id: number;
   description: string;
-  description_language: string;
-  description_translated: string;
+  description_language?: string;
+  description_translated?: string;
   deliveries: "main" | "yes" | "no" | "" | null;
   delivery_types: Array<string>;
   image_note: OlmapNote;
   entrance_data: OlmapEntranceData;
-  delivery_hours: string;
-  delivery_instructions: string;
-  delivery_instructions_language: string;
-  delivery_instructions_translated: string;
+  delivery_hours?: string;
+  delivery_instructions?: string;
+  delivery_instructions_language?: string;
+  delivery_instructions_translated?: string;
   workplace: number;
   entrance: number;
   unloading_places: Array<OlmapUnloadingPlace>;
@@ -86,9 +85,53 @@ export interface OlmapUnloadingPlace {
   as_osm_tags: Record<string, string>;
   osm_feature: number | null;
   image_note: OlmapNote;
+  description?: string;
+  description_language?: string;
+  description_translated?: string;
+  opening_hours?: string;
+  entrances: Array<number>;
+  access_points: Array<{ lat: number; lon: number }>;
+}
+
+// Raw serialisations as returned by /rest/workplaces/
+
+export interface OlmapWorkplaceRaw {
+  id: number;
+  name: string;
+  street: string;
+  housenumber: string;
+  unit: string;
+  lat: number;
+  lon: number;
+  osm_feature: number | null;
+  delivery_instructions: string;
+  workplace_entrances: Array<OlmapWorkplaceEntranceRaw>;
+  image_note_id: number;
+  image: string;
+  max_vehicle_height: string;
+}
+
+export interface OlmapWorkplaceEntranceRaw {
+  id: number;
   description: string;
-  description_language: string;
-  description_translated: string;
+  deliveries: "main" | "yes" | "no" | "" | null;
+  image_note_id: number;
+  image: string;
+  lat: number;
+  lon: number;
+  osm_feature: number;
+  entrance_id: number;
+  unloading_places: Array<OlmapUnloadingPlaceRaw>;
+}
+
+export interface OlmapUnloadingPlaceRaw {
+  id: number;
+  lat: number;
+  lon: number;
+  osm_feature: number | null;
+  image_note_id: number;
+  image: string;
+  description: string;
   opening_hours: string;
   entrances: Array<number>;
   access_points: Array<{ lat: number; lon: number }>;
@@ -132,17 +175,11 @@ const processOlmapData = (data: OlmapResponse): OlmapResponse => {
   return data;
 };
 
-export const fetchOlmapData = async (
-  osmId: number,
-  locale: string
-): Promise<NetworkState<OlmapResponse> | undefined> => {
-  if (osmId === -1) {
-    return undefined;
-  }
+export const fetchOlmapUrl = async (
+  url: string
+): Promise<NetworkState<unknown> | undefined> => {
   try {
-    const response = await fetch(
-      `https://api.olmap.org/rest/osm_features/${osmId}/?language=${locale}`
-    );
+    const response = await fetch(url);
     try {
       const data = await response.json();
       if (!response.ok) {
@@ -154,7 +191,7 @@ export const fetchOlmapData = async (
       }
       return {
         state: "success",
-        response: processOlmapData(data as OlmapResponse),
+        response: data,
       };
     } catch (error) {
       return {
@@ -170,6 +207,119 @@ export const fetchOlmapData = async (
       detail: error,
     };
   }
+};
+
+export const fetchOlmapWorkplace = async (
+  olmapId: number,
+  locale: string
+): Promise<NetworkState<OlmapWorkplaceRaw> | undefined> => {
+  if (olmapId === -1) {
+    return undefined;
+  }
+  const response = await fetchOlmapUrl(
+    `https://api.olmap.org/rest/workplaces/${olmapId}/?language=${locale}`
+  );
+  return response as NetworkState<OlmapWorkplaceRaw>;
+};
+
+export const fetchOlmapData = async (
+  type: string,
+  id: number,
+  locale: string
+): Promise<NetworkState<OlmapResponse> | undefined> => {
+  if (id === -1) {
+    return undefined;
+  }
+  if (type === "workplace") {
+    const rawResponse = await fetchOlmapWorkplace(id, locale);
+    if (rawResponse?.state === "success") {
+      // Convert from OlmapWorkplaceRaw to OlmapResponse
+      const workplace = rawResponse.response;
+      const response: NetworkState<OlmapResponse> = {
+        state: "success",
+        response: {
+          id,
+          workplace: {
+            id: workplace.id,
+            image_note: {
+              id: workplace.image_note_id,
+              image: workplace.image,
+              tags: [],
+              lat: `${workplace.lat}`,
+              lon: `${workplace.lon}`,
+            },
+            osm_feature: workplace.osm_feature,
+            as_osm_tags: {
+              name: workplace.name,
+              "addr:street": workplace.street,
+            },
+            type: undefined,
+            delivery_instructions: workplace.delivery_instructions,
+            workplace_entrances: workplace.workplace_entrances.map(
+              (entrance) => ({
+                id: entrance.id,
+                image_note: {
+                  id: entrance.image_note_id,
+                  image: entrance.image,
+                  tags: [],
+                  lat: `${entrance.lat}`,
+                  lon: `${entrance.lon}`,
+                },
+                entrance_data: {
+                  osm_feature: entrance.osm_feature,
+                  as_osm_tags: {
+                    entrance: "yes",
+                  },
+                },
+                deliveries: entrance.deliveries,
+                delivery_types: [],
+                description: entrance.description,
+                description_language: undefined,
+                description_translated: undefined,
+                delivery_hours: undefined,
+                delivery_instructions: undefined,
+                delivery_instructions_language: undefined,
+                delivery_instructions_translated: undefined,
+                workplace: workplace.id,
+                entrance: entrance.entrance_id,
+                unloading_places: entrance.unloading_places.map(
+                  (unloading_place) => ({
+                    id: unloading_place.id,
+                    image_note: {
+                      id: unloading_place.image_note_id,
+                      image: unloading_place.image,
+                      tags: [],
+                      lat: `${unloading_place.lat}`,
+                      lon: `${unloading_place.lon}`,
+                    },
+                    as_osm_tags: {},
+                    osm_feature: unloading_place.osm_feature,
+                    opening_hours: unloading_place.opening_hours,
+                    description: unloading_place.description,
+                    description_language: undefined,
+                    description_translated: undefined,
+                    entrances: unloading_place.entrances,
+                    access_points: unloading_place.access_points,
+                  })
+                ),
+              })
+            ),
+          },
+          image_notes: [],
+        },
+      };
+      response.response = processOlmapData(response.response);
+      return response;
+    }
+    return rawResponse as NetworkState<OlmapResponse>;
+  }
+  const response = (await fetchOlmapUrl(
+    `https://api.olmap.org/rest/osm_features/${id}/?language=${locale}`
+  )) as NetworkState<OlmapResponse>;
+  if (response.state === "success") {
+    response.response = processOlmapData(response.response);
+  }
+  return response;
 };
 
 export const venueDataToGeoJSON = (
