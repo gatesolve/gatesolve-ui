@@ -4,3 +4,4 @@
 /osm/node/* / 200
 /osm/way/* / 200
 /osm/relation/* / 200
+/olmap/workplace/* / 200
