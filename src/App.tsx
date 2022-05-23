@@ -24,6 +24,8 @@ import "mapbox-gl/dist/mapbox-gl.css";
 import { Feature, FeatureCollection, Point, Position } from "geojson";
 import { ReactAutosuggestGeocoder } from "react-autosuggest-geocoder";
 
+import useWelcomeSeenFlag from "./hooks/useWelcomeSeenFlag";
+
 import {
   routeLayers,
   buildingHighlightLayer,
@@ -40,6 +42,7 @@ import OLMapImages from "./components/OLMapImages";
 import UserPosition from "./components/UserPosition";
 import GeolocateControl from "./components/GeolocateControl";
 import TunnelsControl from "./components/TunnelsControl";
+import HelpControl from "./components/HelpControl";
 import calculatePlan, { geometryToGeoJSON } from "./planner";
 import {
   queryNodesById,
@@ -114,6 +117,7 @@ interface State {
   showTunnels: boolean;
   restrictions?: Array<ElementWithCoordinates>;
   locale: string;
+  openHelp?: boolean;
 }
 
 const latLngToElement = (latLng: LatLng): ElementWithCoordinates => ({
@@ -281,6 +285,8 @@ const App: React.FC = () => {
   }) as match<{ id: string }>;
 
   const [state, setState] = useState(initialState);
+
+  const [welcomeSeenFlag] = useWelcomeSeenFlag();
 
   const fitMap = (
     viewportOptions: ViewportState,
@@ -533,6 +539,18 @@ const App: React.FC = () => {
   // XXX: useSnackbar does not return functions during unit tests
   const enqueueSnackbar = snackbarFunctions?.enqueueSnackbar;
   const closeSnackbar = snackbarFunctions?.closeSnackbar;
+
+  // If we start at front page, open the help modal if it hasn't been seen
+  useEffect(() => {
+    if (history.location.pathname === "/" && !welcomeSeenFlag.welcomeSeen) {
+      setState(
+        (prevState): State => ({
+          ...prevState,
+          openHelp: true,
+        })
+      );
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps -- run this effect only once at start
 
   useEffect(() => {
     const destination = state.destination && [
@@ -1230,6 +1248,20 @@ const App: React.FC = () => {
       return prevState;
     });
 
+  const selectLocale = useCallback(
+    async (locale: string) => {
+      const venueOlmapData = state.venue?.id
+        ? await fetchOlmapData(state.venue.type, state.venue.id, locale)
+        : undefined;
+      setState((prevState) => ({
+        ...prevState,
+        locale,
+        venueOlmapData,
+      }));
+    },
+    [state.venue]
+  );
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const selectSuggestion = useCallback((suggestion: any) => {
     // react-autosuggest will focus, we need to blur afterwards
@@ -1486,6 +1518,13 @@ const App: React.FC = () => {
             }));
           }}
         />
+        <HelpControl
+          dataTestId="help-control"
+          initiallyOpen={!!state.openHelp}
+          locale={state.locale}
+          onLocaleSelected={selectLocale}
+        />
+
         {state.geolocationPosition != null && (
           <Marker
             offset={[-20, -20]}
@@ -1922,16 +1961,7 @@ const App: React.FC = () => {
             popupCoordinates: geoJsonToElement(feature),
           }));
         }}
-        onLocaleSelected={async (locale) => {
-          const venueOlmapData = state.venue?.id
-            ? await fetchOlmapData(state.venue.type, state.venue.id, locale)
-            : undefined;
-          setState((prevState) => ({
-            ...prevState,
-            locale,
-            venueOlmapData,
-          }));
-        }}
+        onLocaleSelected={selectLocale}
       />
     </div>
   );

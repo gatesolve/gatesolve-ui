@@ -4,6 +4,8 @@
 import { chromium, Browser, Page } from "playwright";
 import { act } from "@testing-library/react";
 
+const ROOT_URL = process.env.E2E_TEST_URL || "http://localhost:3000/";
+
 describe("Basic map functionality", () => {
   jest.setTimeout(180000);
 
@@ -19,7 +21,7 @@ describe("Basic map functionality", () => {
 
     await act(async () => {
       await page
-        .goto(process.env.E2E_TEST_URL || "http://localhost:3000", {
+        .goto(`${ROOT_URL}/route/`, {
           waitUntil: "networkidle",
         })
         .catch(() => {});
