@@ -9,6 +9,8 @@ import CloseIcon from "@material-ui/icons/Close";
 
 import LocaleSelect from "./LocaleSelect";
 
+import useWelcomeSeenFlag from "../hooks/useWelcomeSeenFlag";
+
 export interface HelpControlProps {
   dataTestId?: string;
   initiallyOpen: boolean;
@@ -23,6 +25,8 @@ const HelpControl: React.FC<HelpControlProps> = ({
   onLocaleSelected,
 }) => {
   const [enabled, setEnabled] = useState(initiallyOpen);
+
+  const [, setWelcomeSeenFlag] = useWelcomeSeenFlag();
 
   const onClick: MouseEventHandler = (event) => {
     event.preventDefault();
@@ -70,7 +74,10 @@ const HelpControl: React.FC<HelpControlProps> = ({
                   top: "8px",
                   right: "8px",
                 }}
-                onClick={() => setEnabled(false)}
+                onClick={() => {
+                  setEnabled(false);
+                  setWelcomeSeenFlag({ welcomeSeen: true });
+                }}
               >
                 <CloseIcon />
               </IconButton>

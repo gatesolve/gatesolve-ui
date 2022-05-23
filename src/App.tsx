@@ -24,6 +24,8 @@ import "mapbox-gl/dist/mapbox-gl.css";
 import { Feature, FeatureCollection, Point, Position } from "geojson";
 import { ReactAutosuggestGeocoder } from "react-autosuggest-geocoder";
 
+import useWelcomeSeenFlag from "./hooks/useWelcomeSeenFlag";
+
 import {
   routeLayers,
   buildingHighlightLayer,
@@ -284,6 +286,8 @@ const App: React.FC = () => {
 
   const [state, setState] = useState(initialState);
 
+  const [welcomeSeenFlag] = useWelcomeSeenFlag();
+
   const fitMap = (
     viewportOptions: ViewportState,
     latLngs: Array<LatLng | undefined>,
@@ -536,9 +540,9 @@ const App: React.FC = () => {
   const enqueueSnackbar = snackbarFunctions?.enqueueSnackbar;
   const closeSnackbar = snackbarFunctions?.closeSnackbar;
 
-  // If we start at front page, open the help modal
+  // If we start at front page, open the help modal if it hasn't been seen
   useEffect(() => {
-    if (history.location.pathname === "/") {
+    if (history.location.pathname === "/" && !welcomeSeenFlag.welcomeSeen) {
       setState(
         (prevState): State => ({
           ...prevState,
