@@ -162,7 +162,11 @@ const VenueDialog: React.FC<VenueDialogProps> = ({
         {venue && (
           <IconButton
             aria-label="Comment"
-            href={`https://app.olmap.org/#/ww/osm/${venue.type}/${venue.id}`}
+            href={
+              venue.type === "workplace"
+                ? `https://app.olmap.org/#/ww/id/${venue.id}`
+                : `https://app.olmap.org/#/ww/osm/${venue.type}/${venue.id}`
+            }
             target="_blank"
             rel="noopener noreferrer"
             style={{

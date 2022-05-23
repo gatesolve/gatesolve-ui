@@ -230,93 +230,20 @@ export const fetchOlmapData = async (
   if (id === -1) {
     return undefined;
   }
-  if (type === "workplace") {
-    const rawResponse = await fetchOlmapWorkplace(id, locale);
-    if (rawResponse?.state === "success") {
-      // Convert from OlmapWorkplaceRaw to OlmapResponse
-      const workplace = rawResponse.response;
-      const response: NetworkState<OlmapResponse> = {
-        state: "success",
-        response: {
-          id,
-          workplace: {
-            id: workplace.id,
-            image_note: {
-              id: workplace.image_note_id,
-              image: workplace.image,
-              tags: [],
-              lat: `${workplace.lat}`,
-              lon: `${workplace.lon}`,
-            },
-            osm_feature: workplace.osm_feature,
-            as_osm_tags: {
-              name: workplace.name,
-              "addr:street": workplace.street,
-            },
-            type: undefined,
-            delivery_instructions: workplace.delivery_instructions,
-            workplace_entrances: workplace.workplace_entrances.map(
-              (entrance) => ({
-                id: entrance.id,
-                image_note: {
-                  id: entrance.image_note_id,
-                  image: entrance.image,
-                  tags: [],
-                  lat: `${entrance.lat}`,
-                  lon: `${entrance.lon}`,
-                },
-                entrance_data: {
-                  osm_feature: entrance.osm_feature,
-                  as_osm_tags: {
-                    entrance: "yes",
-                  },
-                },
-                deliveries: entrance.deliveries,
-                delivery_types: [],
-                description: entrance.description,
-                description_language: undefined,
-                description_translated: undefined,
-                delivery_hours: undefined,
-                delivery_instructions: undefined,
-                delivery_instructions_language: undefined,
-                delivery_instructions_translated: undefined,
-                workplace: workplace.id,
-                entrance: entrance.entrance_id,
-                unloading_places: entrance.unloading_places.map(
-                  (unloading_place) => ({
-                    id: unloading_place.id,
-                    image_note: {
-                      id: unloading_place.image_note_id,
-                      image: unloading_place.image,
-                      tags: [],
-                      lat: `${unloading_place.lat}`,
-                      lon: `${unloading_place.lon}`,
-                    },
-                    as_osm_tags: {},
-                    osm_feature: unloading_place.osm_feature,
-                    opening_hours: unloading_place.opening_hours,
-                    description: unloading_place.description,
-                    description_language: undefined,
-                    description_translated: undefined,
-                    entrances: unloading_place.entrances,
-                    access_points: unloading_place.access_points,
-                  })
-                ),
-              })
-            ),
-          },
-          image_notes: [],
-        },
-      };
-      response.response = processOlmapData(response.response);
-      return response;
-    }
-    return rawResponse as NetworkState<OlmapResponse>;
-  }
   const response = (await fetchOlmapUrl(
-    `https://api.olmap.org/rest/osm_features/${id}/?language=${locale}`
+    type === "workplace"
+      ? `https://api.olmap.org/rest/workplaces_with_note/${id}/?language=${locale}`
+      : `https://api.olmap.org/rest/osm_features/${id}/?language=${locale}`
   )) as NetworkState<OlmapResponse>;
   if (response.state === "success") {
+    if (type === "workplace") {
+      const workplace = response.response as unknown as OlmapWorkplace;
+      response.response = {
+        id: workplace.id,
+        workplace,
+        image_notes: [workplace.image_note],
+      };
+    }
     response.response = processOlmapData(response.response);
   }
   return response;
