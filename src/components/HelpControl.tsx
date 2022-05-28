@@ -1,11 +1,14 @@
 import React, { useState } from "react";
 import type { MouseEventHandler } from "react";
 
+import Button from "@material-ui/core/Button";
 import IconButton from "@material-ui/core/IconButton";
 import Dialog from "@material-ui/core/Dialog";
+import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import CloseIcon from "@material-ui/icons/Close";
+import Alert from "@material-ui/lab/Alert";
 
 import LocaleSelect from "./LocaleSelect";
 
@@ -28,9 +31,14 @@ const HelpControl: React.FC<HelpControlProps> = ({
 
   const [, setWelcomeSeenFlag] = useWelcomeSeenFlag();
 
-  const onClick: MouseEventHandler = (event) => {
+  const handleClick: MouseEventHandler = (event) => {
     event.preventDefault();
     setEnabled(true);
+  };
+
+  const handleClose: MouseEventHandler = () => {
+    setEnabled(false);
+    setWelcomeSeenFlag({ welcomeSeen: true });
   };
 
   const ariaLabel =
@@ -48,7 +56,7 @@ const HelpControl: React.FC<HelpControlProps> = ({
         data-testid={dataTestId}
         aria-label={ariaLabel}
         onContextMenu={(event): void => event.preventDefault()}
-        onClick={onClick}
+        onClick={handleClick}
       >
         <span
           className="mapboxgl-ctrl-icon"
@@ -58,11 +66,7 @@ const HelpControl: React.FC<HelpControlProps> = ({
           ?
         </span>
       </button>
-      <Dialog
-        open={enabled}
-        fullWidth
-        PaperProps={{ style: { height: "100%", overflow: "hidden" } }}
-      >
+      <Dialog open={enabled} fullWidth scroll="body" onClose={handleClose}>
         {enabled && (
           <>
             <DialogTitle>
@@ -74,10 +78,7 @@ const HelpControl: React.FC<HelpControlProps> = ({
                   top: "8px",
                   right: "8px",
                 }}
-                onClick={() => {
-                  setEnabled(false);
-                  setWelcomeSeenFlag({ welcomeSeen: true });
-                }}
+                onClick={handleClose}
               >
                 <CloseIcon />
               </IconButton>
@@ -94,6 +95,12 @@ const HelpControl: React.FC<HelpControlProps> = ({
                   onLocaleSelected={onLocaleSelected}
                 />
               </div>
+              {locale && locale !== "fi" && locale !== "en" && (
+                <Alert severity="warning" style={{ clear: "both" }}>
+                  This text is not available in your language, so it is shown in
+                  English (or you can choose Finnish).
+                </Alert>
+              )}
               {locale === "fi" && (
                 <>
                   <h3>Tervetuloa käyttämään Gatesolvea!</h3>
@@ -291,6 +298,11 @@ const HelpControl: React.FC<HelpControlProps> = ({
                 </>
               )}
             </DialogContent>
+            <DialogActions>
+              <Button onClick={handleClose} style={{ color: "#00afff" }}>
+                Close
+              </Button>
+            </DialogActions>
           </>
         )}
       </Dialog>
