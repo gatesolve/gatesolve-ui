@@ -222,7 +222,7 @@ jobs:
       - name: Install dependencies
         run: yarn --frozen-lockfile --non-interactive
       - name: Install Playwright
-        uses: microsoft/playwright-github-action@11413a1e4dfa5b193634b90340f5fadf22b81b27
+        uses: microsoft/playwright-github-action@b28b80c0db0980b6c262b086a400869b403559e3
       - name: Run E2E tests using Netlify
         run: yarn test-e2e
         env:
@@ -271,7 +271,7 @@ jobs:
           PRODUCTION_URL: ${{ secrets.PRODUCTION_URL }}
       - name: Audit Netlify draft URL using Lighthouse
         id: lighthouse
-        uses: treosh/lighthouse-ci-action@9c031d281115e69bbf9c6aa35bda1bc3bdafb35a
+        uses: treosh/lighthouse-ci-action@03becbfc543944dd6e7534f7ff768abb8a296826
         with:
           urls: |
             ${{ fromJSON(steps.lighthouse-urls.outputs.urls) }}
