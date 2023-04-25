@@ -71,11 +71,16 @@ import {
 import { fromEpsg3879, toEpsg3879 } from "./projections";
 import { filterBlacklistedParking } from "./util/hardcoded-data";
 
+import backgroundMapStyle from "./background-map-style.json";
+
 import "./App.css";
 import "./components/PinMarker.css";
 import VenueDialog from "./components/VenueDialog";
 
 const maxRoutingDistance = 500; // in meters
+
+const digitransitApiKey = "2d2e360cef084abebf263a4af731369d";
+const digitransitApiKeyParam = `digitransit-subscription-key=${digitransitApiKey}`;
 
 // XXX: WebMercatorViewportOptions only indirectly exported by @math.gl/web-mercator
 // XXX: TypeScript 4.3.5 confused if re-using an out-of-scope type name
@@ -176,9 +181,18 @@ const metropolitanAreaCenter = [60.17066815612902, 24.941510260105133];
 
 const transformRequest = (originalURL: string): { url: string } => {
   const url = originalURL.replace(
-    "https://static.hsldev.com/mapfonts/Klokantech Noto Sans",
+    "https://hslstoragestatic.azureedge.net/mapfonts/Klokantech Noto Sans",
     "https://fonts.openmaptiles.org/Klokantech Noto Sans"
   );
+  if (
+    url.startsWith("https://api.digitransit.fi/") ||
+    url.startsWith("https://cdn.digitransit.fi/")
+  ) {
+    const separator = url.includes("?") ? "&" : "?";
+    return {
+      url: `${url}${separator}${digitransitApiKeyParam}`,
+    };
+  }
   return { url };
 };
 
@@ -1464,7 +1478,7 @@ const App: React.FC = () => {
         // eslint-disable-next-line react/jsx-props-no-spreading
         {...state.viewport}
         style={{ width: "100%", height: "90%" }}
-        mapStyle="https://raw.githubusercontent.com/HSLdevcom/hsl-map-style/master-old/simple-style.json"
+        mapStyle={backgroundMapStyle}
         dragRotate={false}
         transformRequest={transformRequest}
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1551,7 +1565,7 @@ const App: React.FC = () => {
                     key={`${layer.id}-${coords}`}
                     id={`${layer.id}-${coords}`}
                     source={`source-${coords}`}
-                    before="housenum_label"
+                    before="label_housenum"
                   />
                 ))}
               </Source>
@@ -1568,7 +1582,7 @@ const App: React.FC = () => {
               {...layer}
               key={layer.id}
               source="parking"
-              before="housenum_label"
+              before="label_housenum"
             />
           ))}
         </Source>
@@ -1584,7 +1598,7 @@ const App: React.FC = () => {
                 {...layer}
                 key={layer.id}
                 source="viewport"
-                before="road_street_label_fisv"
+                before="label_road_street"
               />
             ))}
         </Source>
@@ -1600,7 +1614,7 @@ const App: React.FC = () => {
                 {...layer}
                 key={layer.id}
                 source="tunnels"
-                before="road_street_label_fisv"
+                before="label_road_street"
               />
             ))}
         </Source>
@@ -1609,7 +1623,7 @@ const App: React.FC = () => {
             // eslint-disable-next-line react/jsx-props-no-spreading
             {...buildingHighlightLayer}
             source="highlights"
-            before="housenum_label"
+            before="label_housenum"
           />
         </Source>
 

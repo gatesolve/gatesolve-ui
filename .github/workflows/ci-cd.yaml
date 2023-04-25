@@ -10,7 +10,7 @@ on:
 jobs:
   deps-lint-test-build:
     name: Install dependencies, lint, test and build
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         node-version: [12.x]
@@ -69,7 +69,7 @@ jobs:
     name: Publish to GitHub Pages
     needs: deps-lint-test-build
     if: github.ref == 'refs/heads/master'
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         node-version: [12.x]
@@ -88,7 +88,7 @@ jobs:
     name: Publish to Netlify draft URL
     needs: deps-lint-test-build
     if: github.ref != 'refs/heads/master'
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         node-version: [12.x]
@@ -123,7 +123,7 @@ jobs:
             return(result.data.id);
       - name: Publish to Netlify
         id: publish-netlify
-        uses: netlify/actions/cli@0b1104d9197d0ad6ac075a768fc7b76f86459a02
+        uses: netlify/actions/cli@375963b92b795c7b979927c580dd6f2a65ebcf28
         with:
           args: deploy --dir=./build --message=\"Triggered by event ${{ github.event_name }} for ref ${{ github.ref }} and commit ${{ github.sha }}\"
         env:
@@ -172,7 +172,7 @@ jobs:
   run-e2e-tests:
     name: Run E2E tests using Netlify draft URL
     needs: publish-netlify-draft
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         node-version: [12.x]
@@ -222,7 +222,7 @@ jobs:
       - name: Install dependencies
         run: yarn --frozen-lockfile --non-interactive
       - name: Install Playwright
-        uses: microsoft/playwright-github-action@11413a1e4dfa5b193634b90340f5fadf22b81b27
+        uses: microsoft/playwright-github-action@b28b80c0db0980b6c262b086a400869b403559e3
       - name: Run E2E tests using Netlify
         run: yarn test-e2e
         env:
@@ -232,7 +232,7 @@ jobs:
   run-lighthouse:
     name: Create a Lighthouse report
     needs: publish-netlify-draft
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         node-version: [12.x]
@@ -271,7 +271,7 @@ jobs:
           PRODUCTION_URL: ${{ secrets.PRODUCTION_URL }}
       - name: Audit Netlify draft URL using Lighthouse
         id: lighthouse
-        uses: treosh/lighthouse-ci-action@9c031d281115e69bbf9c6aa35bda1bc3bdafb35a
+        uses: treosh/lighthouse-ci-action@03becbfc543944dd6e7534f7ff768abb8a296826
         with:
           urls: |
             ${{ fromJSON(steps.lighthouse-urls.outputs.urls) }}
@@ -319,7 +319,7 @@ jobs:
   collect-lighthouse-reports:
     name: Collect Lighthouse reports together
     needs: run-lighthouse
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         node-version: [12.x]
@@ -390,7 +390,7 @@ jobs:
     name: Publish to Netlify production URL
     needs: deps-lint-test-build
     if: github.ref == 'refs/heads/master'
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         node-version: [12.x]
@@ -422,7 +422,7 @@ jobs:
             return result.data.id;
       - name: Publish to Netlify
         id: publish-netlify
-        uses: netlify/actions/cli@0b1104d9197d0ad6ac075a768fc7b76f86459a02
+        uses: netlify/actions/cli@375963b92b795c7b979927c580dd6f2a65ebcf28
         with:
           args: deploy --dir=./build --prod --message=\"Triggered by event ${{ github.event_name }} for ref ${{ github.ref }} and commit ${{ github.sha }}\"
         env:
