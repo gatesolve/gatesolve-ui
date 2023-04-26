@@ -1451,6 +1451,9 @@ const App: React.FC = () => {
       <ReactAutosuggestGeocoder
         ref={geocoder}
         url="https://api.digitransit.fi/geocoding/v1"
+        fetch={(resource: string) => {
+          return fetch(`${resource}&${digitransitApiKeyParam}`);
+        }}
         sources="oa,osm,nlsfi"
         highlightFirstSuggestion
         inputProps={{ placeholder: "Destination name or address" }}
