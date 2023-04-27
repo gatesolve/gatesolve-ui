@@ -1451,7 +1451,10 @@ const App: React.FC = () => {
       <ReactAutosuggestGeocoder
         ref={geocoder}
         url="https://api.digitransit.fi/geocoding/v1"
-        fetch={(resource: string) => {
+        fetch={(raw_resource: string) => {
+          // Digitransit search endpoint gives better results than autocomplete
+          const resource = raw_resource.replace("/autocomplete?", "/search?");
+          // Fetch with the API key added
           return fetch(`${resource}&${digitransitApiKeyParam}`);
         }}
         sources="oa,osm,nlsfi"
