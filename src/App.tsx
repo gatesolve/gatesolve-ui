@@ -71,7 +71,7 @@ import {
 import { fromEpsg3879, toEpsg3879 } from "./projections";
 import { filterBlacklistedParking } from "./util/hardcoded-data";
 
-import backgroundMapStyle from "./background-map-style.json";
+import digitransitMapStyle from "./background-map-style.json";
 
 import "./App.css";
 import "./components/PinMarker.css";
@@ -178,6 +178,14 @@ const initialState: State = {
 };
 
 const metropolitanAreaCenter = [60.17066815612902, 24.941510260105133];
+
+const backgroundMapStyle = {
+  ...digitransitMapStyle,
+  // We have our own styles for entrances
+  layers: digitransitMapStyle.layers.filter(
+    ({ id }) => id !== "label_entrance"
+  ),
+};
 
 const transformRequest = (originalURL: string): { url: string } => {
   const url = originalURL.replace(
