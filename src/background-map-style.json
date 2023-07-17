@@ -11,7 +11,7 @@
       "url": "https://api.digitransit.fi/map/v2/hsl-vector-map/index.json"
     }
   },
-  "sprite": "https://raw.githubusercontent.com/HSLdevcom/hsl-map-style/sprite-v1.0.0/sprite",
+  "sprite": "https://hslstoragekarttatuotanto.z6.web.core.windows.net/sprite",
   "glyphs": "https://hslstoragestatic.azureedge.net/mapfonts/{fontstack}/{range}.pbf",
   "layers": [
     {
@@ -188,7 +188,8 @@
       "filter": [
         "all",
         ["==", "$type", "LineString"],
-        ["in", "class", "canal", "river", "stream"]
+        ["in", "class", "canal", "river", "stream"],
+        ["!=", "brunnel", "tunnel"]
       ],
       "layout": {
         "line-cap": "round",
@@ -224,7 +225,8 @@
       "filter": [
         "all",
         ["==", "$type", "LineString"],
-        ["in", "class", "canal", "river", "stream"]
+        ["in", "class", "canal", "river", "stream"],
+        ["!=", "brunnel", "tunnel"]
       ],
       "paint": {
         "line-color": "#bee4f8",
@@ -1998,11 +2000,38 @@
       }
     },
     {
+      "id": "label_entrance",
+      "type": "symbol",
+      "source": "vector",
+      "source-layer": "housenumber",
+      "minzoom": 16,
+      "filter": ["all", ["==", "$type", "Point"], ["!=", "entrance", ""]],
+      "layout": {
+        "text-field": [
+          "concat",
+          ["get", "housenumber"],
+          ["coalesce", ["get", "unit"], ["get", "ref"]]
+        ],
+        "text-size": {
+          "stops": [
+            [15, 8],
+            [22, 17]
+          ]
+        },
+        "text-font": ["Gotham Rounded Book"]
+      },
+      "paint": {
+        "text-color": "#999",
+        "text-opacity": 0.7
+      }
+    },
+    {
       "id": "label_housenum",
       "type": "symbol",
       "source": "vector",
       "source-layer": "housenumber",
-      "filter": ["==", "$type", "Point"],
+      "minzoom": 17,
+      "filter": ["all", ["==", "$type", "Point"], ["==", "entrance", ""]],
       "layout": {
         "text-field": "{housenumber}",
         "text-size": {
@@ -2016,8 +2045,7 @@
       "paint": {
         "text-color": "#999",
         "text-opacity": 0.7
-      },
-      "minzoom": 17
+      }
     },
     {
       "id": "label_poi_general",
@@ -2030,12 +2058,11 @@
         ["==", "$type", "Point"],
         [
           "any",
-          ["in", "class", "school", "college", "place_of_worship"],
+          ["in", "class", "school", "college", "place_of_worship", "swimming"],
           [
             "in",
             "subclass",
             "hotel",
-            "cinema",
             "cemetery",
             "library",
             "theatre",
@@ -2044,10 +2071,18 @@
             "museum",
             "stadium",
             "sports_centre",
-            "attraction",
             "monument",
             "theme_park",
-            "mall"
+            "mall",
+            "townhall",
+            "castle",
+            "zoo",
+            "swimming_area",
+            "marketplace",
+            "conference_centre",
+            "pedestrian",
+            "government",
+            "beach"
           ]
         ]
       ],
@@ -2068,9 +2103,9 @@
       "id": "label_poi_park",
       "type": "symbol",
       "source": "vector",
-      "source-layer": "poi",
+      "source-layer": "park",
       "minzoom": 14,
-      "filter": ["all", ["==", "$type", "Point"], ["in", "class", "park"]],
+      "filter": ["all", ["!=", "$type", "Point"], ["in", "class", "park"]],
       "layout": {
         "text-size": 11,
         "text-max-width": 8,
@@ -2093,7 +2128,7 @@
       "filter": [
         "all",
         ["==", "$type", "Point"],
-        ["in", "class", "harbor", "ferry_terminal"]
+        ["in", "class", "ferry_terminal"]
       ],
       "layout": {
         "text-size": 11,
@@ -2114,6 +2149,7 @@
       "source": "vector",
       "source-layer": "water_name",
       "minzoom": 5,
+      "filter": ["all", ["in", "class", "lake", "bay", "strait", "cape"]],
       "layout": {
         "text-size": {
           "stops": [
